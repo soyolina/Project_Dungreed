@@ -9,9 +9,14 @@
 
 #define START_BTN_POS_X  WIN_SIZE_X / 2
 #define START_BTN_POS_Y  WIN_SIZE_Y / 2 + 130
+#define START_BTN_WIDTH  158
+#define START_BTN_HEIGHT  47
 
 #define QUIT_BTN_POS_X  WIN_SIZE_X / 2
 #define QUIT_BTN_POS_Y  WIN_SIZE_Y / 2 + 200
+#define QUIT_BTN_WIDTH  88
+#define QUIT_BTN_HEIGHT  47
+
 
 template <typename T>
 class Button;
@@ -26,13 +31,13 @@ private:
 	POINT startBtnPos = {};
 	POINT quitBtnPos = {};
 
-	Button* startBtn2 = nullptr;
-	Button* quitBtn2 = nullptr;
+	Button* startBtn = nullptr;
+	Button* quitBtn = nullptr;
 
 
 
-	RECT startRect = {};
-	RECT quitRect = {};
+	/*RECT startRect = {};
+	RECT quitRect = {};*/
 
 	int backCloudSourX = 0;
 	int midCloudSourX = 0;
@@ -42,9 +47,9 @@ private:
 	Image* midCloud = nullptr;
 	Image* frontCloud = nullptr;
 	Image* mainLogo = nullptr;
-	Image* startBtn = nullptr;
-	Image* quitBtn = nullptr;
 	Image* basicCursor = nullptr;
+	/*Image* startBtn = nullptr;
+	Image* quitBtn = nullptr;*/
 
 public:
 	virtual ~StartScene() {}

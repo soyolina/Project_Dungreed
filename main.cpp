@@ -1,6 +1,11 @@
 #include <Windows.h>
 #include "MainGame.h"
 
+// 메모리 누수 찾기
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
+// 콘솔 창 띄우기
 #ifdef UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #else
@@ -28,6 +33,15 @@ int APIENTRY WinMain(
 	_In_opt_ HINSTANCE _hPrevInstance,
 	_In_ LPSTR _lpszCmdParam, _In_ int nCmdShow)
 {
+	// 메모리 누수 찾기
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+	//_CrtSetBreakAlloc(253);
+	//_CrtSetBreakAlloc(999);
+#endif
+
+
 	// 윈도우를 생성하기 위한 기본 셋팅
 	g_hInstance = _hInstance;
 	WNDCLASS wndClass;

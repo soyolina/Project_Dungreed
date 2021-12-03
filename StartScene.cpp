@@ -13,18 +13,19 @@ HRESULT StartScene::Init()
     frontCloudSourX = 0;
 
     mainLogo = IMAGE_MANAGER->FindImage("Image/StartScene/MainLogo.bmp");
-    startBtn = IMAGE_MANAGER->FindImage("Image/StartScene/GameStart2.bmp");
-    quitBtn = IMAGE_MANAGER->FindImage("Image/StartScene/Quit2.bmp");
     basicCursor = IMAGE_MANAGER->FindImage("Image/StartScene/BasicCursor.bmp");
-
-    startRect = RectCenter(START_BTN_POS_X, START_BTN_POS_Y, startBtn->GetWidth(), startBtn->GetHeight());
-    quitRect = RectCenter(QUIT_BTN_POS_X, QUIT_BTN_POS_Y, quitBtn->GetWidth() - 70, quitBtn->GetHeight());
 
     startBtnPos.x = START_BTN_POS_X;
     startBtnPos.y = START_BTN_POS_Y;
 
+    startBtn = new Button(this, &StartScene::StartBtnFunc);
+    startBtn->Init(startBtnPos, START_BTN_WIDTH, START_BTN_HEIGHT, "Image/StartScene/GameStart2.bmp", "Image/StartScene/GameStart1.bmp");
+
     quitBtnPos.x = QUIT_BTN_POS_X;
     quitBtnPos.y = QUIT_BTN_POS_Y;
+
+    quitBtn = new Button(this, &StartScene::QuitBtnFunc);
+    quitBtn->Init(quitBtnPos, QUIT_BTN_WIDTH, QUIT_BTN_HEIGHT, "Image/StartScene/Quit2.bmp", "Image/StartScene/Quit1.bmp");
 
     return S_OK;
 }
@@ -36,35 +37,11 @@ void StartScene::Update()
     midCloudSourX += 2 % midCloud->GetWidth();
     frontCloudSourX += 3 % frontCloud->GetWidth();
 
-    // 게임 시작 버튼
-    if (PtInRect(&startRect, g_ptMouse))
-    {
-        startBtn = IMAGE_MANAGER->FindImage("Image/StartScene/GameStart1.bmp");
+    if(startBtn != nullptr)
+        startBtn->Update();
 
-        if (KEY_MANAGER->IsOnceKeyDown(VK_LBUTTON))
-        {
-            SCENE_MANAGER->ChangeScene("게임씬");
-        }
-    }
-    else
-    {
-        startBtn = IMAGE_MANAGER->FindImage("Image/StartScene/GameStart2.bmp");
-    }
-
-    // 종료 버튼
-    if (PtInRect(&quitRect, g_ptMouse))
-    {
-        quitBtn = IMAGE_MANAGER->FindImage("Image/StartScene/Quit1.bmp");
-
-        if (KEY_MANAGER->IsOnceKeyDown(VK_LBUTTON))
-        {
-            PostQuitMessage(0);
-        }
-    }
-    else
-    {
-        quitBtn = IMAGE_MANAGER->FindImage("Image/StartScene/Quit2.bmp");
-    }
+    if(quitBtn != nullptr)
+        quitBtn->Update();
 }
 
 void StartScene::Render(HDC hdc)
@@ -75,23 +52,24 @@ void StartScene::Render(HDC hdc)
 
     mainLogo->Render(hdc, MAIN_LOGO_POS_X, MAIN_LOGO_POS_Y);
     
-    //Rectangle(hdc, startRect.left, startRect.top, startRect.right, startRect.bottom);
-    startBtn->Render(hdc, START_BTN_POS_X, START_BTN_POS_Y);
-
-    //Rectangle(hdc, quitRect.left, quitRect.top, quitRect.right, quitRect.bottom);
-    quitBtn->Render(hdc, QUIT_BTN_POS_X, QUIT_BTN_POS_Y);
+    startBtn->Render(hdc);
+    quitBtn->Render(hdc);
 
     basicCursor->RenderBasic(hdc, g_ptMouse.x, g_ptMouse.y);
 }
 
 void StartScene::Release()
 {
+    SAFE_RELEASE(startBtn);
+    SAFE_RELEASE(quitBtn);
 }
 
 void StartScene::StartBtnFunc()
 {
+    SCENE_MANAGER->ChangeScene("게임씬");
 }
 
 void StartScene::QuitBtnFunc()
 {
+    PostQuitMessage(0);
 }
