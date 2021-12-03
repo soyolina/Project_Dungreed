@@ -33,9 +33,9 @@ HRESULT StartScene::Init()
 void StartScene::Update()
 {
     // 루프렌더의 각 소스 이미지 시작 좌표 갱신
-    backCloudSourX += 1 % backCloud->GetWidth();
-    midCloudSourX += 2 % midCloud->GetWidth();
-    frontCloudSourX += 3 % frontCloud->GetWidth();
+    backCloudSourX = (backCloudSourX + 2) % backCloud->GetWidth();
+    midCloudSourX = (midCloudSourX + 3) % midCloud->GetWidth();
+    frontCloudSourX = (frontCloudSourX + 4) % frontCloud->GetWidth();
 
     if(startBtn != nullptr)
         startBtn->Update();

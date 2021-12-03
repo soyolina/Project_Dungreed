@@ -30,9 +30,9 @@ HRESULT MainGame::Init()
 
 void MainGame::Update()
 {
-	SCENE_MANAGER->Update();
-
 	TIMER_MANAGER->Update();
+
+	SCENE_MANAGER->Update();
 
 	InvalidateRect(g_hWnd, NULL, false);
 }
