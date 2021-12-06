@@ -47,7 +47,7 @@ public:
 
 	void Render(HDC hdc);
 	void Render(HDC hdc, int destX, int destY); // 프레임이 없는 이미지 데이터가 dest좌표가 중점! 으로 화면에 복사
-	void Render(HDC hdc, int destX, int destY, int frameX, int frameY); // 프레임이 있는 이미지 데이터를 화면에 복사 // dest좌표가 중점으로 이미지가 생성됨
+	void Render(HDC hdc, int destX, int destY, int m_frameX, int m_frameY); // 프레임이 있는 이미지 데이터를 화면에 복사 // dest좌표가 중점! 으로 이미지가 생성됨
 
 	void RenderBasic(HDC hdc, int destX, int destY); // 프레임이 없는 이미지 데이터가 dest좌표를 시작점! 으로 화면에 복사
 

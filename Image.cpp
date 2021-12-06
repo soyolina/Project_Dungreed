@@ -149,7 +149,7 @@ void Image::Render(HDC hdc, int destX, int destY)
 }
 
 // 프레임 있는 이미지
-void Image::Render(HDC hdc, int destX, int destY, int frameX, int frameY)
+void Image::Render(HDC hdc, int destX, int destY, int m_frameX, int m_frameY)
 {
 	if (isTransparent)
 	{
@@ -160,8 +160,8 @@ void Image::Render(HDC hdc, int destX, int destY, int frameX, int frameY)
 			imageInfo->frameWidth, imageInfo->frameHeight,
 
 			imageInfo->hMemDc,
-			imageInfo->frameWidth * frameX,
-			imageInfo->frameHeight * frameY,
+			imageInfo->frameWidth * m_frameX,
+			imageInfo->frameHeight * m_frameY,
 			imageInfo->frameWidth, imageInfo->frameHeight,
 			transColor
 		);
@@ -174,8 +174,8 @@ void Image::Render(HDC hdc, int destX, int destY, int frameX, int frameY)
 			imageInfo->frameWidth,	// 원본 복사할 가로 크기
 			imageInfo->frameHeight,	// 원본 복사할 세로 크기
 			imageInfo->hMemDc,	// 원본 DC
-			imageInfo->frameWidth * frameX,				// 원본 비트맵 복사 시작 위치 x
-			imageInfo->frameHeight * frameY,			// 원본 비트맵 복사 시작 위치 y
+			imageInfo->frameWidth * m_frameX,				// 원본 비트맵 복사 시작 위치 x
+			imageInfo->frameHeight * m_frameY,			// 원본 비트맵 복사 시작 위치 y
 			SRCCOPY);			// 복사 옵션
 	}
 }

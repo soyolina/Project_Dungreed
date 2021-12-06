@@ -28,28 +28,21 @@ public:
 	using Button = Button<StartScene>;
 
 private:
-	POINT startBtnPos = {};
-	POINT quitBtnPos = {};
+	POINT m_startBtnPos = {};
+	POINT m_quitBtnPos = {};
 
-	Button* startBtn = nullptr;
-	Button* quitBtn = nullptr;
+	Button* m_startBtn = nullptr;
+	Button* m_quitBtn = nullptr;
 
+	int m_backCloudSourX = 0;
+	int m_midCloudSourX = 0;
+	int m_frontCloudSourX = 0;
 
-
-	/*RECT startRect = {};
-	RECT quitRect = {};*/
-
-	int backCloudSourX = 0;
-	int midCloudSourX = 0;
-	int frontCloudSourX = 0;
-
-	Image* backCloud = nullptr;
-	Image* midCloud = nullptr;
-	Image* frontCloud = nullptr;
-	Image* mainLogo = nullptr;
-	Image* basicCursor = nullptr;
-	/*Image* startBtn = nullptr;
-	Image* quitBtn = nullptr;*/
+	Image* m_backCloud = nullptr;
+	Image* m_midCloud = nullptr;
+	Image* m_frontCloud = nullptr;
+	Image* m_mainLogo = nullptr;
+	Image* m_basicCursor = nullptr;
 
 public:
 	virtual ~StartScene() {}

@@ -13,18 +13,18 @@ public:
 	using FuncPtr = void(SceneType::*)();
 
 private:
-	SceneType* scene = nullptr;
-	FuncPtr function = nullptr;
+	SceneType* m_scene = nullptr;
+	FuncPtr m_function = nullptr;
 
-	POINT btnPos = {};
-	RECT btnRect = {};
-	Image* btnImage = {};
-	const char* btnImgName[2] = {};
-	eButtonState eBtnState = {};
+	POINT m_btnPos = {};
+	RECT m_btnRect = {};
+	Image* m_btnImage = {};
+	const char* m_btnImgName[2] = {};
+	eButtonState me_BtnState = {};
 
 public:
 	Button(SceneType* scenetype, FuncPtr functionAddress)
-		: scene{ scenetype }, function{ functionAddress } {}
+		: m_scene{ scenetype }, m_function{ functionAddress } {}
 
 	HRESULT Init(POINT pos, int width, int height, const char* imgName1, const char* imgName2 = nullptr);
 	void Update();
@@ -35,13 +35,13 @@ public:
 template<typename SceneType>
 inline HRESULT Button<SceneType>::Init(POINT pos, int width, int height, const char* imgName1, const char* imgName2)
 {
-	btnPos = pos;
-	btnRect = RectCenter(pos.x, pos.y, width, height);
-	btnImage = IMAGE_MANAGER->FindImage(imgName1);
-	btnImgName[0] = imgName1;
-	btnImgName[1] = imgName2;
+	m_btnPos = pos;
+	m_btnRect = RectCenter(pos.x, pos.y, width, height);
+	m_btnImage = IMAGE_MANAGER->FindImage(imgName1);
+	m_btnImgName[0] = imgName1;
+	m_btnImgName[1] = imgName2;
 
-	eBtnState = eButtonState::Idle;
+	me_BtnState = eButtonState::Idle;
 
 	return S_OK;
 }
@@ -49,43 +49,43 @@ inline HRESULT Button<SceneType>::Init(POINT pos, int width, int height, const c
 template<typename SceneType>
 inline void Button<SceneType>::Update()
 {
-	switch (eBtnState)
+	switch (me_BtnState)
 	{
 	case eButtonState::Idle:
-		if (PtInRect(&btnRect, g_ptMouse))
+		if (PtInRect(&m_btnRect, g_ptMouse))
 		{
-			eBtnState = eButtonState::Put;
+			me_BtnState = eButtonState::Put;
 		}
 		break;
 
 	case eButtonState::Put:
 		if (KEY_MANAGER->IsOnceKeyDown(VK_LBUTTON))
 		{
-			eBtnState = eButtonState::Click;
+			me_BtnState = eButtonState::Click;
 		}
 
-		if (PtInRect(&btnRect, g_ptMouse))
+		if (PtInRect(&m_btnRect, g_ptMouse))
 		{
-			if (btnImgName[1] != nullptr)
+			if (m_btnImgName[1] != nullptr)
 			{
-				btnImage = IMAGE_MANAGER->FindImage(btnImgName[1]);
+				m_btnImage = IMAGE_MANAGER->FindImage(m_btnImgName[1]);
 			}
 		}
 		else
 		{
-			btnImage = IMAGE_MANAGER->FindImage(btnImgName[0]);
-			eBtnState = eButtonState::Idle;
+			m_btnImage = IMAGE_MANAGER->FindImage(m_btnImgName[0]);
+			me_BtnState = eButtonState::Idle;
 		}
 		break;
 
 	case eButtonState::Click:
 		if (KEY_MANAGER->IsOnceKeyUp(VK_LBUTTON))
 		{
-			if (PtInRect(&btnRect, g_ptMouse))
+			if (PtInRect(&m_btnRect, g_ptMouse))
 			{
-				(scene->*function)();
+				(m_scene->*m_function)();
 			}
-			eBtnState = eButtonState::Idle;
+			me_BtnState = eButtonState::Idle;
 		}
 		break;
 	}
@@ -95,8 +95,8 @@ inline void Button<SceneType>::Update()
 template<typename SceneType>
 inline void Button<SceneType>::Render(HDC hdc)
 {
-	Rectangle(hdc, btnRect.left, btnRect.top, btnRect.right, btnRect.bottom);
-	btnImage->Render(hdc, btnPos.x, btnPos.y);
+	Rectangle(hdc, m_btnRect.left, m_btnRect.top, m_btnRect.right, m_btnRect.bottom);
+	m_btnImage->Render(hdc, m_btnPos.x, m_btnPos.y);
 }
 
 template<typename SceneType>
