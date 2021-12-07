@@ -10,7 +10,7 @@ class Image;
 class Player : public GameObject
 {
 private:
-	Image* m_playerEffectImg = nullptr;
+	Image* m_dashEffectImg = nullptr;
 	Image* m_runEffectImg = nullptr;
 
 	int m_frameX = 0;
@@ -49,8 +49,16 @@ private:
 	int m_dustMaxFrameX = 0;
 
 	// 대쉬관련
+	bool mb_isDash = false;
+	float m_angle = 0.0f;
 	int m_dashCount = 0;
+	int m_maxDashCount = 0;
 	float m_dashSpeed = 0.0f;
+	float m_dashRegenTime = 0.0f;
+	
+	int m_dashTimer = 0;
+	int m_dashFrameX = 0;
+	POINTFLOAT m_beforePlayerPos = {};
 
 	// 테스트 상자
 	RECT testRC = {};
@@ -74,6 +82,8 @@ public:
 
 	void SetShape(POINTFLOAT playerPos, int bodyWidth, int bodyHeight);
 
+	void Dash();
+	void DashRegen();
 	void Move();
 	void Animation(HDC hdc, PlayerStatus playerStatus);
 	void RunEffectAnimation(HDC hdc);

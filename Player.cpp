@@ -3,7 +3,7 @@
 
 HRESULT Player::Init()
 {
-    m_playerEffectImg = IMAGE_MANAGER->FindImage("Image/Player/baseCharEffect.bmp");
+    m_dashEffectImg = IMAGE_MANAGER->FindImage("Image/Player/baseCharEffect.bmp");
     m_runEffectImg = IMAGE_MANAGER->FindImage("Image/Player/RunEffect.bmp");
 
     m_frameX = 0;
@@ -50,6 +50,16 @@ HRESULT Player::Init()
     m_dustMaxFrameX = 5;
 
     // 대쉬 관련
+    mb_isDash = false;
+    m_angle = 0.0f;
+    m_dashCount = 0;
+    m_maxDashCount = 2;
+    m_dashSpeed = 18.0f;
+    m_dashRegenTime = 0.0f;
+
+    m_dashTimer = 0;
+    m_dashFrameX = 0;
+    m_beforePlayerPos = {};
 
     // 임시 테스트 상자
     makeTestRect();
@@ -66,13 +76,33 @@ void Player::Update()
         m_pos.y = WIN_SIZE_Y / 2;
     }
 
+    // 대쉬 이펙트 렌더 위해서 쓰는 변수
+    m_beforePlayerPos = m_pos;
+
     // 충돌체크 보정할지 말지 위해 쓰는 변수 - 플레이어의 밑과 충돌되는 상자 윗부분과 충돌했을 시에만, 충돌 처리 보정을 위해서
     m_beforePlayerBottom = m_shape.bottom;
 
+    // 우클릭시 대쉬 
+    if (KEY_MANAGER->IsOnceKeyDown(VK_RBUTTON) && m_dashCount < m_maxDashCount)
+    {
+        mb_isDash = true;
+        m_angle = GetAngle(m_pos, g_ptMouse);
+        ++m_dashCount;
+    }
 
+    // 대쉬 횟수 회복
+    DashRegen();
 
-    // 키입력에 따른 이동, 점프 처리
-    Move();
+    // 대시 관련
+    if (mb_isDash == true)
+    {
+		Dash();
+    }
+    // 대쉬상태가 아닐 때, 키입력에 따른 이동, 점프 처리
+    else
+    {
+		Move();
+    }
 
     // 충돌일 때가 아니면 중력 적용 또는 점프했을시 점프힘에 중력 적용
 	if (mb_isCollide == false)
@@ -162,14 +192,20 @@ void Player::Render(HDC hdc)
     Rectangle(hdc, testRC5.left, testRC5.top, testRC5.right, testRC5.bottom);
     Rectangle(hdc, testRC6.left, testRC6.top, testRC6.right, testRC6.bottom);
     
+    // DashEffect 관련
+    if (mb_isDash == true)
+    {
+        m_dashEffectImg->Render(hdc, m_beforePlayerPos.x, m_beforePlayerPos.y, m_dashFrameX, m_frameY);
+    }
     // 플레이어
-    Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
+    //Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
     Animation(hdc, me_PlayerStatus);
     // RunEffect 관련
     if (mb_isMove == true && mb_isJump == false)
     {
         RunEffectAnimation(hdc);
     }
+    
 }
 
 void Player::Release()
@@ -184,12 +220,59 @@ void Player::SetShape(POINTFLOAT playerPos, int m_bodyWidth, int m_bodyHeight)
     m_shape.bottom = static_cast<long>(playerPos.y + m_bodyHeight);
 }
 
+void Player::Dash()
+{
+	m_pos.x += cosf(m_angle) * m_dashSpeed /** TIMER_MANAGER->GetDeltaTime() / 0.1f*/;
+	m_pos.y -= sinf(m_angle) * m_dashSpeed /** TIMER_MANAGER->GetDeltaTime() / 0.1f*/;
+	SetShape(m_pos, m_bodyWidth, m_bodyHeight);
+		
+    // 대쉬 이펙트
+    if (mb_isDash == true)
+    {
+        ++m_dashTimer;
+        if (m_dashTimer == 1)
+            m_dashFrameX = 0;
+
+        if (m_dashTimer == 3)
+            m_dashFrameX = 1;
+
+        if (m_dashTimer == 5)
+            m_dashFrameX = 2;
+
+        if (m_dashTimer == 7)
+            m_dashFrameX = 3;
+
+        if (m_dashTimer == 9)
+            m_dashFrameX = 4;
+
+        if (m_dashTimer >= 10)
+        {
+            m_dashTimer = 0;
+            m_dashFrameX = 0;
+            mb_isDash = false;
+        }
+    }
+}
+
+void Player::DashRegen()
+{
+    m_dashRegenTime += TIMER_MANAGER->GetDeltaTime();
+    if (m_dashRegenTime > 1.5f)
+    {
+        if (m_dashCount > 0)
+        {
+            --m_dashCount;
+        }
+        m_dashRegenTime = 0.0f;
+    }
+}
+
 void Player::Move()
 {
     // 이동 관련
     if (KEY_MANAGER->IsStayKeyDown('A'))
     {
-        m_pos.x -= static_cast<int>(m_moveSpeed * TIMER_MANAGER->GetDeltaTime());
+        m_pos.x -= m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
         me_PlayerStatus = PlayerStatus::Run;
         mb_isMove = true;
     }
@@ -204,7 +287,7 @@ void Player::Move()
 
     if (KEY_MANAGER->IsStayKeyDown('D'))
     {
-        m_pos.x += static_cast<int>(m_moveSpeed * TIMER_MANAGER->GetDeltaTime());
+        m_pos.x += m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
         me_PlayerStatus = PlayerStatus::Run;
         mb_isMove = true;
     }
@@ -283,6 +366,8 @@ void Player::RunEffectAnimation(HDC hdc)
 	}
 }
 
+
+
 void Player::makeTestRect()
 {
     // 테스트 상자
@@ -314,7 +399,7 @@ void Player::makeTestRect()
     testRC6.left = static_cast<long>(0);
     testRC6.right = static_cast<long>(WIN_SIZE_X);
     testRC6.top = static_cast<long>(WIN_SIZE_Y - 10);
-    testRC6.bottom = static_cast<long>(WIN_SIZE_Y);
+    testRC6.bottom = static_cast<long>(WIN_SIZE_Y + 90);
 
     intersectRect = {};
     collidedRect = {};
