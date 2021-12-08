@@ -82,7 +82,16 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>2D Framework\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="UIBase.cpp">
+      <Filter>2D Framework\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="DashCount.cpp">
+      <Filter>2D Framework\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIManager.cpp">
+      <Filter>2D Framework\Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +144,16 @@
       <Filter>MainGame</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>2D Framework\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="UIBase.h">
+      <Filter>2D Framework\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="DashCount.h">
+      <Filter>2D Framework\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIManager.h">
+      <Filter>2D Framework\Manager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@ private:
 	int m_frameY = 0;
 	float m_elapsedCount = 0.0f;
 
+	// 플레이어 이미지 애니메이션 렌더용
 	typedef struct AnimationData
 	{
 		Image* playerImage = nullptr;
@@ -27,8 +28,10 @@ private:
 
 	ANI_DATA m_statusAniData[static_cast<int>(PlayerStatus::End)] = {};
 
+	// 플레이어 상태
 	PlayerStatus me_PlayerStatus = {};
 
+	// 점프 관련
 	bool mb_isJump = false;
 	bool mb_isDownJump = false;
 	int m_jumpCount = 0;
@@ -87,6 +90,11 @@ public:
 	void Move();
 	void Animation(HDC hdc, PlayerStatus playerStatus);
 	void RunEffectAnimation(HDC hdc);
+
+	// DashCount UI에서 쓰기위해서
+	inline const int GetPlayerMaxDashCount() { return m_maxDashCount; }
+	inline const int GetPlayerDashCount() { return m_dashCount; }
+
 
 	// 임시 테스트 상자 생성
 	void makeTestRect();

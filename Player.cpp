@@ -52,8 +52,8 @@ HRESULT Player::Init()
     // 대쉬 관련
     mb_isDash = false;
     m_angle = 0.0f;
-    m_dashCount = 0;
     m_maxDashCount = 2;
+    m_dashCount = m_maxDashCount;
     m_dashSpeed = 18.0f;
     m_dashRegenTime = 0.0f;
 
@@ -83,12 +83,12 @@ void Player::Update()
     m_beforePlayerBottom = m_shape.bottom;
 
     // 우클릭시 대쉬 
-    if (KEY_MANAGER->IsOnceKeyDown(VK_RBUTTON) && m_dashCount < m_maxDashCount)
+    if (KEY_MANAGER->IsOnceKeyDown(VK_RBUTTON) && m_dashCount > 0)
     {
         mb_isDash = true;
         m_angle = GetAngle(m_pos, g_ptMouse);
         m_jumpStrength = 0.0f;
-        ++m_dashCount;
+        --m_dashCount;
     }
 
     // 대쉬 횟수 회복
@@ -150,7 +150,7 @@ void Player::Update()
     if (isIntersect)
     { 
         // 아래점프 아닐때 충돌 보정
-        if (mb_isDownJump == false/* && m_shape.bottom <= intersectRect.bottom*/)
+        if (mb_isDownJump == false && mb_isDash == false/* && m_shape.bottom <= intersectRect.bottom*/)
         {
             mb_isCollide = true;
 
@@ -198,9 +198,11 @@ void Player::Render(HDC hdc)
     {
         m_dashEffectImg->Render(hdc, static_cast<int>(m_beforePlayerPos.x), static_cast<int>(m_beforePlayerPos.y), m_dashFrameX, m_frameY);
     }
+
     // 플레이어
     Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
     Animation(hdc, me_PlayerStatus);
+    
     // RunEffect 관련
     if (mb_isMove == true && mb_isJump == false)
     {
@@ -261,9 +263,9 @@ void Player::DashRegen()
     m_dashRegenTime += TIMER_MANAGER->GetDeltaTime();
     if (m_dashRegenTime > 1.5f)
     {
-        if (m_dashCount > 0)
+        if (m_dashCount < m_maxDashCount)
         {
-            --m_dashCount;
+            ++m_dashCount;
         }
         m_dashRegenTime = 0.0f;
     }

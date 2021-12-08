@@ -29,8 +29,9 @@ void ImageManager::Init()
 
     // UI
     // DashCount
-    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount1.bmp", 33, 24, true, RGB(255, 0, 255));
-    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount2.bmp", 33, 24, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashBaseLeftEnd.bmp", 6, 24, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashBaseRightEnd.bmp", 6, 24, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashBase.bmp", 27, 24, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount.bmp", 27, 12, true, RGB(255, 0, 255));
 
 }

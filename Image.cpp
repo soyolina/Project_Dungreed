@@ -118,7 +118,7 @@ void Image::Render(HDC hdc)
 }
 
 // 프레임 없는 이미지
-void Image::Render(HDC hdc, int destX, int destY)
+void Image::Render(HDC hdc, int destX, int destY, float scale)
 {
 	if (isTransparent)
 	{
@@ -126,7 +126,7 @@ void Image::Render(HDC hdc, int destX, int destY)
 			hdc,
 			destX - (imageInfo->width / 2),
 			destY - (imageInfo->height / 2),
-			imageInfo->width, imageInfo->height,
+			imageInfo->width * scale, imageInfo->height * scale,
 
 			imageInfo->hMemDc,
 			0, 0,

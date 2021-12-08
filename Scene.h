@@ -2,6 +2,7 @@
 
 #include "Config.h"
 
+// ¾ÀÀÇ ºÎ¸ð°¡ µÉ °´Ã¼
 class Scene
 {
 public:
