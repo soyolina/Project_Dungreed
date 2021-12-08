@@ -34,6 +34,9 @@
     <Filter Include="2D Framework\UI\Button">
       <UniqueIdentifier>{2bf5aa3a-f8f1-4c10-baba-1dd7aa386c9a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="2D Framework\Input">
+      <UniqueIdentifier>{86ce7c85-bbaa-49f5-9454-03296f610f1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -76,6 +79,9 @@
       <Filter>MainGame</Filter>
     </ClCompile>
     <ClCompile Include="CommonFunction.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>MainGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

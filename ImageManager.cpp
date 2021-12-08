@@ -27,6 +27,12 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage("Image/Player/basecharDie.bmp", 78, 75, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage("Image/Player/RunEffect.bmp", 240, 96, 5, 2, true, RGB(255, 0, 255));
 
+    // UI
+    // DashCount
+    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount1.bmp", 33, 24, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount2.bmp", 33, 24, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount.bmp", 27, 12, true, RGB(255, 0, 255));
+
 }
 
 void ImageManager::Release()

@@ -87,6 +87,7 @@ void Player::Update()
     {
         mb_isDash = true;
         m_angle = GetAngle(m_pos, g_ptMouse);
+        m_jumpStrength = 0.0f;
         ++m_dashCount;
     }
 
@@ -105,7 +106,7 @@ void Player::Update()
     }
 
     // 충돌일 때가 아니면 중력 적용 또는 점프했을시 점프힘에 중력 적용
-	if (mb_isCollide == false)
+	if (mb_isCollide == false && mb_isDash == false)
     {
 		m_pos.y -= m_jumpStrength * TIMER_MANAGER->GetDeltaTime();
 		SetShape(m_pos, m_bodyWidth, m_bodyHeight);
@@ -195,10 +196,10 @@ void Player::Render(HDC hdc)
     // DashEffect 관련
     if (mb_isDash == true)
     {
-        m_dashEffectImg->Render(hdc, m_beforePlayerPos.x, m_beforePlayerPos.y, m_dashFrameX, m_frameY);
+        m_dashEffectImg->Render(hdc, static_cast<int>(m_beforePlayerPos.x), static_cast<int>(m_beforePlayerPos.y), m_dashFrameX, m_frameY);
     }
     // 플레이어
-    //Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
+    Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
     Animation(hdc, me_PlayerStatus);
     // RunEffect 관련
     if (mb_isMove == true && mb_isJump == false)
@@ -222,11 +223,12 @@ void Player::SetShape(POINTFLOAT playerPos, int m_bodyWidth, int m_bodyHeight)
 
 void Player::Dash()
 {
+    // 대쉬쉬 그 당시의 마우스 좌표로 플레이어 이동
 	m_pos.x += cosf(m_angle) * m_dashSpeed /** TIMER_MANAGER->GetDeltaTime() / 0.1f*/;
 	m_pos.y -= sinf(m_angle) * m_dashSpeed /** TIMER_MANAGER->GetDeltaTime() / 0.1f*/;
 	SetShape(m_pos, m_bodyWidth, m_bodyHeight);
 		
-    // 대쉬 이펙트
+    // 대쉬 이펙트 frameX와 대쉬가 끝나는 지점 설정
     if (mb_isDash == true)
     {
         ++m_dashTimer;
