@@ -94,6 +94,8 @@ public:
 	// DashCount UI에서 쓰기위해서
 	inline const int GetPlayerMaxDashCount() { return m_maxDashCount; }
 	inline const int GetPlayerDashCount() { return m_dashCount; }
+	// HP UI에서 쓰기 위해서
+	inline const int GetPlayerHP() { return m_hp; }
 
 
 	// 임시 테스트 상자 생성

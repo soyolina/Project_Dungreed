@@ -38,7 +38,7 @@ void DashCount::Render(HDC hdc)
 
 	// 대쉬 게이지 에 관한 이미지 렌더
 	int DashGagePosX = DASHBAR_LEFTEND_POSX + m_DashBarBaseLeft->GetWidth() + static_cast<int>(m_DashBarBase->GetWidth() * 0.5f);
-	int DashGagePosY = DASHBAR_LEFT_POSY + m_DashBarBaseLeft->GetHeight() * 0.5;
+	int DashGagePosY = static_cast<int>(DASHBAR_LEFTEND_POSY + m_DashBarBaseLeft->GetHeight() * 0.5f);
 	for (int i = 0; i < m_playerDashCount; ++i)
 	{
 		m_DashCountGage->Render(hdc, DashGagePosX, DashGagePosY);

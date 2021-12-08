@@ -126,7 +126,7 @@ void Image::Render(HDC hdc, int destX, int destY, float scale)
 			hdc,
 			destX - (imageInfo->width / 2),
 			destY - (imageInfo->height / 2),
-			imageInfo->width * scale, imageInfo->height * scale,
+			static_cast<int>(imageInfo->width * scale), static_cast<int>(imageInfo->height * scale),
 
 			imageInfo->hMemDc,
 			0, 0,
@@ -309,4 +309,23 @@ void Image::loopRender(HDC hdc, int sourX)
 	}
 
 	
+}
+
+void Image::HpRender(HDC hdc, int destX, int destY, float remainHp)
+{
+	if (isTransparent)
+	{
+		GdiTransparentBlt
+		(
+			hdc,
+			destX,
+			destY,
+			static_cast<int>(remainHp), imageInfo->height,
+
+			imageInfo->hMemDc,
+			0, 0,
+			static_cast<int>(remainHp), imageInfo->height,
+			transColor
+		);
+	}
 }

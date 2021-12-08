@@ -69,6 +69,13 @@ HRESULT Player::Init()
 
 void Player::Update()
 {
+    // 캐릭터 HP 렌더 제대로 되는지 확인용 - 테스트
+    if (KEY_MANAGER->IsOnceKeyDown(VK_F3))
+    {
+        m_hp -= 5;
+        cout << m_hp << endl;
+    }
+
     // 캐릭터 위치 리셋용 - 테스트
     if (KEY_MANAGER->IsStayKeyDown(VK_F2))
     {

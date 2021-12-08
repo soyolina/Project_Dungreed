@@ -33,6 +33,10 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashBaseRightEnd.bmp", 6, 24, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashBase.bmp", 27, 24, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage("Image/UI/DashCount/DashCount.bmp", 27, 12, true, RGB(255, 0, 255));
+    // playerHP
+    IMAGE_MANAGER->AddImage("Image/UI/HP2/PlayerLifeBase.bmp", 296, 64, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/HP2/PlayerLifeBack.bmp", 296, 64, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage("Image/UI/HP2/LifeBarFull.bmp", 196, 40, true, RGB(255, 0, 255));
 
 }
 

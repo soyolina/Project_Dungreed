@@ -53,7 +53,8 @@ public:
 
 	// ·çÇÁ ·»´õ(½ºÅ¸Æ® ¾À)
 	void loopRender(HDC hdc, int sourX);
-
+	// ÇÃ·¹ÀÌ¾î HP ·»´õ
+	void HpRender(HDC hdc, int destX, int destY, float remainHp);
 
 	inline int GetWidth() { return imageInfo->width; };
 	inline int GetHeight() { return imageInfo->height; }

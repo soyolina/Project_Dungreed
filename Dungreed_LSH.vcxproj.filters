@@ -37,6 +37,12 @@
     <Filter Include="2D Framework\Input">
       <UniqueIdentifier>{86ce7c85-bbaa-49f5-9454-03296f610f1c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="2D Framework\UI\DashCount">
+      <UniqueIdentifier>{6b024608-5e72-43ee-8a76-12e7877cd8da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="2D Framework\UI\HP">
+      <UniqueIdentifier>{ec9e471e-d22d-4eb3-8968-5df198d29ed1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -87,11 +93,14 @@
     <ClCompile Include="UIBase.cpp">
       <Filter>2D Framework\UI</Filter>
     </ClCompile>
-    <ClCompile Include="DashCount.cpp">
-      <Filter>2D Framework\UI</Filter>
-    </ClCompile>
     <ClCompile Include="UIManager.cpp">
       <Filter>2D Framework\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="DashCount.cpp">
+      <Filter>2D Framework\UI\DashCount</Filter>
+    </ClCompile>
+    <ClCompile Include="HP.cpp">
+      <Filter>2D Framework\UI\HP</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,11 +158,14 @@
     <ClInclude Include="UIBase.h">
       <Filter>2D Framework\UI</Filter>
     </ClInclude>
-    <ClInclude Include="DashCount.h">
-      <Filter>2D Framework\UI</Filter>
-    </ClInclude>
     <ClInclude Include="UIManager.h">
       <Filter>2D Framework\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="DashCount.h">
+      <Filter>2D Framework\UI\DashCount</Filter>
+    </ClInclude>
+    <ClInclude Include="HP.h">
+      <Filter>2D Framework\UI\HP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

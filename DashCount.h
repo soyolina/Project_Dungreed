@@ -2,11 +2,8 @@
 
 #include "UIBase.h"
 
-#define DASHBAR_LEFT_POSX (30)
-#define DASHBAR_LEFT_POSY (80)
-
 #define DASHBAR_LEFTEND_POSX (30)
-#define DASHBAR_LEFTEND_POSY (80)
+#define DASHBAR_LEFTEND_POSY (100)
 
 
 class Image;

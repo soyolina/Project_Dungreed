@@ -1,11 +1,13 @@
 #include "UIManager.h"
 #include "DashCount.h"
+#include "HP.h"
 
 void UIManager::Init(Player* player)
 {
 	m_player = player;
 
 	m_allUI.push_back(new DashCount);
+	m_allUI.push_back(new HP);
 	
 	for (unsigned int i = 0; i < m_allUI.size(); ++i)
 	{
