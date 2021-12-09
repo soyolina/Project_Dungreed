@@ -97,7 +97,10 @@ public:
 	// HP UI에서 쓰기 위해서
 	inline const int GetPlayerHP() { return m_hp; }
 
+	// BasicShortSword에서 - 검 이미지 렌더 좌표 위해서
 	inline const POINTFLOAT GetPlayerPos() { return m_pos; }
+	// BasicShortSword에서 - 이미지 렌더 반대로 하는거 하기 위해서
+	inline const bool GetPlayerReverse() { return mb_isLeft; }
 
 
 	// 임시 테스트 상자 생성

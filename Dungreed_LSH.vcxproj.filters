@@ -111,6 +111,9 @@
     <ClCompile Include="ItemBase.cpp">
       <Filter>2D Framework\Item</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="ItemBase.h">
       <Filter>2D Framework\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

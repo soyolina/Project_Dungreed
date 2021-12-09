@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DashCount.h"
 #include "Image.h"
 #include "Player.h"

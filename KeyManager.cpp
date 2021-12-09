@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "KeyManager.h"
 
 void KeyManager::Init()

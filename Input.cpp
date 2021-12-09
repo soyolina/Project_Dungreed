@@ -1,4 +1,5 @@
-﻿#include "Input.h"
+﻿#include "stdafx.h"
+#include "Input.h"
 
 bool Input::_currentKeyStates[256] = { false };
 bool Input::_prevKeyStates[256] = { false };

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "UIBase.h"
 
 void UIBase::Init()

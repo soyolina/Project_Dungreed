@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "StartScene.h"
 #include "Image.h"
 #include "Button.h"
