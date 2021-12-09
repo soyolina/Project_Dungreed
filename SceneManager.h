@@ -7,8 +7,8 @@ class Scene;
 class SceneManager : public Singleton<SceneManager>
 {
 private:
-	map<string, Scene*> mapScenes;
-	map<string, Scene*> mapLoadingScenes;
+	map<wstring, Scene*> mapScenes;
+	map<wstring, Scene*> mapLoadingScenes;
 
 public:
 	virtual ~SceneManager() {}
@@ -21,11 +21,11 @@ public:
 	void Render(HDC hdc);
 	void Release();
 
-	void AddScene(string key, Scene* scene);
-	void AddLoadingScene(string key, Scene* loadingScene);
+	void AddScene(const wstring& key, Scene* scene);
+	void AddLoadingScene(const wstring& key, Scene* loadingScene);
 
-	HRESULT ChangeScene(string sceneName);
-	HRESULT ChangeScene(string sceneName, string loadingSceneName);
+	HRESULT ChangeScene(const wstring& sceneName);
+	HRESULT ChangeScene(const wstring& sceneName, const wstring& loadingSceneName);
 
 };
 

@@ -55,7 +55,7 @@ void StartScene::Render(HDC hdc)
     m_startBtn->Render(hdc);
     m_quitBtn->Render(hdc);
 
-    m_basicCursor->RenderBasic(hdc, g_ptMouse.x, g_ptMouse.y);
+    m_basicCursor->RenderBasic(hdc, Input::GetMousePosition().x, Input::GetMousePosition().y);
 }
 
 void StartScene::Release()
@@ -66,7 +66,7 @@ void StartScene::Release()
 
 void StartScene::StartBtnFunc()
 {
-    SCENE_MANAGER->ChangeScene("∞‘¿”æ¿");
+    SCENE_MANAGER->ChangeScene(L"∞‘¿”æ¿");
 }
 
 void StartScene::QuitBtnFunc()

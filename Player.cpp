@@ -70,13 +70,13 @@ HRESULT Player::Init()
 void Player::Update()
 {
     // 캐릭터 HP 렌더 제대로 되는지 확인용 - 테스트
-    if (KEY_MANAGER->IsOnceKeyDown(VK_F3))
+    if (Input::GetButtonDown(VK_F3))
     {
         m_hp -= 5;
     }
 
     // 캐릭터 위치 리셋용 - 테스트
-    if (KEY_MANAGER->IsStayKeyDown(VK_F2))
+    if (Input::GetButton(VK_F2))
     {
         m_pos.x = WIN_SIZE_X / 2;
         m_pos.y = WIN_SIZE_Y / 2;
@@ -89,10 +89,10 @@ void Player::Update()
     m_beforePlayerBottom = m_shape.bottom;
 
     // 우클릭시 대쉬 
-    if (KEY_MANAGER->IsOnceKeyDown(VK_RBUTTON) && m_dashCount > 0)
+    if (Input::GetButtonDown(VK_RBUTTON) && m_dashCount > 0)
     {
         mb_isDash = true;
-        m_angle = GetAngle(m_pos, g_ptMouse);
+        m_angle = GetAngle(m_pos, Input::GetMousePosition());
         m_jumpStrength = 0.0f;
         --m_dashCount;
     }
@@ -177,7 +177,7 @@ void Player::Update()
 
     
     // 마우스 좌표에 따른 플레이어 이미지 반전
-    if (m_pos.x < g_ptMouse.x) 
+    if (m_pos.x < Input::GetMousePosition().x)
     {
         m_frameY = 0; 
         mb_isLeft = false;
@@ -221,7 +221,7 @@ void Player::Release()
 {
 }
 
-void Player::SetShape(POINTFLOAT playerPos, int m_bodyWidth, int m_bodyHeight)
+void Player::SetShape(const POINTFLOAT& playerPos, const int& m_bodyWidth, const int& m_bodyHeight)
 {
     m_shape.left = static_cast<long>(playerPos.x - m_bodyWidth / 2);
     m_shape.right = static_cast<long>(m_shape.left + m_bodyWidth);
@@ -280,13 +280,13 @@ void Player::DashRegen()
 void Player::Move()
 {
     // 이동 관련
-    if (KEY_MANAGER->IsStayKeyDown('A'))
+    if (Input::GetButton('A'))
     {
         m_pos.x -= m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
         me_PlayerStatus = PlayerStatus::Run;
         mb_isMove = true;
     }
-    if (KEY_MANAGER->IsOnceKeyUp('A'))
+    if (Input::GetButtonUp('A'))
     {
         me_PlayerStatus = PlayerStatus::Idle;
         m_frameX = 0;
@@ -295,13 +295,13 @@ void Player::Move()
         m_dustEffectCount = 0.0f;
     }
 
-    if (KEY_MANAGER->IsStayKeyDown('D'))
+    if (Input::GetButton('D'))
     {
         m_pos.x += m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
         me_PlayerStatus = PlayerStatus::Run;
         mb_isMove = true;
     }
-    if (KEY_MANAGER->IsOnceKeyUp('D'))
+    if (Input::GetButtonUp('D'))
     {
         me_PlayerStatus = PlayerStatus::Idle;
         m_frameX = 0;
@@ -315,7 +315,7 @@ void Player::Move()
     if (m_jumpCount > 0)
     {
         // 위 점프
-        if (KEY_MANAGER->IsOnceKeyDown(VK_SPACE) && mb_isDownJump == false)
+        if (Input::GetButtonDown(VK_SPACE) && mb_isDownJump == false)
         {
             --m_jumpCount;
             m_jumpStrength = JUMP_STRENGTH;
@@ -323,7 +323,7 @@ void Player::Move()
         }
 
         // 아래 점프
-        if (KEY_MANAGER->IsStayKeyDown('S') && mb_isJump == true)
+        if (Input::GetButton('S') && Input::GetButtonDown(VK_SPACE))
         {
             mb_isDownJump = true;
             m_jumpStrength = 0.0f;

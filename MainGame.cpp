@@ -1,19 +1,18 @@
 #include "MainGame.h"
 #include "Image.h"
-#include "StartScene.h"
-#include "GameScene.h"
+
 
 HRESULT MainGame::Init()
 {
+	//KEY_MANAGER->Init();
+	// 
+	// Input Å¬·¡½º Ãß°¡
+	Input::Init(g_hWnd);
 	IMAGE_MANAGER->Init();
-	KEY_MANAGER->Init();
-	SCENE_MANAGER;
+	SCENE_MANAGER->Init();
 	TIMER_MANAGER->Init();
 
-	SCENE_MANAGER->AddScene("½ºÅ¸Æ®¾À", new StartScene());
-	SCENE_MANAGER->AddScene("°ÔÀÓ¾À", new GameScene());
-
-	SCENE_MANAGER->ChangeScene("½ºÅ¸Æ®¾À");
+	SCENE_MANAGER->ChangeScene(L"½ºÅ¸Æ®¾À");
 
 
 	srand((unsigned int) time(nullptr));
@@ -30,6 +29,8 @@ HRESULT MainGame::Init()
 
 void MainGame::Update()
 {
+	Input::Update();
+
 	TIMER_MANAGER->Update();
 
 	SCENE_MANAGER->Update();
@@ -47,10 +48,10 @@ void MainGame::Render(HDC hdc)
 
 	TIMER_MANAGER->Render(hBackBufferDC);
 
-	wsprintf(text, L"MousePosX : %d", g_ptMouse.x);
+	wsprintf(text, L"MousePosX : %d", Input::GetMousePosition().x);
 	TextOut(hBackBufferDC, 200, 10, text, wcslen(text));
 
-	wsprintf(text, L"MousePosY : %d", g_ptMouse.y);
+	wsprintf(text, L"MousePosY : %d", Input::GetMousePosition().y);
 	TextOut(hBackBufferDC, 200, 40, text, wcslen(text));
 
 	backBuffer->Render(hdc);
@@ -97,8 +98,8 @@ LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPara
 	case WM_RBUTTONDOWN:
 		break;
 	case WM_MOUSEMOVE:
-		g_ptMouse.x = GET_X_LPARAM(lParam);
-		g_ptMouse.y = GET_Y_LPARAM(lParam);
+		//g_ptMouse.x = GET_X_LPARAM(lParam);
+		//g_ptMouse.y = GET_Y_LPARAM(lParam);
 		break;
 	}
 	return DefWindowProc(hWnd, iMessage, wParam, lParam);

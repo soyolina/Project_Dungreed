@@ -1,5 +1,7 @@
 #include "SceneManager.h"
 #include "Scene.h"
+#include "StartScene.h"
+#include "GameScene.h"
 
 Scene* SceneManager::currScene = nullptr;
 Scene* SceneManager::readyScene = nullptr;
@@ -18,6 +20,12 @@ DWORD CALLBACK LoadingThread(LPVOID pvParam)
 	return 0;
 }
 
+
+void SceneManager::Init()
+{
+	SCENE_MANAGER->AddScene(L"Ω∫≈∏∆Ææ¿", new StartScene());
+	SCENE_MANAGER->AddScene(L"∞‘¿”æ¿", new GameScene());
+}
 
 void SceneManager::Update()
 {
@@ -40,7 +48,7 @@ void SceneManager::Release()
 	mapScenes.clear();
 }
 
-void SceneManager::AddScene(string key, Scene* scene)
+void SceneManager::AddScene(const wstring& key, Scene* scene)
 {
 	if (scene == nullptr) return;
 
@@ -52,7 +60,7 @@ void SceneManager::AddScene(string key, Scene* scene)
 	mapScenes.insert(make_pair(key, scene));
 }
 
-void SceneManager::AddLoadingScene(string key, Scene* loadingScene)
+void SceneManager::AddLoadingScene(const wstring& key, Scene* loadingScene)
 {
 	if (loadingScene == nullptr) return;
 
@@ -64,9 +72,9 @@ void SceneManager::AddLoadingScene(string key, Scene* loadingScene)
 	mapLoadingScenes.insert(make_pair(key, loadingScene));
 }
 
-HRESULT SceneManager::ChangeScene(string sceneName)
+HRESULT SceneManager::ChangeScene(const wstring& sceneName)
 {
-	map<string, Scene*>::iterator it = mapScenes.find(sceneName);
+	map<wstring, Scene*>::iterator it = mapScenes.find(sceneName);
 
 	if (it == mapScenes.end())
 		return E_FAIL;
@@ -84,16 +92,16 @@ HRESULT SceneManager::ChangeScene(string sceneName)
 	return E_FAIL;
 }
 
-HRESULT SceneManager::ChangeScene(string sceneName, string loadingSceneName)
+HRESULT SceneManager::ChangeScene(const wstring& sceneName, const wstring& loadingSceneName)
 {
-	map<string, Scene*>::iterator it = mapScenes.find(sceneName);
+	map<wstring, Scene*>::iterator it = mapScenes.find(sceneName);
 
 	// æ¿ »Æ¿Œ
 	if (it == mapScenes.end())
 		return E_FAIL;
 
 	// ∑Œµ˘æ¿ »Æ¿Œ
-	map<string, Scene*>::iterator itLoading = mapLoadingScenes.find(loadingSceneName);
+	map<wstring, Scene*>::iterator itLoading = mapLoadingScenes.find(loadingSceneName);
 	if (itLoading == mapLoadingScenes.end())
 	{
 		return ChangeScene(sceneName);

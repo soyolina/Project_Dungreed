@@ -15,7 +15,7 @@ void BasicShortSword::Update()
 {
 	m_playerPos = m_player->GetPlayerPos();
 
-	if (m_playerPos.x < g_ptMouse.x) { m_direction = 1; }
+	if (m_playerPos.x < Input::GetMousePosition().x) { m_direction = 1; }
 	else { m_direction = -1; }
 }
 

@@ -14,7 +14,7 @@
 
 
 // 전역 변수
-POINT g_ptMouse;
+//POINT g_ptMouse;
 POINT g_ptClickedMouse;
 
 HINSTANCE g_hInstance;
@@ -37,7 +37,7 @@ int APIENTRY wWinMain(
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_CrtSetBreakAlloc(253);
+	//_CrtSetBreakAlloc(457);
 	//_CrtSetBreakAlloc(999);
 #endif
 

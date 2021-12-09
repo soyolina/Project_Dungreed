@@ -41,7 +41,7 @@ void GameScene::Render(HDC hdc)
 
     m_UIManager->Render(hdc);
 
-    m_cursor->Render(hdc, g_ptMouse.x, g_ptMouse.y);
+    m_cursor->Render(hdc, Input::GetMousePosition().x, Input::GetMousePosition().y);
 
 }
 
@@ -49,4 +49,5 @@ void GameScene::Release()
 {
     SAFE_RELEASE(m_player);
     SAFE_RELEASE(m_UIManager);
+    SAFE_RELEASE(m_basicShortSword);
 }

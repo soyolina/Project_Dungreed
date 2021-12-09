@@ -83,7 +83,7 @@ public:
 	virtual void Render(HDC hdc);
 	virtual void Release();
 
-	void SetShape(POINTFLOAT playerPos, int bodyWidth, int bodyHeight);
+	void SetShape(const POINTFLOAT& playerPos, const int& bodyWidth, const int& bodyHeight);
 
 	void Dash();
 	void DashRegen();

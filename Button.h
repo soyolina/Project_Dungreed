@@ -52,19 +52,19 @@ inline void Button<SceneType>::Update()
 	switch (me_BtnState)
 	{
 	case eButtonState::Idle:
-		if (PtInRect(&m_btnRect, g_ptMouse))
+		if (PtInRect(&m_btnRect, Input::GetMousePosition()))
 		{
 			me_BtnState = eButtonState::Put;
 		}
 		break;
 
 	case eButtonState::Put:
-		if (KEY_MANAGER->IsOnceKeyDown(VK_LBUTTON))
+		if (Input::GetButtonDown(VK_LBUTTON))
 		{
 			me_BtnState = eButtonState::Click;
 		}
 
-		if (PtInRect(&m_btnRect, g_ptMouse))
+		if (PtInRect(&m_btnRect, Input::GetMousePosition()))
 		{
 			if (m_btnImgName[1] != nullptr)
 			{
@@ -79,9 +79,9 @@ inline void Button<SceneType>::Update()
 		break;
 
 	case eButtonState::Click:
-		if (KEY_MANAGER->IsOnceKeyUp(VK_LBUTTON))
+		if (Input::GetButtonUp(VK_LBUTTON))
 		{
-			if (PtInRect(&m_btnRect, g_ptMouse))
+			if (PtInRect(&m_btnRect, Input::GetMousePosition()))
 			{
 				(m_scene->*m_function)();
 			}
