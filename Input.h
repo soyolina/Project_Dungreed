@@ -1,5 +1,5 @@
-﻿#pragma once
-
+﻿//#pragma once
+//
 //#include <Windows.h>
 //
 //class Input
@@ -15,11 +15,11 @@
 //	static bool		GetButtonDown(BYTE vkey) noexcept;
 //	static bool		GetButtonUp(BYTE vkey) noexcept;
 //	​
-//		static POINT	GetMousePosition() noexcept;
+//	static POINT	GetMousePosition() noexcept;
 //private:
 //	static bool		_currentKeyStates[256];
 //	static bool		_prevKeyStates[256];
 //	static POINT	_mousePosition;
 //	static HWND		_hWnd;
 //};
-
+//

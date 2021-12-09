@@ -8,7 +8,7 @@ class TimerManager : public Singleton<TimerManager>
 {
 private:
 	Timer* timer = nullptr;
-	char szText[256] = {};
+	TCHAR szText[256] = {};
 
 public:
 	virtual ~TimerManager() {}

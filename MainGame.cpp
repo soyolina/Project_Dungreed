@@ -47,12 +47,11 @@ void MainGame::Render(HDC hdc)
 
 	TIMER_MANAGER->Render(hBackBufferDC);
 
+	wsprintf(text, L"MousePosX : %d", g_ptMouse.x);
+	TextOut(hBackBufferDC, 200, 10, text, wcslen(text));
 
-	wsprintf(text, "MousePosX : %d", g_ptMouse.x);
-	TextOut(hBackBufferDC, 200, 10, text, strlen(text));
-
-	wsprintf(text, "MousePosY : %d", g_ptMouse.y);
-	TextOut(hBackBufferDC, 200, 40, text, strlen(text));
+	wsprintf(text, L"MousePosY : %d", g_ptMouse.y);
+	TextOut(hBackBufferDC, 200, 40, text, wcslen(text));
 
 	backBuffer->Render(hdc);
 }

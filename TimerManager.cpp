@@ -14,8 +14,8 @@ void TimerManager::Update()
 
 void TimerManager::Render(HDC hdc)
 {
-    wsprintf(szText, "FPS : %d", timer->GetFPS());
-    TextOut(hdc, WIN_SIZE_X - 150, 30, szText, strlen(szText));
+    wsprintf(szText, L"FPS : %d", timer->GetFPS());
+    TextOut(hdc, WIN_SIZE_X - 150, 30, szText, wcslen(szText));
 }
 
 void TimerManager::Release()

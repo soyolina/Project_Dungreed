@@ -27,7 +27,7 @@ HRESULT Image::Init(int width, int height)
 }
 
 // frame이 없는 이미지 
-HRESULT Image::Init(const char* fileName, int width, int height, bool isTrans, COLORREF transColor)
+HRESULT Image::Init(LPCWSTR fileName, int width, int height, bool isTrans, COLORREF transColor)
 {
 	HDC hdc = GetDC(g_hWnd);
 
@@ -56,7 +56,7 @@ HRESULT Image::Init(const char* fileName, int width, int height, bool isTrans, C
 }
 
 // 프레임이 있는 이미지
-HRESULT Image::Init(const char* fileName, int width, int height, int maxFrameX, int maxFrameY, bool isTrans, COLORREF transColor)
+HRESULT Image::Init(LPCWSTR fileName, int width, int height, int maxFrameX, int maxFrameY, bool isTrans, COLORREF transColor)
 {
 	HDC hdc = GetDC(g_hWnd);
 

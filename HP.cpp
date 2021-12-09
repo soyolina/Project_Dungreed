@@ -4,9 +4,9 @@
 
 void HP::Init()
 {
-	m_playerLifeBase = IMAGE_MANAGER->FindImage("Image/UI/HP2/PlayerLifeBase.bmp");
-	m_playerLifeGray = IMAGE_MANAGER->FindImage("Image/UI/HP2/PlayerLifeBack.bmp");
-	m_playerLifeGage = IMAGE_MANAGER->FindImage("Image/UI/HP2/LifeBarFull.bmp");
+	m_playerLifeBase = IMAGE_MANAGER->FindImage(L"Image/UI/HP2/PlayerLifeBase.bmp");
+	m_playerLifeGray = IMAGE_MANAGER->FindImage(L"Image/UI/HP2/PlayerLifeBack.bmp");
+	m_playerLifeGage = IMAGE_MANAGER->FindImage(L"Image/UI/HP2/LifeBarFull.bmp");
 
 	m_player = nullptr;
 	m_playerHP = 0;

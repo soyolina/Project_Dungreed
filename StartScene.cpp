@@ -4,28 +4,28 @@
 
 HRESULT StartScene::Init()
 {
-    m_backCloud = IMAGE_MANAGER->FindImage("Image/StartScene/BackCloud.bmp");
-    m_midCloud = IMAGE_MANAGER->FindImage("Image/StartScene/MidCloud.bmp");
-    m_frontCloud = IMAGE_MANAGER->FindImage("Image/StartScene/FrontCloud.bmp");
+    m_backCloud = IMAGE_MANAGER->FindImage(L"Image/StartScene/BackCloud.bmp");
+    m_midCloud = IMAGE_MANAGER->FindImage(L"Image/StartScene/MidCloud.bmp");
+    m_frontCloud = IMAGE_MANAGER->FindImage(L"Image/StartScene/FrontCloud.bmp");
 
     m_backCloudSourX = 0;
     m_midCloudSourX = 0;
     m_frontCloudSourX = 0;
 
-    m_mainLogo = IMAGE_MANAGER->FindImage("Image/StartScene/MainLogo.bmp");
-    m_basicCursor = IMAGE_MANAGER->FindImage("Image/StartScene/BasicCursor.bmp");
+    m_mainLogo = IMAGE_MANAGER->FindImage(L"Image/StartScene/MainLogo.bmp");
+    m_basicCursor = IMAGE_MANAGER->FindImage(L"Image/StartScene/BasicCursor.bmp");
 
     m_startBtnPos.x = START_BTN_POS_X;
     m_startBtnPos.y = START_BTN_POS_Y;
 
     m_startBtn = new Button(this, &StartScene::StartBtnFunc);
-    m_startBtn->Init(m_startBtnPos, START_BTN_WIDTH, START_BTN_HEIGHT, "Image/StartScene/GameStart2.bmp", "Image/StartScene/GameStart1.bmp");
+    m_startBtn->Init(m_startBtnPos, START_BTN_WIDTH, START_BTN_HEIGHT, L"Image/StartScene/GameStart2.bmp", L"Image/StartScene/GameStart1.bmp");
 
     m_quitBtnPos.x = QUIT_BTN_POS_X;
     m_quitBtnPos.y = QUIT_BTN_POS_Y;
 
     m_quitBtn = new Button(this, &StartScene::QuitBtnFunc);
-    m_quitBtn->Init(m_quitBtnPos, QUIT_BTN_WIDTH, QUIT_BTN_HEIGHT, "Image/StartScene/Quit2.bmp", "Image/StartScene/Quit1.bmp");
+    m_quitBtn->Init(m_quitBtnPos, QUIT_BTN_WIDTH, QUIT_BTN_HEIGHT, L"Image/StartScene/Quit2.bmp", L"Image/StartScene/Quit1.bmp");
 
     return S_OK;
 }

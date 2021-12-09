@@ -3,15 +3,15 @@
 
 HRESULT Player::Init()
 {
-    m_dashEffectImg = IMAGE_MANAGER->FindImage("Image/Player/baseCharEffect.bmp");
-    m_runEffectImg = IMAGE_MANAGER->FindImage("Image/Player/RunEffect.bmp");
+    m_dashEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/baseCharEffect.bmp");
+    m_runEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/RunEffect.bmp");
 
     m_frameX = 0;
     m_frameY = 0;
     m_elapsedCount = 0.0f;
 
-    m_statusAniData[static_cast<int>(PlayerStatus::Idle)] = { IMAGE_MANAGER->FindImage("Image/Player/baseCharIdle.bmp"), 5, 0.1f};
-    m_statusAniData[static_cast<int>(PlayerStatus::Run)] = { IMAGE_MANAGER->FindImage("Image/Player/baseCharRun.bmp"), 8, 0.1f};
+    m_statusAniData[static_cast<int>(PlayerStatus::Idle)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharIdle.bmp"), 5, 0.1f};
+    m_statusAniData[static_cast<int>(PlayerStatus::Run)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharRun.bmp"), 8, 0.1f};
     //m_statusAniData[static_cast<int>(PlayerStatus::Jump)] = { IMAGE_MANAGER->FindImage("Image/Player/baseCharIdle.bmp"), 5, 0.1f };
 
     me_PlayerStatus = PlayerStatus::Idle;
@@ -73,7 +73,6 @@ void Player::Update()
     if (KEY_MANAGER->IsOnceKeyDown(VK_F3))
     {
         m_hp -= 5;
-        cout << m_hp << endl;
     }
 
     // 캐릭터 위치 리셋용 - 테스트
@@ -207,7 +206,7 @@ void Player::Render(HDC hdc)
     }
 
     // 플레이어
-    Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
+    //Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
     Animation(hdc, me_PlayerStatus);
     
     // RunEffect 관련

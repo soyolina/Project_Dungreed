@@ -4,6 +4,7 @@
 #include "CommonFunction.h"
 #include "Scene.h"
 
+class BasicShortSword;
 class UIManager;
 class Player;
 class Image;
@@ -17,6 +18,8 @@ private:
 	Player* m_player = nullptr;
 
 	UIManager* m_UIManager = nullptr;
+
+	BasicShortSword* m_basicShortSword = nullptr;
 
 
 public:

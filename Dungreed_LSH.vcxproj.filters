@@ -43,6 +43,9 @@
     <Filter Include="2D Framework\UI\HP">
       <UniqueIdentifier>{ec9e471e-d22d-4eb3-8968-5df198d29ed1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="2D Framework\Item">
+      <UniqueIdentifier>{eec33de0-601c-4c78-b419-5baa4ee438e6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -101,6 +104,12 @@
     </ClCompile>
     <ClCompile Include="HP.cpp">
       <Filter>2D Framework\UI\HP</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicShortSword.cpp">
+      <Filter>2D Framework\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="ItemBase.cpp">
+      <Filter>2D Framework\Item</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +175,12 @@
     </ClInclude>
     <ClInclude Include="HP.h">
       <Filter>2D Framework\UI\HP</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicShortSword.h">
+      <Filter>2D Framework\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="ItemBase.h">
+      <Filter>2D Framework\Item</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

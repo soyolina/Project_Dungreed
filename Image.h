@@ -37,9 +37,9 @@ private:
 
 public:
 	HRESULT Init(int width, int hegiht); // 빈 비트맵 이미지 생성(Empty)
-	HRESULT Init(const char* fileName, int width, int height,
+	HRESULT Init(LPCWSTR fileName, int width, int height,
 		bool isTrans = false, COLORREF transColor = NULL); // File 프레임이 없는 이미지
-	HRESULT Init(const char* fileName, int width, int height,
+	HRESULT Init(LPCWSTR fileName, int width, int height,
 		int amxFrameX, int maxFrameY,
 		bool isTrans = false, COLORREF transColor = NULL); // File 프레임이 있는 이미지
 

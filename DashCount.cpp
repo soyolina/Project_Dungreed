@@ -4,11 +4,11 @@
 
 void DashCount::Init()
 {
-	m_DashBarBaseLeft = IMAGE_MANAGER->FindImage("Image/UI/DashCount/DashBaseLeftEnd.bmp");
-	m_DashBarBaseRight = IMAGE_MANAGER->FindImage("Image/UI/DashCount/DashBaseRightEnd.bmp");
-	m_DashBarBase = IMAGE_MANAGER->FindImage("Image/UI/DashCount/DashBase.bmp");
+	m_DashBarBaseLeft = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBaseLeftEnd.bmp");
+	m_DashBarBaseRight = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBaseRightEnd.bmp");
+	m_DashBarBase = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBase.bmp");
 
-	m_DashCountGage = IMAGE_MANAGER->FindImage("Image/UI/DashCount/DashCount.bmp");
+	m_DashCountGage = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashCount.bmp");
 
 	m_player = nullptr;
 	m_playerMaxDashCount = 0;

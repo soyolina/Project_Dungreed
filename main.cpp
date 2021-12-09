@@ -19,7 +19,7 @@ POINT g_ptClickedMouse;
 
 HINSTANCE g_hInstance;
 HWND g_hWnd;
-LPSTR g_lpszClass = (LPSTR)TEXT("Dungreed");
+LPCWSTR g_lpszClass = (LPCWSTR)TEXT("Dungreed");
 MainGame	g_mainGame;
 
 
@@ -28,10 +28,10 @@ void SetWindowSize(int startX, int startY, int sizeX, int sizeY);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage,
 	WPARAM wParam, LPARAM lParam);
 
-int APIENTRY WinMain(
+int APIENTRY wWinMain(
 	_In_ HINSTANCE _hInstance, 
 	_In_opt_ HINSTANCE _hPrevInstance,
-	_In_ LPSTR _lpszCmdParam, _In_ int nCmdShow)
+	_In_ LPWSTR _lpszCmdParam, _In_ int nCmdShow)
 {
 	// 메모리 누수 찾기
 #ifdef _DEBUG

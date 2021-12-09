@@ -19,21 +19,21 @@ private:
 	POINT m_btnPos = {};
 	RECT m_btnRect = {};
 	Image* m_btnImage = {};
-	const char* m_btnImgName[2] = {};
+	LPCWSTR m_btnImgName[2] = {};
 	eButtonState me_BtnState = {};
 
 public:
 	Button(SceneType* scenetype, FuncPtr functionAddress)
 		: m_scene{ scenetype }, m_function{ functionAddress } {}
 
-	HRESULT Init(POINT pos, int width, int height, const char* imgName1, const char* imgName2 = nullptr);
+	HRESULT Init(POINT pos, int width, int height, LPCWSTR imgName1, LPCWSTR imgName2 = nullptr);
 	void Update();
 	void Render(HDC hdc);
 	void Release();
 };
 
 template<typename SceneType>
-inline HRESULT Button<SceneType>::Init(POINT pos, int width, int height, const char* imgName1, const char* imgName2)
+inline HRESULT Button<SceneType>::Init(POINT pos, int width, int height, LPCWSTR imgName1, LPCWSTR imgName2)
 {
 	m_btnPos = pos;
 	m_btnRect = RectCenter(pos.x, pos.y, width, height);

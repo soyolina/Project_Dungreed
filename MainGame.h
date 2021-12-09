@@ -9,7 +9,7 @@ private:
 	HANDLE hTimer = nullptr;
 
 	// UI
-	char text[128] = {};
+	TCHAR text[128] = {};
 
 	// ¹é¹öÆÛ
 	Image* backBuffer = nullptr;

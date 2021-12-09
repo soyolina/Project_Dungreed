@@ -97,6 +97,8 @@ public:
 	// HP UI에서 쓰기 위해서
 	inline const int GetPlayerHP() { return m_hp; }
 
+	inline const POINTFLOAT GetPlayerPos() { return m_pos; }
+
 
 	// 임시 테스트 상자 생성
 	void makeTestRect();
