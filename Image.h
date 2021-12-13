@@ -12,9 +12,15 @@ public:
 		End
 	};
 
+	// 이미지 뒤집기용
 	HDC reverseDc = NULL;
 	HBITMAP hReverseBitmap = NULL;
 	HBITMAP hOldReverseBitmap = NULL;
+
+	// 이미지 로테이트할때 Plgblt에 넣어줄 Maskbitmap 용
+	/*HDC MaskDc = NULL;
+	HBITMAP hMaskBitmap = NULL;
+	HBITMAP hOldMaskBitmap = NULL;*/
 
 	typedef struct tagImageInfo
 	{
@@ -36,18 +42,24 @@ public:
 
 private:
 	LPIMAGE_INFO imageInfo = nullptr;
+	LPIMAGE_INFO rotateImageInfo = nullptr;		//로테이트 이미지
+
 	bool isTransparent = false;
 	COLORREF transColor = 0;
 
 public:
-	HRESULT Init(int width, int hegiht); // 빈 비트맵 이미지 생성(Empty)
-	HRESULT Init(LPCWSTR fileName, int width, int height,
-		bool isTrans = false, COLORREF transColor = NULL); // File 프레임이 없는 이미지
-	HRESULT Init(LPCWSTR fileName, int width, int height,
-		int amxFrameX, int maxFrameY,
-		bool isTrans = false, COLORREF transColor = NULL); // File 프레임이 있는 이미지
+	// 빈 비트맵 이미지 생성(Empty)
+	HRESULT Init(int width, int hegiht); 
+	
+	// File 프레임이 없는 이미지
+	HRESULT Init(LPCWSTR fileName, int width, int height, bool isTrans = false, COLORREF transColor = NULL); 
+	
+	// File 프레임이 있는 이미지
+	HRESULT Init(LPCWSTR fileName, int width, int height, int amxFrameX, int maxFrameY, bool isTrans = false, COLORREF transColor = NULL); 
+
 
 	void Release(); // 메모리 해제
+
 
 	void Render(HDC hdc);
 	// 밑에 두 렌더는 reverse 값에 따라 이미지가 반전되어 출력될 수 있게 해놓음. 
@@ -58,8 +70,28 @@ public:
 
 	// 루프 렌더(스타트 씬)
 	void loopRender(HDC hdc, int sourX);
+	
 	// 플레이어 HP 렌더
 	void HpRender(HDC hdc, int destX, int destY, float remainHp);
+	
+	// 아이템 회전 렌더  - 실패
+	void RotateRender2(HDC hdc, const POINT* rect);
+	
+	// 아이템 회전 렌더 진짜
+	// 프레임 없는 것
+	void ImgRotateRender(HDC hdc, int destX, int destY, float angle);
+	// 프레임 있는 것
+	void ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle);
+
+	HBITMAP GetRotatedBitmap(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
+	void RotateHDC(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
+
+
+
+	
+	
+
+
 
 	inline int GetWidth() { return imageInfo->width; };
 	inline int GetHeight() { return imageInfo->height; }

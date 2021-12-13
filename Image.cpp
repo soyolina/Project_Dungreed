@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Image.h"
+#include <bitset>
+
 
 HRESULT Image::Init(int width, int height)
 {
@@ -21,6 +23,9 @@ HRESULT Image::Init(int width, int height)
 	hReverseBitmap = CreateCompatibleBitmap(hdc, width, height);
 	hOldReverseBitmap = (HBITMAP)SelectObject(reverseDc, hReverseBitmap);
 
+	// 로테이트
+	rotateImageInfo = nullptr;
+
 	ReleaseDC(g_hWnd, hdc);
 
 	if (imageInfo->hBitmap == NULL)
@@ -40,6 +45,10 @@ HRESULT Image::Init(LPCWSTR fileName, int width, int height, bool isTrans, COLOR
 	imageInfo = new IMAGE_INFO;
 	imageInfo->width = width;
 	imageInfo->height = height;
+
+	imageInfo->frameWidth = width;
+	imageInfo->frameHeight = height;
+
 	imageInfo->loadType = ImageLoadType::File;
 	imageInfo->hBitmap = (HBITMAP)LoadImage(g_hInstance, fileName, IMAGE_BITMAP,
 		width, height, LR_LOADFROMFILE);
@@ -52,6 +61,10 @@ HRESULT Image::Init(LPCWSTR fileName, int width, int height, bool isTrans, COLOR
 	hReverseBitmap = (HBITMAP)LoadImage(g_hInstance, fileName, IMAGE_BITMAP,
 		width, height, LR_LOADFROMFILE);
 	hOldReverseBitmap = (HBITMAP)SelectObject(reverseDc, hReverseBitmap);
+
+	// 로테이트
+	rotateImageInfo = nullptr;
+
 
 	ReleaseDC(g_hWnd, hdc);
 
@@ -87,6 +100,9 @@ HRESULT Image::Init(LPCWSTR fileName, int width, int height, int maxFrameX, int 
 	hReverseBitmap = (HBITMAP)LoadImage(g_hInstance, fileName, IMAGE_BITMAP,
 		width, height, LR_LOADFROMFILE);
 	hOldReverseBitmap = (HBITMAP)SelectObject(reverseDc, hReverseBitmap);
+
+	// 로테이트
+	rotateImageInfo = nullptr;
 
 
 	ReleaseDC(g_hWnd, hdc);
@@ -125,6 +141,15 @@ void Image::Release()
 	SelectObject(reverseDc, hOldReverseBitmap);
 	DeleteObject(hReverseBitmap);
 	DeleteDC(reverseDc);
+
+	if (rotateImageInfo != nullptr)
+	{
+		SelectObject(rotateImageInfo->hMemDc, rotateImageInfo->hOldBit);
+		DeleteObject(rotateImageInfo->hBitmap);
+		DeleteDC(rotateImageInfo->hMemDc);
+
+		SAFE_DELETE(rotateImageInfo);
+	}
 }
 
 void Image::Render(HDC hdc)
@@ -454,8 +479,6 @@ void Image::loopRender(HDC hdc, int sourX)
 			);
 		}
 	}
-
-	
 }
 
 void Image::HpRender(HDC hdc, int destX, int destY, float remainHp)
@@ -476,3 +499,185 @@ void Image::HpRender(HDC hdc, int destX, int destY, float remainHp)
 		);
 	}
 }
+
+
+
+void Image::RotateRender2(HDC hdc, const POINT* rect)
+{
+	/*Image white;
+	white.Init(imageInfo->width, imageInfo->height);
+	PatBlt(white.GetMemDC(), 0, 0, imageInfo->width, imageInfo->height, WHITENESS);*/
+
+	//HBITMAP hMask = CreateBitmap(imageInfo->width, imageInfo->height, 1, 1, NULL);
+	HDC tempDC = CreateCompatibleDC(hdc);
+	HBITMAP tempBitmap = CreateCompatibleBitmap(hdc, imageInfo->width, imageInfo->height);
+	SelectObject(tempDC, tempBitmap);
+
+	GdiTransparentBlt(tempDC, 0, 0, imageInfo->width, imageInfo->height,
+	imageInfo->hMemDc, 0, 0, imageInfo->width, imageInfo->height, transColor);
+
+	for (int y = 0; y < imageInfo->height; ++y)
+	{
+		for (int x = 0; x < imageInfo->width; ++x)
+		{
+			if (0 != GetPixel(tempDC, x, y))
+			{
+				SetPixel(tempDC, x, y, RGB(255, 255, 255));
+			}
+		}
+	}
+
+	int bits = GetDeviceCaps(tempDC, BITSPIXEL);
+	
+	// 32bit 비트맵 가지고 1bit 비트맵으로 전환
+	//HBITMAP hMask = CreateBitmap(imageInfo->width, imageInfo->height, 1, 1, &(*bit));
+	
+	auto ret = PlgBlt(
+		hdc,
+		rect,
+		imageInfo->hMemDc,
+		0, 0,
+		imageInfo->width, imageInfo->height,
+
+		NULL,
+		0,
+		0
+	);
+
+	if (ret == 0)
+	{
+		printf("오류");
+	}
+}
+
+
+HBITMAP Image::GetRotatedBitmap(HDC hdc, float angle, int m_frameX, int m_frameY)
+{
+	HDC destDC = CreateCompatibleDC(hdc);											// 회전할 비트맵을 출력받을 DC   
+	HBITMAP hbmResult = CreateCompatibleBitmap(hdc, imageInfo->width, imageInfo->height);		// 회전할 비트맵을 출력받을 메모리비트맵 핸들   
+
+
+	HBITMAP hbmOldDest = (HBITMAP)SelectObject(destDC, hbmResult);                  // 회전할 비트맵을 출력받을 DC에, 회전할 비트맵을 출력받을 메모리비트맵 선택   
+
+	HBRUSH hbrBack = CreateSolidBrush(RGB(255, 0, 255));                            // 회전으로 인한, 공백영역을 칠할 브러시핸들 생성   
+	HBRUSH hbrOld = (HBRUSH)SelectObject(destDC, hbrBack);							// 브러시핸들 선택   
+	PatBlt(destDC, 0, 0, imageInfo->width, imageInfo->height, PATCOPY);				// 선택된 브러시로, 회전할 비트맵을 출력받을 DC에, 미리 색상을 채워 지움   
+	DeleteObject(SelectObject(destDC, hbrOld));                                     // 브러시 해제   
+	
+
+	float cosine = cosf(angle);												        // 회전이동변환 행렬에 들어갈 cos세타 값을 구함          
+	float sine = sinf(angle);											         	// 회전이동변환 행렬에 들어갈 sin세타 값을 구함   
+
+	SetGraphicsMode(destDC, GM_ADVANCED);                                           // 윈도우 좌표계의 회전을 위하여, 그래픽모드를 확장모드로 변경합니다.(요구사항:윈98,NT이상)   
+
+	XFORM xform;                                                                    // 방정식을 표현하는 3행3열의 행렬 선언   
+	xform.eM11 = cosine;                                                            // 1행 1열 성분 설정 (회전성분)   
+	xform.eM12 = sine;                                                              // 1행 2열 성분 설정 (회전성분)   
+	xform.eM21 = -sine;                                                             // 2행 1열 성분 설정 (회전성분)   
+	xform.eM22 = cosine;                                                            // 2행 2열 성분 설정 (회전성분)   
+	xform.eDx =  (FLOAT)imageInfo->frameWidth / 2.0f + m_frameX * imageInfo->frameWidth;	// 3행 1열 성분 설정 (X축 이동 성분)   
+	xform.eDy =  (FLOAT)imageInfo->frameHeight / 2.0f + m_frameY * imageInfo->frameHeight;	// 3행 2열 성분 설정 (Y축 이동 성분)   
+
+	SetWorldTransform(destDC, &xform);
+
+	// 회전된 메모리DC에, 회전할 이미지를 출력   
+	BitBlt(destDC,
+		-(imageInfo->frameWidth / 2.0f),
+		-(imageInfo->frameHeight / 2.0f),
+
+		imageInfo->frameWidth,
+		imageInfo->frameHeight,
+
+		imageInfo->hMemDc,
+		m_frameX * imageInfo->frameWidth,
+		m_frameY * imageInfo->frameHeight,
+		SRCCOPY);
+
+	SelectObject(destDC, hbmOldDest);
+	DeleteObject(destDC);
+
+	return hbmResult;
+}
+
+void Image::RotateHDC(HDC hdc, float angle, int m_frameX, int m_frameY)
+{
+	HBITMAP hTempBitmap;
+
+	if (rotateImageInfo == nullptr)
+	{
+		HDC hdc = GetDC(g_hWnd);
+
+		rotateImageInfo = new IMAGE_INFO;
+		rotateImageInfo->loadType = ImageLoadType::File;
+		rotateImageInfo->hMemDc = CreateCompatibleDC(hdc);
+		rotateImageInfo->hBitmap = (HBITMAP)LoadImage(g_hInstance, L"Image/Item/BasicShortSword_New.bmp", IMAGE_BITMAP, imageInfo->width, imageInfo->height, LR_LOADFROMFILE);
+		rotateImageInfo->hOldBit = (HBITMAP)SelectObject(rotateImageInfo->hMemDc, rotateImageInfo->hBitmap);
+		rotateImageInfo->width = imageInfo->width;
+		rotateImageInfo->height = imageInfo->height;
+
+		ReleaseDC(g_hWnd, hdc);
+	};
+
+	hTempBitmap = GetRotatedBitmap(hdc, angle, m_frameX, m_frameY);
+
+	(HBITMAP)SelectObject(rotateImageInfo->hMemDc, hTempBitmap);
+
+	DeleteObject(hTempBitmap);
+}
+
+void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle)
+{
+	if (isTransparent)//배경색 없애고 출력
+	{
+		RotateHDC(hdc, angle);
+		
+		GdiTransparentBlt(
+			hdc,									//복사할 장소의 DC
+			destX - imageInfo->width * 0.5f,		//복사할 좌표 시작X
+			destY - imageInfo->height * 0.5f,		//복사할 좌표 시작Y
+			imageInfo->width,						//복사할 이미지 가로크기
+			imageInfo->height,						//복사할 이미지 세로크기
+			rotateImageInfo->hMemDc,
+			0, 0,									//복사될 대상의 시작지점
+			imageInfo->width,						//복사 영역 가로크기
+			imageInfo->height,						//복사 영역 세로크기
+			transColor);							//복사할때 제외할 색상 (일반적으로 마젠타 색상을 사용함)
+	}
+	else//원본 이미지 그대로 출력
+	{
+		BitBlt(hdc, destX - imageInfo->width * 0.5f, destY - imageInfo->height * 0.5f, imageInfo->width, imageInfo->height,
+			imageInfo->hMemDc, 0, 0, SRCCOPY);
+	}
+}
+
+void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle)
+{
+	if (isTransparent)//배경색 없애고 출력
+	{
+		RotateHDC(hdc, angle, frameX, frameY);
+
+		GdiTransparentBlt(
+			hdc,									//복사할 장소의 DC
+			destX - imageInfo->frameWidth * 0.5f,		//복사할 좌표 시작X
+			destY - imageInfo->frameHeight * 0.5f,		//복사할 좌표 시작Y
+			imageInfo->frameWidth,						//복사할 이미지 가로크기
+			imageInfo->frameHeight,						//복사할 이미지 세로크기
+			rotateImageInfo->hMemDc,
+			0, 0,									//복사될 대상의 시작지점
+			imageInfo->frameWidth,						//복사 영역 가로크기
+			imageInfo->frameHeight,						//복사 영역 세로크기
+			transColor);							//복사할때 제외할 색상 (일반적으로 마젠타 색상을 사용함)
+	}
+	else//원본 이미지 그대로 출력
+	{
+		BitBlt(hdc, 
+			destX - imageInfo->frameWidth * 0.5f, destY - imageInfo->frameHeight * 0.5f,
+			
+			imageInfo->frameWidth, imageInfo->frameHeight,
+			imageInfo->hMemDc, 
+			0, 0, 
+			SRCCOPY);
+	}
+
+}
+
