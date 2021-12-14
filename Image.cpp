@@ -663,7 +663,8 @@ void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int 
 			imageInfo->frameWidth,						//복사할 이미지 가로크기
 			imageInfo->frameHeight,						//복사할 이미지 세로크기
 			rotateImageInfo->hMemDc,
-			0, 0,									//복사될 대상의 시작지점
+			frameX * imageInfo->frameWidth,		//복사될 대상의 시작지점
+			frameY * imageInfo->frameHeight,
 			imageInfo->frameWidth,						//복사 영역 가로크기
 			imageInfo->frameHeight,						//복사 영역 세로크기
 			transColor);							//복사할때 제외할 색상 (일반적으로 마젠타 색상을 사용함)

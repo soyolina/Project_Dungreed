@@ -4,8 +4,9 @@
 
 #define JUMP_STRENGTH 600.0f
 
-enum class PlayerStatus {Idle, Run, Jump, End};
+enum class PlayerStatus {Idle, Run, End};
 
+class ItemBase;
 class Image;
 class Player : public GameObject
 {
@@ -63,6 +64,10 @@ private:
 	int m_dashFrameX = 0;
 	POINTFLOAT m_beforePlayerPos = {};
 
+	// 아이템 관련
+	ItemBase* m_weapon[2] = {};
+	int m_selectedWeaponIndex = 0;
+
 	// 테스트 상자
 	RECT testRC = {};
 	RECT testRC2 = {};
@@ -94,13 +99,17 @@ public:
 	// DashCount UI에서 쓰기위해서
 	inline const int GetPlayerMaxDashCount() { return m_maxDashCount; }
 	inline const int GetPlayerDashCount() { return m_dashCount; }
+	
 	// HP UI에서 쓰기 위해서
 	inline const int GetPlayerHP() { return m_hp; }
 
 	// BasicShortSword에서 - 검 이미지 렌더 좌표 위해서
 	inline const POINTFLOAT GetPlayerPos() { return m_pos; }
-	// BasicShortSword에서 - 이미지 렌더 반대로 하는거 하기 위해서
+	// BasicShortSword에서 - 이미지 렌더 반대로 하는거 또는 렌더 위치를 설정하기 위해서
 	inline const bool GetPlayerReverse() { return mb_isLeft; }
+
+	// 아이템 관련
+	inline void SetItem(int index, ItemBase* item) { this->m_weapon[index] = item; }
 
 
 	// 임시 테스트 상자 생성

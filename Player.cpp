@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Image.h"
+#include "ItemBase.h"
 
 HRESULT Player::Init()
 {
@@ -13,7 +14,6 @@ HRESULT Player::Init()
 
     m_statusAniData[static_cast<int>(PlayerStatus::Idle)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharIdle.bmp"), 5, 0.1f};
     m_statusAniData[static_cast<int>(PlayerStatus::Run)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharRun.bmp"), 8, 0.1f};
-    //m_statusAniData[static_cast<int>(PlayerStatus::Jump)] = { IMAGE_MANAGER->FindImage("Image/Player/baseCharIdle.bmp"), 5, 0.1f };
 
     me_PlayerStatus = PlayerStatus::Idle;
 
@@ -62,6 +62,11 @@ HRESULT Player::Init()
     m_dashFrameX = 0;
     m_beforePlayerPos = {};
 
+    // 아이템 관련
+    m_selectedWeaponIndex = 0;
+    m_weapon[0] = nullptr;
+    m_weapon[1] = nullptr;
+
     // 임시 테스트 상자
     makeTestRect();
     
@@ -81,6 +86,22 @@ void Player::Update()
     {
         m_pos.x = WIN_SIZE_X / 2;
         m_pos.y = WIN_SIZE_Y / 2;
+    }
+
+    // 아이템 관련된 것 - 마우스 좌클릭시 공격
+    if (Input::GetButtonDown(VK_LBUTTON) && m_weapon[m_selectedWeaponIndex] != nullptr && m_weapon[m_selectedWeaponIndex]->GetImgToggle() == false)
+    {
+        m_weapon[m_selectedWeaponIndex]->SetIsAttack(true);
+
+        m_weapon[m_selectedWeaponIndex]->SetIsAttack2(true);
+        m_weapon[m_selectedWeaponIndex]->SetImgToggle(true);
+    }
+    else if (Input::GetButtonDown(VK_LBUTTON) && m_weapon[0] != nullptr && m_weapon[0]->GetImgToggle() == true)
+    {
+        m_weapon[m_selectedWeaponIndex]->SetIsAttack(true);
+
+        m_weapon[m_selectedWeaponIndex]->SetIsAttack2(true);
+        m_weapon[m_selectedWeaponIndex]->SetImgToggle(false);
     }
 
     // 대쉬 이펙트 렌더 위해서 쓰는 변수
@@ -112,7 +133,7 @@ void Player::Update()
 		Move();
     }
 
-    // 충돌일 때가 아니면 중력 적용 또는 점프했을시 점프힘에 중력 적용
+    // 충돌일 때가 아니면 or 대쉬 상태 아니면 중력 적용 // 또는 점프했을시 점프힘에 중력 적용
 	if (mb_isCollide == false && mb_isDash == false)
     {
 		m_pos.y -= m_jumpStrength * TIMER_MANAGER->GetDeltaTime();
@@ -291,6 +312,7 @@ void Player::Move()
     {
         me_PlayerStatus = PlayerStatus::Idle;
         m_frameX = 0;
+        m_elapsedCount = 0.0f;
 
         m_dustFrameX = 0;
         m_dustEffectCount = 0.0f;
@@ -306,6 +328,7 @@ void Player::Move()
     {
         me_PlayerStatus = PlayerStatus::Idle;
         m_frameX = 0;
+        m_elapsedCount = 0.0f;
 
         m_dustFrameX = 0;
         m_dustEffectCount = 0.0f;

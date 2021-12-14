@@ -41,6 +41,7 @@ void ImageManager::Init()
 
     // Item
     IMAGE_MANAGER->AddImage(L"Image/Item/BasicShortSword_New.bmp", 100, 100, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Item/BasicShortSwordEffect.bmp", 300, 108, 3, 1, true, RGB(255, 0, 255));
 }
 
 void ImageManager::Release()

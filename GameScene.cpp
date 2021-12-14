@@ -20,6 +20,9 @@ HRESULT GameScene::Init()
     m_basicShortSword = new BasicShortSword;
     m_basicShortSword->Init(m_player);
 
+    // 아이템 셋팅
+    m_player->SetItem(0, m_basicShortSword);
+
     return S_OK;
 }
 
@@ -36,9 +39,18 @@ void GameScene::Render(HDC hdc)
 {
     taeYeon->Render(hdc);
 
-    m_basicShortSword->Render(hdc);
+    // 토글 상태에 따라 이미지 렌더 순서 달라지게 할려고
+    if (m_basicShortSword->GetImgToggle() == false)
+    {
+		m_basicShortSword->Render(hdc);
+        m_player->Render(hdc);
+    }
 
-    m_player->Render(hdc);
+    if (m_basicShortSword->GetImgToggle() == true)
+    {
+        m_player->Render(hdc);
+        m_basicShortSword->Render(hdc);
+    }
 
     m_UIManager->Render(hdc);
 
