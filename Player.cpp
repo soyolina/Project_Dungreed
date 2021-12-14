@@ -445,7 +445,7 @@ void Player::makeTestRect()
 
     testRC6.left = static_cast<long>(0);
     testRC6.right = static_cast<long>(WIN_SIZE_X);
-    testRC6.top = static_cast<long>(WIN_SIZE_Y - 10);
+    testRC6.top = static_cast<long>(WIN_SIZE_Y);
     testRC6.bottom = static_cast<long>(WIN_SIZE_Y + 90);
 
     intersectRect = {};

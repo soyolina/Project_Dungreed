@@ -48,6 +48,10 @@ void ImageManager::Init()
     // --> Bellial
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdle.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBack.bmp", 1470, 144, 10, 1, true, RGB(255, 0, 255));
+    // ---> HP UI
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBack.bmp", 600, 77, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeRed.bmp", 480, 77, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBase.bmp", 600, 77, true, RGB(255, 0, 255));
 }
 
 void ImageManager::Release()

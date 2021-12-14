@@ -500,6 +500,25 @@ void Image::HpRender(HDC hdc, int destX, int destY, float remainHp)
 	}
 }
 
+void Image::HpRender2(HDC hdc, int destX, int destY, float remainHp)
+{
+	if (isTransparent)
+	{
+		GdiTransparentBlt
+		(
+			hdc,
+			destX - static_cast<int>(imageInfo->width * 0.5f),
+			destY - static_cast<int>(imageInfo->height * 0.5f),
+			static_cast<int>(remainHp), imageInfo->height,
+
+			imageInfo->hMemDc,
+			0, 0,
+			static_cast<int>(remainHp), imageInfo->height,
+			transColor
+		);
+	}
+}
+
 
 
 void Image::RotateRender2(HDC hdc, const POINT* rect)
@@ -575,15 +594,15 @@ HBITMAP Image::GetRotatedBitmap(HDC hdc, float angle, int m_frameX, int m_frameY
 	xform.eM12 = sine;                                                              // 1행 2열 성분 설정 (회전성분)   
 	xform.eM21 = -sine;                                                             // 2행 1열 성분 설정 (회전성분)   
 	xform.eM22 = cosine;                                                            // 2행 2열 성분 설정 (회전성분)   
-	xform.eDx =  (FLOAT)imageInfo->frameWidth / 2.0f + m_frameX * imageInfo->frameWidth;	// 3행 1열 성분 설정 (X축 이동 성분)   
-	xform.eDy =  (FLOAT)imageInfo->frameHeight / 2.0f + m_frameY * imageInfo->frameHeight;	// 3행 2열 성분 설정 (Y축 이동 성분)   
+	xform.eDx =  (FLOAT)imageInfo->frameWidth * 0.5f + m_frameX * imageInfo->frameWidth;	// 3행 1열 성분 설정 (X축 이동 성분)   
+	xform.eDy =  (FLOAT)imageInfo->frameHeight * 0.5f + m_frameY * imageInfo->frameHeight;	// 3행 2열 성분 설정 (Y축 이동 성분)   
 
 	SetWorldTransform(destDC, &xform);
 
 	// 회전된 메모리DC에, 회전할 이미지를 출력   
 	BitBlt(destDC,
-		-(imageInfo->frameWidth / 2.0f),
-		-(imageInfo->frameHeight / 2.0f),
+		static_cast<int>(-(imageInfo->frameWidth * 0.5f)),
+		static_cast<int>(-(imageInfo->frameHeight * 0.5f)),
 
 		imageInfo->frameWidth,
 		imageInfo->frameHeight,
@@ -633,8 +652,8 @@ void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle)
 		
 		GdiTransparentBlt(
 			hdc,									//복사할 장소의 DC
-			destX - imageInfo->width * 0.5f,		//복사할 좌표 시작X
-			destY - imageInfo->height * 0.5f,		//복사할 좌표 시작Y
+			destX - static_cast<int>(imageInfo->width * 0.5f),		//복사할 좌표 시작X
+			destY - static_cast<int>(imageInfo->height * 0.5f),		//복사할 좌표 시작Y
 			imageInfo->width,						//복사할 이미지 가로크기
 			imageInfo->height,						//복사할 이미지 세로크기
 			rotateImageInfo->hMemDc,
@@ -645,7 +664,7 @@ void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle)
 	}
 	else//원본 이미지 그대로 출력
 	{
-		BitBlt(hdc, destX - imageInfo->width * 0.5f, destY - imageInfo->height * 0.5f, imageInfo->width, imageInfo->height,
+		BitBlt(hdc, static_cast<int>(destX - imageInfo->width * 0.5f), static_cast<int>(destY - imageInfo->height * 0.5f), imageInfo->width, imageInfo->height,
 			imageInfo->hMemDc, 0, 0, SRCCOPY);
 	}
 }
@@ -658,8 +677,8 @@ void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int 
 
 		GdiTransparentBlt(
 			hdc,									//복사할 장소의 DC
-			destX - imageInfo->frameWidth * 0.5f,		//복사할 좌표 시작X
-			destY - imageInfo->frameHeight * 0.5f,		//복사할 좌표 시작Y
+			static_cast<int>(destX - imageInfo->frameWidth * 0.5f),			//복사할 좌표 시작X
+			static_cast<int>(destY - imageInfo->frameHeight * 0.5f),		//복사할 좌표 시작Y
 			imageInfo->frameWidth,						//복사할 이미지 가로크기
 			imageInfo->frameHeight,						//복사할 이미지 세로크기
 			rotateImageInfo->hMemDc,
@@ -672,7 +691,7 @@ void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int 
 	else//원본 이미지 그대로 출력
 	{
 		BitBlt(hdc, 
-			destX - imageInfo->frameWidth * 0.5f, destY - imageInfo->frameHeight * 0.5f,
+			destX - static_cast<int>(imageInfo->frameWidth * 0.5f), destY - static_cast<int>(imageInfo->frameHeight * 0.5f),
 			
 			imageInfo->frameWidth, imageInfo->frameHeight,
 			imageInfo->hMemDc, 

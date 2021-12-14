@@ -71,8 +71,10 @@ public:
 	// ·çÇÁ ·»´õ(½ºÅ¸Æ® ¾À)
 	void loopRender(HDC hdc, int sourX);
 	
-	// ÇÃ·¹ÀÌ¾î HP ·»´õ
+	// ÇÃ·¹ÀÌ¾î HP ·»´õ - destÁÂÇ¥¸¦ ½ÃÀÛÀ¸·Î ÀÌ¹ÌÁö ·»´õ
 	void HpRender(HDC hdc, int destX, int destY, float remainHp);
+	// º¸½º HP ·»´õ - destÁÂÇ¥¸¦ ÁßÁ¡À¸·Î ÀÌ¹ÌÁö ·»´õ
+	void HpRender2(HDC hdc, int destX, int destY, float remainHp);
 	
 	// ¾ÆÀÌÅÛ È¸Àü ·»´õ  - ½ÇÆÐ
 	void RotateRender2(HDC hdc, const POINT* rect);
