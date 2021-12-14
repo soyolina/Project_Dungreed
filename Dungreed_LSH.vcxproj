@@ -141,8 +141,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BasicShortSword.cpp" />
+    <ClCompile Include="Bellial.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="DashCount.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="HP.cpp" />
@@ -167,10 +169,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicShortSword.h" />
+    <ClInclude Include="Bellial.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="DashCount.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="HP.h" />

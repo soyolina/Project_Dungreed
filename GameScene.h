@@ -4,6 +4,7 @@
 #include "CommonFunction.h"
 #include "Scene.h"
 
+class Bellial;
 class BasicShortSword;
 class UIManager;
 class Player;
@@ -21,6 +22,7 @@ private:
 
 	BasicShortSword* m_basicShortSword = nullptr;
 
+	Bellial* m_Bellial = nullptr;
 
 public:
 	virtual ~GameScene() {}

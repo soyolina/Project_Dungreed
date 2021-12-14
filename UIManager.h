@@ -18,6 +18,6 @@ public:
 	void Render(HDC hdc);
 	void Release();
 
-	inline void SetPlayer(Player* player) { this->m_player = player; }
+	void SetPlayer(Player* player) { this->m_player = player; }
 };
 

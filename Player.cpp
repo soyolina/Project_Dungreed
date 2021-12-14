@@ -5,52 +5,56 @@
 
 HRESULT Player::Init()
 {
-    m_dashEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/baseCharEffect.bmp");
-    m_runEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/RunEffect.bmp");
+    // - GameObject에서 상속받은 것
+    // 캐릭터 위치
+    m_pos.x = WIN_SIZE_X / 2;
+    m_pos.y = WIN_SIZE_Y / 2;
+
+    // 캐릭터 히트박스 관련
+    m_bodyWidth = 36;
+    m_bodyHeight = 38;
+
+    SetShape(m_pos, m_bodyWidth, m_bodyHeight);
+
+    // 캐릭터 정보관련
+    m_hp = 100;
+    m_moveSpeed = 200.0f;
+    // - 여기까지
+
+    // 플레이어가 바라보고 있는 방향 체크용
+    mb_isLeft = false;
+
+    // 캐릭터 상태
+    me_PlayerStatus = PlayerStatus::Idle;
+
+    // 플레이어 이미지 애니메이션 렌더용
+    m_statusAniData[static_cast<int>(PlayerStatus::Idle)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharIdle.bmp"), 5, 0.1f};
+    m_statusAniData[static_cast<int>(PlayerStatus::Run)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharRun.bmp"), 8, 0.1f};
 
     m_frameX = 0;
     m_frameY = 0;
     m_elapsedCount = 0.0f;
-
-    m_statusAniData[static_cast<int>(PlayerStatus::Idle)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharIdle.bmp"), 5, 0.1f};
-    m_statusAniData[static_cast<int>(PlayerStatus::Run)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharRun.bmp"), 8, 0.1f};
-
-    me_PlayerStatus = PlayerStatus::Idle;
-
-    m_pos.x = WIN_SIZE_X / 2;
-    m_pos.y = WIN_SIZE_Y / 2;
-
-    m_bodyWidth = 36;
-    m_bodyHeight = 38;
-
-    m_shape.left = static_cast<long>(m_pos.x - m_bodyWidth / 2);
-    m_shape.right = static_cast<long>(m_shape.left + m_bodyWidth);
-    m_shape.top = static_cast<long>(m_pos.y - m_bodyHeight / 2);
-    m_shape.bottom = static_cast<long>(m_pos.y + m_bodyHeight);
     
-    m_hp = 100;
-    m_moveSpeed = 200.0f;
-
-    mb_isJump = false;
-    mb_isDownJump = false;
-
-    m_beforePlayerBottom = 0;
-    m_jumpCount = 1;
-    m_jumpStrength = 0.0f;
-    m_gravity = 1300.0f;
-    
-    mb_isCollide = false;
-
-    // 플레이어가 바라보고 있는 방향
-    mb_isLeft = false;
-
-    // Runeffect용
+    // 플레이어가 이동시 발생하는 먼지 이펙트 관련
+    m_runEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/RunEffect.bmp");
     mb_isMove = false;
     m_dustEffectCount = 0.0f;
     m_dustFrameX = 0;
     m_dustMaxFrameX = 5;
 
+    // 점프관련
+    mb_isJump = false;
+    mb_isDownJump = false;
+
+    m_jumpCount = 1;
+    m_jumpStrength = 0.0f;
+    m_gravity = 1300.0f;
+    
+    mb_isCollide = false;
+    m_beforePlayerBottom = 0;
+
     // 대쉬 관련
+    m_dashEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/baseCharEffect.bmp");
     mb_isDash = false;
     m_angle = 0.0f;
     m_maxDashCount = 2;
@@ -88,26 +92,16 @@ void Player::Update()
         m_pos.y = WIN_SIZE_Y / 2;
     }
 
-    // 아이템 관련된 것 - 마우스 좌클릭시 공격
-    if (Input::GetButtonDown(VK_LBUTTON) && m_weapon[m_selectedWeaponIndex] != nullptr && m_weapon[m_selectedWeaponIndex]->GetImgToggle() == false)
+    // 아이템 관련된 것 - 마우스 좌클릭시 공격 => Attack()
+    if (Input::GetButtonDown(VK_LBUTTON))
     {
-        m_weapon[m_selectedWeaponIndex]->SetIsAttack(true);
-
-        m_weapon[m_selectedWeaponIndex]->SetIsAttack2(true);
-        m_weapon[m_selectedWeaponIndex]->SetImgToggle(true);
-    }
-    else if (Input::GetButtonDown(VK_LBUTTON) && m_weapon[0] != nullptr && m_weapon[0]->GetImgToggle() == true)
-    {
-        m_weapon[m_selectedWeaponIndex]->SetIsAttack(true);
-
-        m_weapon[m_selectedWeaponIndex]->SetIsAttack2(true);
-        m_weapon[m_selectedWeaponIndex]->SetImgToggle(false);
+        Attack();
     }
 
     // 대쉬 이펙트 렌더 위해서 쓰는 변수
     m_beforePlayerPos = m_pos;
 
-    // 충돌체크 보정할지 말지 위해 쓰는 변수 - 플레이어의 밑과 충돌되는 상자 윗부분과 충돌했을 시에만, 충돌 처리 보정을 위해서
+    // 충돌체크 후 보정할지 말지 위해 쓰는 변수 - 플레이어의 밑과 충돌되는 상자 윗부분과 충돌했을 시에만, 충돌 처리 보정을 위해서
     m_beforePlayerBottom = m_shape.bottom;
 
     // 우클릭시 대쉬 
@@ -120,7 +114,7 @@ void Player::Update()
     }
 
     // 대쉬 횟수 회복
-    DashRegen();
+    RegenDash();
 
     // 대시 관련
     if (mb_isDash == true)
@@ -133,22 +127,14 @@ void Player::Update()
 		Move();
     }
 
-    // 충돌일 때가 아니면 or 대쉬 상태 아니면 중력 적용 // 또는 점프했을시 점프힘에 중력 적용
+    // 중력적용 관련
+    // 충돌일 때가 아니면 or 대쉬 상태 아니면 중력 적용 또는 점프했을시 점프힘에 중력 적용
 	if (mb_isCollide == false && mb_isDash == false)
     {
-		m_pos.y -= m_jumpStrength * TIMER_MANAGER->GetDeltaTime();
-		SetShape(m_pos, m_bodyWidth, m_bodyHeight);
-
-		m_jumpStrength -= m_gravity * TIMER_MANAGER->GetDeltaTime();
-
-        // jumpStrength 중력 영향받을때 하한선 적용
-		if (m_jumpStrength < -JUMP_STRENGTH)
-		{
-			m_jumpStrength = -JUMP_STRENGTH;
-		}
+        ApplyGravity();
     }
 
-    // 아래 점프시 캐릭터위가 충돌검사하는 상자 밑에보다 더 아래라면 다운점프->false
+    // 아래 점프시 캐릭터 밑이 충돌검사하는 상자 밑에보다 더 아래라면 다운점프->false
     if (mb_isDownJump == true && m_shape.bottom > collidedRect.bottom)
     {
         mb_isDownJump = false;
@@ -177,7 +163,7 @@ void Player::Update()
 
     if (isIntersect)
     { 
-        // 아래점프 아닐때 충돌 보정
+        // 아래점프 그리고 대쉬가 아닐때 충돌 보정
         if (mb_isDownJump == false && mb_isDash == false/* && m_shape.bottom <= intersectRect.bottom*/)
         {
             mb_isCollide = true;
@@ -196,19 +182,6 @@ void Player::Update()
 
 
     SetShape(m_pos, m_bodyWidth, m_bodyHeight);
-
-    
-    // 마우스 좌표에 따른 플레이어 이미지 반전
-    if (m_pos.x < Input::GetMousePosition().x)
-    {
-        m_frameY = 0; 
-        mb_isLeft = false;
-    }
-    else 
-    { 
-        m_frameY = 1; 
-        mb_isLeft = true;
-    }
 }
 
 void Player::Render(HDC hdc)
@@ -228,19 +201,22 @@ void Player::Render(HDC hdc)
     }
 
     // 플레이어
-    //Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
-    Animation(hdc, me_PlayerStatus);
+    Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
+    PlayAnimation(hdc, me_PlayerStatus);
     
     // RunEffect 관련
     if (mb_isMove == true && mb_isJump == false)
     {
         RunEffectAnimation(hdc);
     }
-    
 }
 
 void Player::Release()
 {
+    m_statusAniData[static_cast<int>(PlayerStatus::Idle)].playerImage = nullptr;
+    m_statusAniData[static_cast<int>(PlayerStatus::Run)].playerImage = nullptr;
+    m_runEffectImg = nullptr;
+    m_dashEffectImg = nullptr;
 }
 
 void Player::SetShape(const POINTFLOAT& playerPos, const int& m_bodyWidth, const int& m_bodyHeight)
@@ -253,7 +229,7 @@ void Player::SetShape(const POINTFLOAT& playerPos, const int& m_bodyWidth, const
 
 void Player::Dash()
 {
-    // 대쉬쉬 그 당시의 마우스 좌표로 플레이어 이동
+    // 대쉬 그 당시의 마우스 좌표로 플레이어 이동
 	m_pos.x += cosf(m_angle) * m_dashSpeed /** TIMER_MANAGER->GetDeltaTime() / 0.1f*/;
 	m_pos.y -= sinf(m_angle) * m_dashSpeed /** TIMER_MANAGER->GetDeltaTime() / 0.1f*/;
 	SetShape(m_pos, m_bodyWidth, m_bodyHeight);
@@ -286,8 +262,10 @@ void Player::Dash()
     }
 }
 
-void Player::DashRegen()
+void Player::RegenDash()
 {
+    if (m_dashCount == m_maxDashCount) return;
+
     m_dashRegenTime += TIMER_MANAGER->GetDeltaTime();
     if (m_dashRegenTime > 1.5f)
     {
@@ -339,7 +317,7 @@ void Player::Move()
     if (m_jumpCount > 0)
     {
         // 위 점프
-        if (Input::GetButtonDown(VK_SPACE) && mb_isDownJump == false)
+        if (Input::GetButtonDown(VK_SPACE) /*&& mb_isDownJump == false*/)
         {
             --m_jumpCount;
             m_jumpStrength = JUMP_STRENGTH;
@@ -355,11 +333,37 @@ void Player::Move()
     }
 }
 
-void Player::Animation(HDC hdc, PlayerStatus playerStatus)
+void Player::ApplyGravity()
 {
+    m_pos.y -= m_jumpStrength * TIMER_MANAGER->GetDeltaTime();
+    SetShape(m_pos, m_bodyWidth, m_bodyHeight);
+
+    m_jumpStrength -= m_gravity * TIMER_MANAGER->GetDeltaTime();
+
+    // jumpStrength 중력 영향받을때 하한선 적용
+    if (m_jumpStrength < -JUMP_STRENGTH)
+    {
+        m_jumpStrength = -JUMP_STRENGTH;
+    }
+}
+
+void Player::PlayAnimation(HDC hdc, PlayerStatus playerStatus)
+{
+    // 마우스 좌표에 따른 플레이어 이미지 반전
+    if (m_pos.x < Input::GetMousePosition().x)
+    {
+        m_frameY = 0;
+        mb_isLeft = false;
+    }
+    else
+    {
+        m_frameY = 1;
+        mb_isLeft = true;
+    }
+
     if (playerStatus < PlayerStatus::Idle || playerStatus > PlayerStatus::End)
         return;
-
+    
     // 플레이어 이미지 렌더 관련
     m_elapsedCount += TIMER_MANAGER->GetDeltaTime();
     if (m_elapsedCount > m_statusAniData[static_cast<int>(playerStatus)].totalTime)
@@ -400,7 +404,16 @@ void Player::RunEffectAnimation(HDC hdc)
 	}
 }
 
+void Player::Attack()
+{
+    if (m_weapon[m_selectedWeaponIndex] != nullptr)
+    {
+        m_weapon[m_selectedWeaponIndex]->SetIsAttack(true);
+        m_weapon[m_selectedWeaponIndex]->SetIsAttack2(true);
 
+        m_weapon[m_selectedWeaponIndex]->SetImgToggle(); // !GetImgToggle()써서 해라. 교수님말씀.
+    }
+}
 
 void Player::makeTestRect()
 {
@@ -445,4 +458,6 @@ void Player::makeTestRect()
     rectArr[4] = testRC5;
     rectArr[5] = testRC6;
 }
+
+
 

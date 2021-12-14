@@ -5,11 +5,11 @@
 
 void DashCount::Init()
 {
-	m_DashBarBaseLeft = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBaseLeftEnd.bmp");
-	m_DashBarBaseRight = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBaseRightEnd.bmp");
-	m_DashBarBase = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBase.bmp");
+	m_dashBarBaseLeft = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBaseLeftEnd.bmp");
+	m_dashBarBaseRight = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBaseRightEnd.bmp");
+	m_dashBarBase = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashBase.bmp");
 
-	m_DashCountGage = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashCount.bmp");
+	m_dashCountGage = IMAGE_MANAGER->FindImage(L"Image/UI/DashCount/DashCount.bmp");
 
 	m_player = nullptr;
 	m_playerMaxDashCount = 0;
@@ -25,30 +25,32 @@ void DashCount::Update()
 void DashCount::Render(HDC hdc)
 {
 	// 대쉬 바 에 관한 이미지 렌더
-	m_DashBarBaseLeft->RenderBasic(hdc, DASHBAR_LEFTEND_POSX, DASHBAR_LEFTEND_POSY);
+	m_dashBarBaseLeft->RenderBasic(hdc, DASHBAR_LEFTEND_POSX, DASHBAR_LEFTEND_POSY);
 
-	int DashBarBasePosX = DASHBAR_LEFTEND_POSX + m_DashBarBaseLeft->GetWidth();
+	int dashBarBasePosX = DASHBAR_LEFTEND_POSX + m_dashBarBaseLeft->GetWidth();
 	for (int i = 0; i < m_playerMaxDashCount; ++i)
 	{
-		m_DashBarBase->RenderBasic(hdc, DashBarBasePosX, DASHBAR_LEFTEND_POSY);
-		DashBarBasePosX += m_DashBarBase->GetWidth();
+		m_dashBarBase->RenderBasic(hdc, dashBarBasePosX, DASHBAR_LEFTEND_POSY);
+		dashBarBasePosX += m_dashBarBase->GetWidth();
 	}
 
-	m_DashBarBaseRight->RenderBasic(hdc, DashBarBasePosX, DASHBAR_LEFTEND_POSY);
+	m_dashBarBaseRight->RenderBasic(hdc, dashBarBasePosX, DASHBAR_LEFTEND_POSY);
 	
 
 	// 대쉬 게이지 에 관한 이미지 렌더
-	int DashGagePosX = DASHBAR_LEFTEND_POSX + m_DashBarBaseLeft->GetWidth() + static_cast<int>(m_DashBarBase->GetWidth() * 0.5f);
-	int DashGagePosY = static_cast<int>(DASHBAR_LEFTEND_POSY + m_DashBarBaseLeft->GetHeight() * 0.5f);
+	int dashGagePosX = DASHBAR_LEFTEND_POSX + m_dashBarBaseLeft->GetWidth() + static_cast<int>(m_dashBarBase->GetWidth() * 0.5f);
+	int dashGagePosY = static_cast<int>(DASHBAR_LEFTEND_POSY + m_dashBarBaseLeft->GetHeight() * 0.5f);
 	for (int i = 0; i < m_playerDashCount; ++i)
 	{
-		m_DashCountGage->Render(hdc, DashGagePosX, DashGagePosY);
-		DashGagePosX += m_DashBarBase->GetWidth();
+		m_dashCountGage->Render(hdc, dashGagePosX, dashGagePosY);
+		dashGagePosX += m_dashBarBase->GetWidth();
 	}
 }
 
 void DashCount::Release()
 {
-	m_DashBarBase = nullptr;
-	m_DashCountGage = nullptr;
+	m_dashBarBaseLeft = nullptr;
+	m_dashBarBaseRight = nullptr;
+	m_dashBarBase = nullptr;
+	m_dashCountGage = nullptr;
 }

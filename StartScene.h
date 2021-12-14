@@ -28,20 +28,30 @@ public:
 	using Button = Button<StartScene>;
 
 private:
-	POINT m_startBtnPos = {};
-	POINT m_quitBtnPos = {};
-
+	// - 버튼 관련
+	// 변수
 	Button* m_startBtn = nullptr;
 	Button* m_quitBtn = nullptr;
+	POINT m_startBtnPos = {};
+	POINT m_quitBtnPos = {};
+	// 함수
+	void StartBtnFunc();
+	void QuitBtnFunc();
 
+	// - 이미지 루프랜더에서
+	// 쓸 이미지 
+	Image* m_backCloud = nullptr;
+	Image* m_midCloud = nullptr;
+	Image* m_frontCloud = nullptr;
+	// 쓸 이미지 원본(소스) 렌더 위치 posX 관련
 	int m_backCloudSourX = 0;
 	int m_midCloudSourX = 0;
 	int m_frontCloudSourX = 0;
 
-	Image* m_backCloud = nullptr;
-	Image* m_midCloud = nullptr;
-	Image* m_frontCloud = nullptr;
+	// 메인로고 이미지
 	Image* m_mainLogo = nullptr;
+	
+	// 커서 이미지
 	Image* m_basicCursor = nullptr;
 
 public:
@@ -51,8 +61,5 @@ public:
 	virtual void Update();
 	virtual void Render(HDC hdc);
 	virtual void Release();
-
-	void StartBtnFunc();
-	void QuitBtnFunc();
 };
 

@@ -19,4 +19,3 @@ public:
 
 	inline void SetPlayer(Player* player) { this->m_player = player; }
 };
-

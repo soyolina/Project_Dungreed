@@ -29,12 +29,12 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage(L"Image/Player/RunEffect.bmp", 240, 96, 5, 2, true, RGB(255, 0, 255));
 
     // UI
-    // DashCount
+    // - DashCount
     IMAGE_MANAGER->AddImage(L"Image/UI/DashCount/DashBaseLeftEnd.bmp", 6, 24, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/UI/DashCount/DashBaseRightEnd.bmp", 6, 24, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/UI/DashCount/DashBase.bmp", 27, 24, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/UI/DashCount/DashCount.bmp", 27, 12, true, RGB(255, 0, 255));
-    // playerHP
+    // - playerHP
     IMAGE_MANAGER->AddImage(L"Image/UI/HP2/PlayerLifeBase.bmp", 296, 64, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/UI/HP2/PlayerLifeBack.bmp", 296, 64, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/UI/HP2/LifeBarFull.bmp", 196, 40, true, RGB(255, 0, 255));
@@ -42,6 +42,12 @@ void ImageManager::Init()
     // Item
     IMAGE_MANAGER->AddImage(L"Image/Item/BasicShortSword_New.bmp", 100, 100, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Item/BasicShortSwordEffect.bmp", 300, 108, 3, 1, true, RGB(255, 0, 255));
+
+    // Enemy
+    // - Boss
+    // --> Bellial
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdle.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBack.bmp", 1470, 144, 10, 1, true, RGB(255, 0, 255));
 }
 
 void ImageManager::Release()
