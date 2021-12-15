@@ -5,6 +5,7 @@
 #include <windowsx.h>
 #include <iostream>
 #include <math.h>
+#include <ctime>
 
 // STL
 #include <vector>

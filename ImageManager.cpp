@@ -44,11 +44,27 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage(L"Image/Item/BasicShortSwordEffect.bmp", 300, 108, 3, 1, true, RGB(255, 0, 255));
 
     // Enemy
-    // - Boss
-    // --> Bellial
+    // - Boss 
+    // -- 벨리알 -- 
+    
+    // 본체 Idle
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdle.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
+    // 본체 뒤 큰 구슬
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBack.bmp", 1470, 144, 10, 1, true, RGB(255, 0, 255));
-    // ---> HP UI
+    // 본체 뒤 작은 구슬
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossParticle.bmp", 720, 90, 8, 1, true, RGB(255, 0, 255));
+
+    // Hand Idle (Left, Right)
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLeftHandIdle.bmp", 1710, 189, 10, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossRightHandIdle.bmp", 1710, 189, 10, 1, true, RGB(255, 0, 255));
+    // Hand Attack
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLeftHandAttack.bmp", 3510, 213, 18, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossRightHandAttack.bmp", 3510, 213, 18, 1, true, RGB(255, 0, 255));
+    // Hand Laser
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLaserBody.bmp", 672, 294, 7, 2, true, RGB(255, 0, 255)); // Body
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLaserHead.bmp", 567, 264, 7, 2, true, RGB(255, 0, 255)); // Head
+
+    // HP UI
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBack.bmp", 600, 77, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeRed.bmp", 480, 77, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBase.bmp", 600, 77, true, RGB(255, 0, 255));
