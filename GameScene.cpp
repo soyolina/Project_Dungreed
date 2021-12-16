@@ -29,6 +29,7 @@ HRESULT GameScene::Init()
     // º¸½º
     m_Bellial = new Bellial;
     m_Bellial->Init();
+    m_Bellial->SetPlayer(m_player);
 
     return S_OK;
 }

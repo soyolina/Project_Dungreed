@@ -128,9 +128,10 @@ public:
 	// HP UI에서 쓰기 위해서
 	int GetPlayerHP() const { return m_hp; }
 
-	// BasicShortSword에서 - 검 이미지 렌더 좌표 위해서
+	// BasicShortSword - 검 이미지 렌더 좌표 위해서, Bellial - 플레이어 공격위해서
 	POINTFLOAT GetPlayerPos() const { return m_pos; }
 	// BasicShortSword에서 - 이미지 렌더 반대로 하는거 또는 렌더 위치를 설정하기 위해서
 	bool GetPlayerReverse() const { return mb_isLeft; }
+
 };
 
