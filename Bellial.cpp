@@ -6,8 +6,13 @@
 
 HRESULT Bellial::Init()
 {
+	// 콜라이더
+	Collider::CreateCollider(L"BossBody", this, ObjectType::Enemy, m_shape);
+	Collider::CreateCollider(L"BossLaser", this, ObjectType::EnemyAttack, m_laserHitbox);
+
 	// - 보스 애니메이션 용
 	m_bossIdleImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp"); // 보스 본체
+	m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp"); // 보스 피격
 	m_bossBackImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossBack.bmp"); // 보스 본체 뒤 큰 중앙 구슬
 	
 	// 보스 본체 뒤 작은 구슬들
@@ -95,6 +100,10 @@ HRESULT Bellial::Init()
 
 	m_hp = 100;
 	m_moveSpeed = 0.0f;
+	m_attackDamage = 0;
+	mb_isHit = false;
+	m_hitElapsedCount = 0.0f;
+	mb_isDead = false;
 	// - 여기까지
 
 	// - 보스 HP UI 관련
@@ -109,6 +118,24 @@ HRESULT Bellial::Init()
 
 void Bellial::Update()
 {
+	// 죽는 거 셋팅
+	if (m_hp <= 0)
+	{
+		mb_isDead = true;
+		return;
+	}
+
+	// 맞았을 때
+	if (mb_isHit == true)
+	{
+		m_hitElapsedCount += TIMER_MANAGER->GetDeltaTime();
+		if (m_hitElapsedCount > 0.2f)
+		{
+			mb_isHit = false;
+			m_hitElapsedCount = 0.0f;
+		}
+	}
+
 	// 본체, 중앙구슬 애니메이션
 	m_elapsedCount += TIMER_MANAGER->GetDeltaTime();
 	if (m_elapsedCount >= 0.07f)
@@ -136,6 +163,7 @@ void Bellial::Update()
 			case 0:
 				mb_isAttack = true;
 				mb_fireLaserbeam = true;
+				m_attackDamage = 8;
 				break;
 			case 1:
 				break;
@@ -154,18 +182,15 @@ void Bellial::Update()
 		FireLaserbeam();
 	}
 	
-
-	// HP GAGE 다는지 테스트용
-	if (Input::GetButtonDown(VK_F4))
-	{
-		m_hp -= 5;
-	}
+	// 콜라이더
+	Collider::UpdateCollider(L"BossBody", m_shape);
+	Collider::UpdateCollider(L"BossLaser", m_laserHitbox);
 }
 
 void Bellial::Render(HDC hdc)
 {
 	// 히트박스
-	Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
+	//Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
 
 	// - 보스
 	// 작은구슬
@@ -173,8 +198,8 @@ void Bellial::Render(HDC hdc)
 	{
 		if (m_particleArr[i].mb_isAnimated == true)
 		{
-			m_particleArr[i].m_bossParticleImg->Render(hdc, m_particleArr[i].m_particlePos.x, m_particleArr[i].m_particlePos.y, 
-													m_particleArr[i].m_particleFrameX, m_frameY, 1.0f);
+			m_particleArr[i].m_bossParticleImg->Render(hdc, static_cast<int>(m_particleArr[i].m_particlePos.x), 
+											static_cast<int>(m_particleArr[i].m_particlePos.y), m_particleArr[i].m_particleFrameX, m_frameY, 1.0f);
 		}
 	}
 
@@ -182,7 +207,14 @@ void Bellial::Render(HDC hdc)
 	m_bossBackImg->Render(hdc, static_cast<int>(BOSSBACK_POSX), static_cast<int>(BOSSBACK_POSY), m_frameX, m_frameY, 1.0f);
 	
 	// 보스 IDLE
-	m_bossIdleImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+	if (mb_isHit == true)
+	{
+		m_bossHitImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+	}
+	else
+	{
+		m_bossIdleImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+	}
 	
 	// 왼손
 	RenderLeftHand(hdc, me_leftHandStatus);
@@ -574,7 +606,14 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.right = static_cast<long>(WIN_SIZE_X);
 		m_laserHitbox.bottom = static_cast<long>(BOSS_LEFT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
 
-		Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
+		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
+	}
+	else
+	{
+		m_laserHitbox.left = 0;
+		m_laserHitbox.top = 0;
+		m_laserHitbox.right = 0;
+		m_laserHitbox.bottom = 0;
 	}
 }
 
@@ -587,6 +626,13 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		m_laserHitbox.right = static_cast<long>(BOSS_RIGHT_LASER_POSX + m_laserHead->GetFrameWidth() * 0.5f - 9);
 		m_laserHitbox.bottom = static_cast<long>(BOSS_RIGHT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
 
-		Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
+		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
+	}
+	else
+	{
+		m_laserHitbox.left = 0;
+		m_laserHitbox.top = 0;
+		m_laserHitbox.right = 0;
+		m_laserHitbox.bottom = 0;
 	}
 }

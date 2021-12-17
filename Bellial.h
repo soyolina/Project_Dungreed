@@ -46,6 +46,7 @@ private:
 	// --  보스 애니메이션용
 	// - 본체 해골 
 	Image* m_bossIdleImg = nullptr;
+	Image* m_bossHitImg = nullptr;
 	// 함수 - 본체 해골 히트박스
 	void SetHitbox();
 

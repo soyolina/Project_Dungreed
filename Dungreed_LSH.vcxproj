@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="BasicShortSword.cpp" />
     <ClCompile Include="Bellial.cpp" />
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="DashCount.cpp" />
     <ClCompile Include="Enemy.cpp" />
@@ -171,6 +172,8 @@
     <ClInclude Include="BasicShortSword.h" />
     <ClInclude Include="Bellial.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Collider.h" />
+    <ClInclude Include="CollisonFunction.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="DashCount.h" />

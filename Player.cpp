@@ -5,6 +5,10 @@
 
 HRESULT Player::Init()
 {
+    // 플레이어 히트시 배경
+    m_hitBackGround = IMAGE_MANAGER->FindImage(L"Image/Player/hit.bmp");
+    m_hitBackGroundTransparancy = 80;
+
     // - GameObject에서 상속받은 것
     // 캐릭터 위치
     m_pos.x = WIN_SIZE_X / 2;
@@ -19,6 +23,10 @@ HRESULT Player::Init()
     // 캐릭터 정보관련
     m_hp = 100;
     m_moveSpeed = 200.0f;
+    m_attackDamage = 0;
+    mb_isHit = false;
+    m_hitElapsedCount = 0.0f;
+    mb_isDead = false;
     // - 여기까지
 
     // 플레이어가 바라보고 있는 방향 체크용
@@ -30,6 +38,7 @@ HRESULT Player::Init()
     // 플레이어 이미지 애니메이션 렌더용
     m_statusAniData[static_cast<int>(PlayerStatus::Idle)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharIdle.bmp"), 5, 0.1f};
     m_statusAniData[static_cast<int>(PlayerStatus::Run)] = { IMAGE_MANAGER->FindImage(L"Image/Player/baseCharRun.bmp"), 8, 0.1f};
+    m_statusAniData[static_cast<int>(PlayerStatus::Dead)] = { IMAGE_MANAGER->FindImage(L"Image/Player/basecharDie.bmp"), 0, 0.0f};
 
     m_frameX = 0;
     m_frameY = 0;
@@ -71,6 +80,9 @@ HRESULT Player::Init()
     m_weapon[0] = nullptr;
     m_weapon[1] = nullptr;
 
+    // 콜라이더
+    Collider::CreateCollider(L"player", this, ObjectType::Player, m_shape);
+
     // 임시 테스트 상자
     makeTestRect();
     
@@ -79,10 +91,18 @@ HRESULT Player::Init()
 
 void Player::Update()
 {
-    // 캐릭터 HP 렌더 제대로 되는지 확인용 - 테스트
-    if (Input::GetButtonDown(VK_F3))
+    // 죽을때, 죽었으면 업데이트안할꺼다 - 그래서 리턴함
+    if (m_hp <= 0)
     {
-        m_hp -= 5;
+        mb_isDead = true;
+        me_PlayerStatus = PlayerStatus::Dead;
+        return;
+    }
+
+    // 맞았을때
+    if (mb_isHit == true)
+    {
+        Hit();
     }
 
     // 캐릭터 위치 리셋용 - 테스트
@@ -182,6 +202,9 @@ void Player::Update()
 
 
     SetShape(m_pos, m_bodyWidth, m_bodyHeight);
+
+    // 콜라이더 업데이트
+    Collider::UpdateCollider(L"player", m_shape);
 }
 
 void Player::Render(HDC hdc)
@@ -201,7 +224,7 @@ void Player::Render(HDC hdc)
     }
 
     // 플레이어
-    Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
+    //Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
     PlayAnimation(hdc, me_PlayerStatus);
     
     // RunEffect 관련
@@ -213,8 +236,10 @@ void Player::Render(HDC hdc)
 
 void Player::Release()
 {
+    m_hitBackGround = nullptr;
     m_statusAniData[static_cast<int>(PlayerStatus::Idle)].playerImage = nullptr;
     m_statusAniData[static_cast<int>(PlayerStatus::Run)].playerImage = nullptr;
+    m_statusAniData[static_cast<int>(PlayerStatus::Dead)].playerImage = nullptr;
     m_runEffectImg = nullptr;
     m_dashEffectImg = nullptr;
 }
@@ -349,16 +374,19 @@ void Player::ApplyGravity()
 
 void Player::PlayAnimation(HDC hdc, PlayerStatus playerStatus)
 {
-    // 마우스 좌표에 따른 플레이어 이미지 반전
-    if (m_pos.x < Input::GetMousePosition().x)
+    // 마우스 좌표에 따른 플레이어 이미지 반전 - 안죽었을때만
+    if (playerStatus != PlayerStatus::Dead)
     {
-        m_frameY = 0;
-        mb_isLeft = false;
-    }
-    else
-    {
-        m_frameY = 1;
-        mb_isLeft = true;
+		if (m_pos.x < Input::GetMousePosition().x)
+		{
+			m_frameY = 0;
+			mb_isLeft = false;
+		}
+		else
+		{
+			m_frameY = 1;
+			mb_isLeft = true;
+		}
     }
 
     if (playerStatus < PlayerStatus::Idle || playerStatus > PlayerStatus::End)
@@ -376,7 +404,20 @@ void Player::PlayAnimation(HDC hdc, PlayerStatus playerStatus)
         m_elapsedCount = 0.0f;
     }
 
-    m_statusAniData[static_cast<int>(playerStatus)].playerImage->Render(hdc, static_cast<int>(m_pos.x), static_cast<int>(m_pos.y), m_frameX, m_frameY);
+    if (playerStatus == PlayerStatus::Dead)
+    {
+        m_statusAniData[static_cast<int>(playerStatus)].playerImage->Render(hdc, static_cast<int>(m_pos.x), static_cast<int>(m_pos.y), 1.0f, mb_isLeft);
+    }
+    else if (mb_isHit == true)
+    {
+        m_statusAniData[static_cast<int>(playerStatus)].playerImage->ImgAlphaBlendFrameRender(hdc, static_cast<int>(m_pos.x), static_cast<int>(m_pos.y), 
+                                                                                        m_frameX, m_frameY, 120);
+        m_hitBackGround->ImgAlphaBlendRender(hdc, static_cast<int>(WIN_SIZE_X / 2), static_cast<int>(WIN_SIZE_Y / 2), m_hitBackGroundTransparancy);
+    }
+    else
+    {
+		m_statusAniData[static_cast<int>(playerStatus)].playerImage->Render(hdc, static_cast<int>(m_pos.x), static_cast<int>(m_pos.y), m_frameX, m_frameY);
+    }
 }
 
 // RunEffect 렌더
@@ -457,6 +498,24 @@ void Player::makeTestRect()
     rectArr[3] = testRC4;
     rectArr[4] = testRC5;
     rectArr[5] = testRC6;
+}
+
+void Player::Hit()
+{
+    m_hitElapsedCount += TIMER_MANAGER->GetDeltaTime();
+    if (m_hitElapsedCount > 1.0f)
+    {
+        mb_isHit = false;
+        m_hitElapsedCount = 0.0f;
+        m_hitBackGroundTransparancy = 80;
+    }
+
+    // 배경관련 투명도 결정
+    --m_hitBackGroundTransparancy;
+    if (m_hitBackGroundTransparancy == 0 || m_hitBackGroundTransparancy > 80)
+    {
+        m_hitBackGroundTransparancy = 0;
+    }
 }
 
 

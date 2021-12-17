@@ -4,13 +4,17 @@
 
 #define JUMP_STRENGTH 600.0f
 
-enum class PlayerStatus {Idle, Run, End};
+enum class PlayerStatus {Idle, Run, Dead, End};
 
 class ItemBase;
 class Image;
 class Player : public GameObject
 {
 private:
+	// 플레이어 히트시 배경
+	Image* m_hitBackGround = nullptr;
+	BYTE m_hitBackGroundTransparancy = {};
+
 	// 플레이어가 바라보고 있는 방향
 	bool mb_isLeft = false;
 	
@@ -89,6 +93,8 @@ private:
 public:
 	// 함수
 	void SetItem(int index, ItemBase* item) { this->m_weapon[index] = item; }
+	// 공격
+	void Attack();
 
 private:
 	// - 임시 테스트 상자용
@@ -117,8 +123,9 @@ public:
 
 	// 히트박스 셋팅
 	void SetShape(const POINTFLOAT& playerPos, const int& bodyWidth, const int& bodyHeight);
-	// 공격
-	void Attack();
+	
+	// 히트시 관련
+	void Hit();
 
 
 	// DashCount UI에서 쓰기위해서
@@ -132,6 +139,5 @@ public:
 	POINTFLOAT GetPlayerPos() const { return m_pos; }
 	// BasicShortSword에서 - 이미지 렌더 반대로 하는거 또는 렌더 위치를 설정하기 위해서
 	bool GetPlayerReverse() const { return mb_isLeft; }
-
 };
 

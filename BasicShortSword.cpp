@@ -5,11 +5,15 @@
 
 #include <cmath>
 
-void BasicShortSword::Init(Player* player)
+HRESULT BasicShortSword::Init(Player* player)
 {
+
 	m_player = player;
 	m_playerPos = m_player->GetPlayerPos();
 	mb_isReverse = false;
+
+	// 아이템 속성
+	m_attackSpeed = 0.0f;
 
 	// 기본검 이미지용
 	m_bssImg = IMAGE_MANAGER->FindImage(L"Image/Item/BasicShortSword_New.bmp");
@@ -32,8 +36,14 @@ void BasicShortSword::Init(Player* player)
 	m_maxFrameX = 3;
 	m_elapsedCount = 0.0f;
 
+	// 공격력
+	m_attackDamage = 5;
+
 	// 아이템 히트박스용
 	m_hitboxShape = {};
+
+	// Collider
+	Collider::CreateCollider(L"BSS", this, ObjectType::Item, m_hitboxShape);
 	
 	// PlgBlt 함수 쓰기 위해 만들어 놓은 것
 	/*m_shape = {};
@@ -46,10 +56,15 @@ void BasicShortSword::Init(Player* player)
 	{
 		m_rectPointarr[i] = {};
 	}*/
+
+	return S_OK;
 }
 
 void BasicShortSword::Update()
 {
+	// 플레이어 사망시는 업뎃안할꺼임
+	if (m_player->GetIsDead()) { return; }
+
 	m_playerPos = m_player->GetPlayerPos();
 
 	// 이미지 반전 위해서
@@ -61,7 +76,7 @@ void BasicShortSword::Update()
 	// 검 이펙트 이미지와 히트박스 용 - 플레이서 클래스에서 좌클릭을 누르면 mb_isAttack이 true가 됨.
 	if (mb_isAttack == true)
 	{
-		// 이펙트 애니메이션 
+		// 이펙트 이미지 애니메이션 
 		PlayAnimation();
 
 		if (mb_isAttack2 == true)
@@ -75,6 +90,13 @@ void BasicShortSword::Update()
 			mb_isAttack2 = false;
 		}
 	}
+	else
+	{
+		SetHitboxShape();
+	}
+
+	// 콜라이더 업데이트
+	Collider::UpdateCollider(L"BSS", m_hitboxShape);
 	
 	// PlgBlt 이미지 렌더함수 쓰기 위한 용도였음. 마젠타 색이 안빠져서 실패.
 	/*m_leftTopPoint = { (LONG)(m_bssImgRenderPos.x + (float)(m_shape.left - m_bssImgRenderPos.x) * cosf(m_angle) - (float)(m_shape.top - m_bssImgRenderPos.y) * sinf(m_angle)),
@@ -105,11 +127,11 @@ void BasicShortSword::Render(HDC hdc)
 	{
 		// 검 히트박스 렌더용
 		//Rectangle(hdc, m_hitboxShape.left, m_hitboxShape.top, m_hitboxShape.right, m_hitboxShape.bottom);
-		MoveToEx(hdc, m_hitboxShape.left, m_hitboxShape.top, NULL);
+		/*MoveToEx(hdc, m_hitboxShape.left, m_hitboxShape.top, NULL);
 		LineTo(hdc, m_hitboxShape.left, m_hitboxShape.bottom);
 		LineTo(hdc, m_hitboxShape.right, m_hitboxShape.bottom);
 		LineTo(hdc, m_hitboxShape.right, m_hitboxShape.top);
-		LineTo(hdc, m_hitboxShape.left, m_hitboxShape.top);
+		LineTo(hdc, m_hitboxShape.left, m_hitboxShape.top);*/
 
 		// 검 이펙트 이미지 렌더용
 		m_bssEffectImg->ImgRotateFrameRender(hdc, static_cast<int>(m_effectImgRenderPos.x), static_cast<int>(m_effectImgRenderPos.y), m_frameX, m_frameY, m_effectAngle);
@@ -201,8 +223,18 @@ void BasicShortSword::SetEffectImgData()
 
 void BasicShortSword::SetHitboxShape()
 {
-	m_hitboxShape.left = static_cast<long>(m_effectImgRenderPos.x - m_bssEffectImg->GetFrameWidth() * 0.5f);
-	m_hitboxShape.right = static_cast<long>(m_effectImgRenderPos.x + m_bssEffectImg->GetFrameWidth() * 0.5f);
-	m_hitboxShape.top = static_cast<long>(m_effectImgRenderPos.y - m_bssEffectImg->GetFrameHeight() * 0.5f);
-	m_hitboxShape.bottom = static_cast<long>(m_effectImgRenderPos.y + m_bssEffectImg->GetFrameHeight() * 0.5f);
+	if (mb_isAttack == true)
+	{
+		m_hitboxShape.left = static_cast<long>(m_effectImgRenderPos.x - m_bssEffectImg->GetFrameWidth() * 0.5f);
+		m_hitboxShape.right = static_cast<long>(m_effectImgRenderPos.x + m_bssEffectImg->GetFrameWidth() * 0.5f);
+		m_hitboxShape.top = static_cast<long>(m_effectImgRenderPos.y - m_bssEffectImg->GetFrameHeight() * 0.5f);
+		m_hitboxShape.bottom = static_cast<long>(m_effectImgRenderPos.y + m_bssEffectImg->GetFrameHeight() * 0.5f);
+	}
+	else
+	{
+		m_hitboxShape.left = 0;
+		m_hitboxShape.right = 0;
+		m_hitboxShape.top = 0;
+		m_hitboxShape.bottom = 0;
+	}
 }

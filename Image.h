@@ -17,10 +17,12 @@ public:
 	HBITMAP hReverseBitmap = NULL;
 	HBITMAP hOldReverseBitmap = NULL;
 
-	// 이미지 로테이트할때 Plgblt에 넣어줄 Maskbitmap 용
-	/*HDC MaskDc = NULL;
-	HBITMAP hMaskBitmap = NULL;
-	HBITMAP hOldMaskBitmap = NULL;*/
+	// Alphablend함수 사용위해 BLENDFUNCTION 구조체
+	BLENDFUNCTION bf; 
+	//bf.AlphaFormat = 0;		// 비트맵 종류로 일반 비트맵의 경우 0, 32비트 비트맵의 경우 AC_SRC_ALPHA
+	//bf.BlendFlags = 0;		// 무조건 0이어야 한다
+	//bf.BlendOp = AC_SRC_OVER; // 무조건 AC_SRC_OVER이어야 하고 원본과 대상 이미지를 합친다는 의미
+	//bf.SourceConstantAlpha = 127; // 투명도(투명 0 - 불투명 255)
 
 	typedef struct tagImageInfo
 	{
@@ -42,7 +44,8 @@ public:
 
 private:
 	LPIMAGE_INFO imageInfo = nullptr;
-	LPIMAGE_INFO rotateImageInfo = nullptr;		//로테이트 이미지
+	LPIMAGE_INFO rotateImageInfo = nullptr;		// 로테이트 이미지
+	LPIMAGE_INFO alphablendImageInfo = nullptr; // 반투명 이미지
 
 	bool isTransparent = false;
 	COLORREF transColor = 0;
@@ -81,16 +84,24 @@ public:
 	void RotateRender2(HDC hdc, const POINT* rect);
 	
 	// 아이템 회전 렌더 진짜
+	HBITMAP GetRotatedBitmap(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
+	void RotateHDC(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
 	// 프레임 없는 것
 	void ImgRotateRender(HDC hdc, int destX, int destY, float angle);
 	// 프레임 있는 것
 	void ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle);
 
-	HBITMAP GetRotatedBitmap(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
-	void RotateHDC(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
+
+	// 플레이어 히트시 반투명이미지를 위한 Alphablend 렌더
+	void AlphaBlendHDC();
+	void ImgAlphaBlendFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, BYTE transparancy);
+
+	// 플레이어 히트시 뜨는 테두리 빨간 배경을 위한 알파렌더
+	void ImgAlphaBlendRender(HDC hdc, int destX, int destY, BYTE transparancy);
+	
 
 
-
+	// Getter 등
 	inline int GetWidth() { return imageInfo->width; };
 	inline int GetHeight() { return imageInfo->height; }
 

@@ -51,7 +51,7 @@ private:
 	POINT m_rectPointarr[3] = {};*/
 
 public:
-	virtual void Init(Player* player);
+	virtual HRESULT Init(Player* player);
 	virtual void Update();
 	virtual void Render(HDC hdc);
 	virtual void Release();

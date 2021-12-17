@@ -2,8 +2,9 @@
 #include "ItemBase.h"
 //#include "Player.h"
 
-void ItemBase::Init()
+HRESULT ItemBase::Init()
 {
+	return S_OK;
 }
 
 void ItemBase::Update()

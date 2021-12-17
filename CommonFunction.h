@@ -40,3 +40,12 @@ inline float GetAngle(const POINTFLOAT& pos1, const POINT& pos2)
 	return angle;
 }
 
+// 두 점 사이의 각도 구하기 - 템플릿
+template<typename T1, typename T2>
+inline float GetAngle2(const T1& pos1, const T2& pos2)
+{
+	float x = static_cast<float>(pos2.x - pos1.x);
+	float y = static_cast<float>(-(pos2.y - pos1.y));
+	float angle = atan2f(y, x);
+	return angle;
+}

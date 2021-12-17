@@ -52,6 +52,9 @@
     <Filter Include="MainGame\Enemy\Boss">
       <UniqueIdentifier>{981564a1-0048-4863-9f45-275b5a548a05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="2D Framework\Collide">
+      <UniqueIdentifier>{40709004-748e-49b1-9c0b-d108560f82f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -125,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="Bellial.cpp">
       <Filter>MainGame\Enemy\Boss</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>2D Framework\Collide</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="Bellial.h">
       <Filter>MainGame\Enemy\Boss</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>2D Framework\Collide</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisonFunction.h">
+      <Filter>2D Framework\Collide</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

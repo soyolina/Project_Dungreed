@@ -19,6 +19,7 @@ using namespace std;
 #include "SceneManager.h"
 #include "TimerManager.h"
 #include "Input.h"
+#include "Collider.h"
 //#include "KeyManager.h"
 
 // ΩÃ±€≈Ê √ﬂ∞°«—∞Õ

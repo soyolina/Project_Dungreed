@@ -25,6 +25,8 @@ HRESULT Image::Init(int width, int height)
 
 	// 로테이트
 	rotateImageInfo = nullptr;
+	// 알파블렌드
+	alphablendImageInfo = nullptr;
 
 	ReleaseDC(g_hWnd, hdc);
 
@@ -64,6 +66,8 @@ HRESULT Image::Init(LPCWSTR fileName, int width, int height, bool isTrans, COLOR
 
 	// 로테이트
 	rotateImageInfo = nullptr;
+	// 알파블렌드
+	alphablendImageInfo = nullptr;
 
 
 	ReleaseDC(g_hWnd, hdc);
@@ -103,6 +107,8 @@ HRESULT Image::Init(LPCWSTR fileName, int width, int height, int maxFrameX, int 
 
 	// 로테이트
 	rotateImageInfo = nullptr;
+	// 알파블렌드
+	alphablendImageInfo = nullptr;
 
 
 	ReleaseDC(g_hWnd, hdc);
@@ -149,6 +155,15 @@ void Image::Release()
 		DeleteDC(rotateImageInfo->hMemDc);
 
 		SAFE_DELETE(rotateImageInfo);
+	}
+
+	if (alphablendImageInfo != nullptr)
+	{
+		SelectObject(alphablendImageInfo->hMemDc, alphablendImageInfo->hOldBit);
+		DeleteObject(alphablendImageInfo->hBitmap);
+		DeleteDC(alphablendImageInfo->hMemDc);
+
+		SAFE_DELETE(alphablendImageInfo);
 	}
 }
 
@@ -730,5 +745,128 @@ void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int 
 			SRCCOPY);
 	}
 
+}
+
+void Image::ImgAlphaBlendRender(HDC hdc, int destX, int destY, BYTE transparancy)
+{
+	bf.AlphaFormat = 0;						// 비트맵 종류로 일반 비트맵의 경우 0, 32비트 비트맵의 경우 AC_SRC_ALPHA
+	bf.BlendFlags = 0;						// 무조건 0이어야 한다
+	bf.BlendOp = AC_SRC_OVER;				// 무조건 AC_SRC_OVER이어야 하고 원본과 대상 이미지를 합친다는 의미
+	bf.SourceConstantAlpha = transparancy;  // 투명도(투명 0 - 불투명 255)
+
+	if (isTransparent)
+	{
+		AlphaBlendHDC();
+
+		StretchBlt(
+			alphablendImageInfo->hMemDc, 0, 0,
+			imageInfo->width, imageInfo->height,
+			hdc, 
+			static_cast<int>(destX - WIN_SIZE_X * 0.5f),
+			static_cast<int>(destY - WIN_SIZE_Y * 0.5f),
+			WIN_SIZE_X, WIN_SIZE_Y,
+			SRCCOPY
+		);
+
+		GdiTransparentBlt(
+			alphablendImageInfo->hMemDc,
+			0,
+			0,
+			imageInfo->width,
+			imageInfo->height,
+
+			imageInfo->hMemDc,
+			0,
+			0,
+			imageInfo->width,
+			imageInfo->height,
+			transColor
+		);
+
+		GdiAlphaBlend(
+			hdc,
+			static_cast<int>(destX - WIN_SIZE_X * 0.5f),
+			static_cast<int>(destY - WIN_SIZE_Y * 0.5f),
+			WIN_SIZE_X,
+			WIN_SIZE_Y,
+
+			alphablendImageInfo->hMemDc,
+			0,
+			0,
+			imageInfo->width,
+			imageInfo->height,
+			bf
+		);
+	}
+}
+
+void Image::ImgAlphaBlendFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, BYTE transparancy)
+{
+	bf.AlphaFormat = 0;						// 비트맵 종류로 일반 비트맵의 경우 0, 32비트 비트맵의 경우 AC_SRC_ALPHA
+	bf.BlendFlags = 0;						// 무조건 0이어야 한다
+	bf.BlendOp = AC_SRC_OVER;				// 무조건 AC_SRC_OVER이어야 하고 원본과 대상 이미지를 합친다는 의미
+	bf.SourceConstantAlpha = transparancy;  // 투명도(투명 0 - 불투명 255)
+	
+	if (isTransparent)
+	{
+		AlphaBlendHDC();
+
+		BitBlt(alphablendImageInfo->hMemDc, 0, 0, imageInfo->frameWidth, imageInfo->frameHeight,
+			hdc, 
+			static_cast<int>(destX - imageInfo->frameWidth * 0.5f),
+			static_cast<int>(destY - imageInfo->frameHeight * 0.5f), 
+			SRCCOPY);
+
+		GdiTransparentBlt(
+			alphablendImageInfo->hMemDc,
+			0,
+			0,
+			imageInfo->frameWidth, 
+			imageInfo->frameHeight,
+			
+			imageInfo->hMemDc,
+			imageInfo->frameWidth* frameX,
+			imageInfo->frameHeight* frameY,
+			imageInfo->frameWidth,
+			imageInfo->frameHeight,
+			transColor
+		);
+		
+		GdiAlphaBlend(
+			hdc,
+			static_cast<int>(destX - imageInfo->frameWidth * 0.5f),
+			static_cast<int>(destY - imageInfo->frameHeight * 0.5f),
+			imageInfo->frameWidth,
+			imageInfo->frameHeight,
+
+			alphablendImageInfo->hMemDc,
+			0, 
+			0,
+			imageInfo->frameWidth,
+			imageInfo->frameHeight,
+			bf
+		);
+	}
+}
+
+void Image::AlphaBlendHDC()
+{
+	if (alphablendImageInfo == nullptr)
+	{
+		HDC hdc = GetDC(g_hWnd);
+
+		alphablendImageInfo = new IMAGE_INFO;
+		alphablendImageInfo->loadType = ImageLoadType::Empty;
+		alphablendImageInfo->hMemDc = CreateCompatibleDC(hdc);
+		alphablendImageInfo->hBitmap = (HBITMAP)CreateCompatibleBitmap(hdc, imageInfo->frameWidth, imageInfo->frameHeight);
+		alphablendImageInfo->hOldBit = (HBITMAP)SelectObject(alphablendImageInfo->hMemDc, alphablendImageInfo->hBitmap);
+
+		alphablendImageInfo->width = imageInfo->width;
+		alphablendImageInfo->height = imageInfo->height;
+		alphablendImageInfo->frameWidth = imageInfo->frameWidth;
+		alphablendImageInfo->frameHeight = imageInfo->frameHeight;
+
+		ReleaseDC(g_hWnd, hdc);
+	};
 }
 

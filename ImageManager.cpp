@@ -27,6 +27,8 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage(L"Image/Player/baseCharEffect.bmp", 390, 150, 5, 2, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Player/basecharDie.bmp", 78, 75, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Player/RunEffect.bmp", 240, 96, 5, 2, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Player/basecharDie.bmp", 78, 75, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Player/hit.bmp", 1440, 800, true, RGB(255, 0, 255));      // Hit 배경
 
     // UI
     // - DashCount
@@ -49,6 +51,8 @@ void ImageManager::Init()
     
     // 본체 Idle
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdle.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
+    // 본체 피격
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdleHit.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
     // 본체 뒤 큰 구슬
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBack.bmp", 1470, 144, 10, 1, true, RGB(255, 0, 255));
     // 본체 뒤 작은 구슬

@@ -43,11 +43,20 @@ void GameScene::Update()
     m_basicShortSword->Update();
 
     m_Bellial->Update();
+
+    // collider
+    Collider::Update();
 }
 
 void GameScene::Render(HDC hdc)
 {
     taeYeon->Render(hdc);
+
+    // collider
+    if (Input::GetButton(VK_F5))
+    {
+		Collider::Render(hdc);
+    }
 
     m_Bellial->Render(hdc);
 
