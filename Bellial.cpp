@@ -2,6 +2,7 @@
 #include "Bellial.h"
 #include "Image.h"
 #include "Player.h"
+#include "AmmoManager.h"
 
 
 HRESULT Bellial::Init()
@@ -85,10 +86,17 @@ HRESULT Bellial::Init()
 
 	m_rightLaserBodyFrameX = m_LaserMaxFrameX - 1;
 
+	
+	// 미사일 쏘는 패턴 용
+	AmmoManager* m_ammoManager = nullptr;
+	m_ammoAttackDelay = 0.0f;
+
+
 	// Attack Delay
 	mb_isAttack = false;
 	m_attackDelay = 0.0f;
 	mb_fireLaserbeam = false;
+	mb_fireAmmo = false;
 
 	// - 상속받은 것 - GameObject에서
 	// 히트박스 셋팅용
@@ -158,14 +166,17 @@ void Bellial::Update()
 		if (m_attackDelay >= 2.0f)
 		{
 			int randomValue = rand() % 3;
-			switch (0/*randomValue*/)
+			switch (1/*randomValue*/)
 			{
 			case 0:
 				mb_isAttack = true;
 				mb_fireLaserbeam = true;
-				m_attackDamage = 8;
+				m_attackDamage = 10;
 				break;
 			case 1:
+				mb_isAttack = true;
+				mb_fireAmmo = true;
+				m_attackDamage = 8;
 				break;
 			case 2:
 				break;
@@ -180,6 +191,29 @@ void Bellial::Update()
 	if (mb_isAttack == true && mb_fireLaserbeam == true)
 	{
 		FireLaserbeam();
+	}
+
+	// 공격패턴 2 : 미사일 
+	if (mb_isAttack == true && mb_fireAmmo == true)
+	{
+		m_ammoAttackDelay += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoAttackDelay >= 0.07f)
+		{
+			static float angle = 0.0f;
+			float changeAngle = 0.0f;
+			int randomValue = rand() % 2;
+			randomValue ? changeAngle = 10.0f : changeAngle = -10.0f;
+			//
+			changeAngle = 5.0f;
+
+			for (size_t i = 0; i < 4; ++i)
+			{
+				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_pos, angle, m_attackDamage, 500, changeAngle);
+				angle += DEGREE_TO_RADIAN(90);
+			}
+			angle += 10.0f * TIMER_MANAGER->GetDeltaTime();
+			m_ammoAttackDelay = 0.0f;
+		}
 	}
 	
 	// 콜라이더

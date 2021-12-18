@@ -36,6 +36,7 @@
 #define BOSS_HP_GAGE_POSX (WIN_SIZE_X * 0.5f + 46.0f)
 #define BOSS_HP_GAGE_POSY (WIN_SIZE_Y - 50)
  
+class AmmoManager;
 class Player;
 class Image;
 class Bellial : public Enemy
@@ -143,12 +144,17 @@ private:
 	void FireLaserbeam();
 
 
+	// 미사일 쏘는 패턴 용
+	AmmoManager* m_ammoManager = nullptr;
+	float m_ammoAttackDelay = 0.0f;
+
 
 	// Attack Delay 와 각 어택 관련
 	bool mb_isAttack = false;
 	float m_attackDelay = 0.0f;
 
 	bool mb_fireLaserbeam = false;
+	bool mb_fireAmmo = false;
 
 
 
@@ -169,5 +175,6 @@ public:
 	virtual void Release();
 
 	void SetPlayer(Player* player) { this->m_player = player; }
+	void SetAmmoManager(AmmoManager* ammoManager) { this->m_ammoManager = ammoManager; }
 };
 

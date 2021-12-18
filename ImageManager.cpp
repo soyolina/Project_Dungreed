@@ -67,6 +67,9 @@ void ImageManager::Init()
     // Hand Laser
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLaserBody.bmp", 672, 294, 7, 2, true, RGB(255, 0, 255)); // Body
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLaserHead.bmp", 567, 264, 7, 2, true, RGB(255, 0, 255)); // Head
+    // Missile
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossBullet.bmp", 156, 39, 4, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBullet.bmp", 531, 52, 10, 1, true, RGB(255, 0, 255));
 
     // HP UI
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBack.bmp", 600, 77, true, RGB(255, 0, 255));

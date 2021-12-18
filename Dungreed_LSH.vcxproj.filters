@@ -55,6 +55,9 @@
     <Filter Include="2D Framework\Collide">
       <UniqueIdentifier>{40709004-748e-49b1-9c0b-d108560f82f3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MainGame\Ammo">
+      <UniqueIdentifier>{5836d707-58b1-41ac-8f36-50c3f6e62092}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -131,6 +134,12 @@
     </ClCompile>
     <ClCompile Include="Collider.cpp">
       <Filter>2D Framework\Collide</Filter>
+    </ClCompile>
+    <ClCompile Include="AmmoManager.cpp">
+      <Filter>MainGame\Ammo</Filter>
+    </ClCompile>
+    <ClCompile Include="Ammo.cpp">
+      <Filter>MainGame\Ammo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -217,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="CollisonFunction.h">
       <Filter>2D Framework\Collide</Filter>
+    </ClInclude>
+    <ClInclude Include="AmmoManager.h">
+      <Filter>MainGame\Ammo</Filter>
+    </ClInclude>
+    <ClInclude Include="Ammo.h">
+      <Filter>MainGame\Ammo</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

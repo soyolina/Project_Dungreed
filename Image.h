@@ -102,12 +102,17 @@ public:
 
 
 	// Getter µî
-	inline int GetWidth() { return imageInfo->width; };
-	inline int GetHeight() { return imageInfo->height; }
+	int GetWidth() const { return imageInfo->width; };
+	int GetHeight() const { return imageInfo->height; }
 
-	inline int GetFrameWidth() { return imageInfo->frameWidth; }
-	inline int GetFrameHeight() { return imageInfo->frameHeight; }
+	int GetFrameWidth() const { return imageInfo->frameWidth; }
+	int GetFrameHeight() const { return imageInfo->frameHeight; }
 
-	inline HDC GetMemDC() { if (imageInfo) return imageInfo->hMemDc; return NULL; };
+	HDC GetMemDC() const { if (imageInfo) return imageInfo->hMemDc; return NULL; };
+
+	// Ammo¿ë
+	int GetMaxFrameX() const { return imageInfo->maxFrameX; }
+
+
 };
 

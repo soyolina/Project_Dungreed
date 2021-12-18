@@ -140,6 +140,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ammo.cpp" />
+    <ClCompile Include="AmmoManager.cpp" />
     <ClCompile Include="BasicShortSword.cpp" />
     <ClCompile Include="Bellial.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -169,6 +171,8 @@
     <ClCompile Include="UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ammo.h" />
+    <ClInclude Include="AmmoManager.h" />
     <ClInclude Include="BasicShortSword.h" />
     <ClInclude Include="Bellial.h" />
     <ClInclude Include="Button.h" />

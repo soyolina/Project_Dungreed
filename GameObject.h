@@ -14,6 +14,7 @@ protected:
 	int m_hp = 0;
 	float m_moveSpeed = 0.0f;
 	int m_attackDamage = 0;
+
 	bool mb_isHit = false;
 	float m_hitElapsedCount = 0.0f;
 	bool mb_isDead = false;
