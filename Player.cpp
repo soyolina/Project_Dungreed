@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Image.h"
 #include "ItemBase.h"
+#include "Collider2.h"
 
 HRESULT Player::Init()
 {
@@ -19,6 +20,8 @@ HRESULT Player::Init()
     m_bodyHeight = 38;
 
     SetShape(m_pos, m_bodyWidth, m_bodyHeight);
+    // 콜라이더
+    m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Player);
 
     // 캐릭터 정보관련
     m_hp = 100;
@@ -80,8 +83,7 @@ HRESULT Player::Init()
     m_weapon[0] = nullptr;
     m_weapon[1] = nullptr;
 
-    // 콜라이더
-    Collider::CreateCollider(L"player", this, ObjectType::Player, m_shape);
+    
 
     // 임시 테스트 상자
     makeTestRect();
@@ -204,7 +206,7 @@ void Player::Update()
     SetShape(m_pos, m_bodyWidth, m_bodyHeight);
 
     // 콜라이더 업데이트
-    Collider::UpdateCollider(L"player", m_shape);
+    m_collider->Update(m_shape);
 }
 
 void Player::Render(HDC hdc)
@@ -242,6 +244,9 @@ void Player::Release()
     m_statusAniData[static_cast<int>(PlayerStatus::Dead)].playerImage = nullptr;
     m_runEffectImg = nullptr;
     m_dashEffectImg = nullptr;
+
+    // 콜라이더
+    m_collider = nullptr;
 }
 
 void Player::SetShape(const POINTFLOAT& playerPos, const int& m_bodyWidth, const int& m_bodyHeight)

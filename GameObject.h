@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Config.h"
-#include "CommonFunction.h"
 
+class Collider2;
 class GameObject
 {
 protected:
@@ -16,8 +16,12 @@ protected:
 	int m_attackDamage = 0;
 
 	bool mb_isHit = false;
+	bool mb_isHit2 = false;	// AmmoClass에서 쓰이는 것
 	float m_hitElapsedCount = 0.0f;
 	bool mb_isDead = false;
+
+	// 콜라이더
+	Collider2* m_collider = nullptr;
 
 public:
 	virtual ~GameObject() {}
@@ -36,7 +40,11 @@ public:
 	bool GetIsHit() const { return mb_isHit; }
 	void SetIsHit(bool isHit) { this->mb_isHit = isHit; }
 
+	void SetIsHit2(bool isHit2) { this->mb_isHit2 = isHit2; }
+
 	bool GetIsDead() const { return mb_isDead; }
 	void SetIsDead(bool isDead) { this->mb_isDead = isDead; }
+
+	Collider2* GetCollider() const { return m_collider; }
 };
 

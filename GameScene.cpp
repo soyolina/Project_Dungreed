@@ -52,7 +52,7 @@ void GameScene::Update()
     m_ammoManager->Update();
 
     // collider
-    Collider::Update();
+    ColliderManager::CheckCollision();
 }
 
 void GameScene::Render(HDC hdc)
@@ -62,7 +62,7 @@ void GameScene::Render(HDC hdc)
     // collider
     if (Input::GetButton(VK_F5))
     {
-		Collider::Render(hdc);
+        ColliderManager::Render(hdc);
     }
 
     m_bellial->Render(hdc);
@@ -96,5 +96,5 @@ void GameScene::Release()
     SAFE_RELEASE(m_bellial);
     SAFE_RELEASE(m_ammoManager);
 
-    Collider::Release();
+    ColliderManager::Release();
 }

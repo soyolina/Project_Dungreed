@@ -38,7 +38,7 @@ private:
 
 	// - 아이템 히트박스용
 	// 변수
-	RECT m_hitboxShape = {};
+	RECT m_shape = {};
 	// 함수
 	void SetHitboxShape();
 

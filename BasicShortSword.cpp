@@ -2,6 +2,7 @@
 #include "BasicShortSword.h"
 #include "Image.h"
 #include "Player.h"
+#include "Collider2.h"
 
 #include <cmath>
 
@@ -40,10 +41,10 @@ HRESULT BasicShortSword::Init(Player* player)
 	m_attackDamage = 5;
 
 	// 아이템 히트박스용
-	m_hitboxShape = {};
+	m_shape = {};
 
 	// Collider
-	Collider::CreateCollider(L"BSS", this, ObjectType::Item, m_hitboxShape);
+	m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Item);
 	
 	// PlgBlt 함수 쓰기 위해 만들어 놓은 것
 	/*m_shape = {};
@@ -96,7 +97,6 @@ void BasicShortSword::Update()
 	}
 
 	// 콜라이더 업데이트
-	Collider::UpdateCollider(L"BSS", m_hitboxShape);
 	
 	// PlgBlt 이미지 렌더함수 쓰기 위한 용도였음. 마젠타 색이 안빠져서 실패.
 	/*m_leftTopPoint = { (LONG)(m_bssImgRenderPos.x + (float)(m_shape.left - m_bssImgRenderPos.x) * cosf(m_angle) - (float)(m_shape.top - m_bssImgRenderPos.y) * sinf(m_angle)),
@@ -225,16 +225,20 @@ void BasicShortSword::SetHitboxShape()
 {
 	if (mb_isAttack == true)
 	{
-		m_hitboxShape.left = static_cast<long>(m_effectImgRenderPos.x - m_bssEffectImg->GetFrameWidth() * 0.5f);
-		m_hitboxShape.right = static_cast<long>(m_effectImgRenderPos.x + m_bssEffectImg->GetFrameWidth() * 0.5f);
-		m_hitboxShape.top = static_cast<long>(m_effectImgRenderPos.y - m_bssEffectImg->GetFrameHeight() * 0.5f);
-		m_hitboxShape.bottom = static_cast<long>(m_effectImgRenderPos.y + m_bssEffectImg->GetFrameHeight() * 0.5f);
+		m_shape.left = static_cast<long>(m_effectImgRenderPos.x - m_bssEffectImg->GetFrameWidth() * 0.5f);
+		m_shape.right = static_cast<long>(m_effectImgRenderPos.x + m_bssEffectImg->GetFrameWidth() * 0.5f);
+		m_shape.top = static_cast<long>(m_effectImgRenderPos.y - m_bssEffectImg->GetFrameHeight() * 0.5f);
+		m_shape.bottom = static_cast<long>(m_effectImgRenderPos.y + m_bssEffectImg->GetFrameHeight() * 0.5f);
+
+		m_collider->Update(m_shape);
 	}
 	else
 	{
-		m_hitboxShape.left = 0;
-		m_hitboxShape.right = 0;
-		m_hitboxShape.top = 0;
-		m_hitboxShape.bottom = 0;
+		m_shape.left = 0;
+		m_shape.right = 0;
+		m_shape.top = 0;
+		m_shape.bottom = 0;
+
+		m_collider->Update(m_shape);
 	}
 }

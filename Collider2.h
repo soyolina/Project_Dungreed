@@ -1,29 +1,27 @@
 #pragma once
 
-#include "Config.h"
-#include "CommonFunction.h"
+//#include "Config.h"
 
-enum class ObjectType { Player, Enemy, Item, EnemyAttack, End };
+class GameObject;
 
 typedef struct ColliderInfo
 {
 	GameObject* object = nullptr;
-	ObjectType objectType = {};
 	RECT rect = {};
-	//FuncPtr funcPtr;
-}COLLID_DATA;
-
+	ObjectType objectType = {};
+}COLLIDER_DATA;
 
 class Collider2
 {
 private:
-	COLLID_DATA m_colliderData = {};
+	COLLIDER_DATA m_colliderData = {};
 
 public:
-	void CreateCollider(const wstring& name, GameObject* object, const ObjectType& objectType, const RECT& rect);
-	void UpdateCollider(const wstring& name, const RECT& rect);
-	void Update();
-	void Render(HDC hdc);
-	void Release();
+	Collider2(GameObject* object, const RECT& rect, const ObjectType& objType)
+		: m_colliderData{ object, rect, objType} {};
+
+	void Update(const RECT& rect);
+
+	COLLIDER_DATA GetColliderData() const { return m_colliderData; }
 };
 

@@ -3,13 +3,13 @@
 #include "Image.h"
 #include "Player.h"
 #include "AmmoManager.h"
+#include "Collider2.h"
 
 
 HRESULT Bellial::Init()
 {
 	// 콜라이더
-	Collider::CreateCollider(L"BossBody", this, ObjectType::Enemy, m_shape);
-	Collider::CreateCollider(L"BossLaser", this, ObjectType::EnemyAttack, m_laserHitbox);
+	m_laserCollider = nullptr;
 
 	// - 보스 애니메이션 용
 	m_bossIdleImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp"); // 보스 본체
@@ -110,6 +110,8 @@ HRESULT Bellial::Init()
 	m_bodyHeight = m_bossIdleImg->GetFrameHeight() - 66;
 	
 	SetHitbox();
+	// 콜라이더
+	m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Enemy);
 
 	m_hp = 100;
 	m_moveSpeed = 0.0f;
@@ -118,6 +120,7 @@ HRESULT Bellial::Init()
 	m_hitElapsedCount = 0.0f;
 	mb_isDead = false;
 	// - 여기까지
+
 
 	// - 보스 HP UI 관련
 	m_bossLifeBack = IMAGE_MANAGER->FindImage(L"Image/Boss/BossLifeBack.bmp");
@@ -164,7 +167,7 @@ void Bellial::Update()
 	// 작은구슬 파티클 애니메이션
 	UpdateParticleAnimation();
 
-	// 공격 딜레이
+	// 공격 딜레이와 그에 따른 랜덤 공격패턴 설정
 	if (mb_isAttack == false)
 	{
 		m_attackDelay += TIMER_MANAGER->GetDeltaTime();
@@ -205,15 +208,11 @@ void Bellial::Update()
 	}
 	
 	// 콜라이더
-	Collider::UpdateCollider(L"BossBody", m_shape);
-	Collider::UpdateCollider(L"BossLaser", m_laserHitbox);
+	m_collider->Update(m_shape); // 해골 본체
 }
 
 void Bellial::Render(HDC hdc)
 {
-	// 히트박스
-	//Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
-
 	// - 보스
 	// 작은구슬
 	for (int i = 0; i < 7; ++i)
@@ -329,7 +328,7 @@ void Bellial::FireMissile()
 		{
 			for (size_t i = 0; i < 4; ++i)
 			{
-				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_pos, m_ammoAngle, m_attackDamage, 400);
+				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_pos, m_ammoAngle, m_attackDamage, 400, ObjectType::EnemyAttack);
 				m_ammoAngle += DEGREE_TO_RADIAN(90);
 			}
 			m_ammoAngle += DEGREE_TO_RADIAN(m_ammoChangeAngle);
@@ -694,6 +693,16 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.bottom = static_cast<long>(BOSS_LEFT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
 
 		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
+
+		// 레이저 콜라이더
+		if (m_laserCollider == nullptr)
+		{
+			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+		}
+		else
+		{
+			m_laserCollider->Update(m_laserHitbox);
+		}
 	}
 	else
 	{
@@ -701,6 +710,16 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.top = 0;
 		m_laserHitbox.right = 0;
 		m_laserHitbox.bottom = 0;
+
+		// 레이저 콜라이더
+		if (m_laserCollider == nullptr)
+		{
+			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+		}
+		else
+		{
+			m_laserCollider->Update(m_laserHitbox);
+		}
 	}
 }
 
@@ -714,6 +733,15 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		m_laserHitbox.bottom = static_cast<long>(BOSS_RIGHT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
 
 		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
+		// 레이저 콜라이더
+		if (m_laserCollider == nullptr)
+		{
+			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+		}
+		else
+		{
+			m_laserCollider->Update(m_laserHitbox);
+		}
 	}
 	else
 	{
@@ -721,5 +749,15 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		m_laserHitbox.top = 0;
 		m_laserHitbox.right = 0;
 		m_laserHitbox.bottom = 0;
+
+		// 레이저 콜라이더
+		if (m_laserCollider == nullptr)
+		{
+			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+		}
+		else
+		{
+			m_laserCollider->Update(m_laserHitbox);
+		}
 	}
 }

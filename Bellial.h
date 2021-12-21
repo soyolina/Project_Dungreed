@@ -42,6 +42,9 @@ class Image;
 class Bellial : public Enemy
 {
 private:
+	// 콜라이더
+	Collider2* m_laserCollider = nullptr;
+
 	Player* m_player = nullptr;
 
 	// --  보스 애니메이션용

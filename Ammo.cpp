@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "Ammo.h"
 #include "Image.h"
+#include "Collider2.h"
 #include <cmath>
 
-HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, float attackDamage, float moveSpeed, float changeAngle)
+HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, int attackDamage, float moveSpeed, ObjectType objType, float changeAngle)
 {
 	// 애니메이션용
 	m_ammoImg = IMAGE_MANAGER->FindImage(imgName);
@@ -12,18 +13,22 @@ HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, float attackDam
 	m_frameY = 0;
 	m_maxFrameX = m_ammoImg->GetMaxFrameX();
 	m_elapsedCount = 0.0f;
+	m_frameChangeTime = 0.15f;
 
     // GameObject에서 상속받은 것
 	m_pos = pos;
 	m_bodyWidth = m_ammoImg->GetFrameWidth();
 	m_bodyHeight = m_ammoImg->GetFrameHeight();
 	SetShape();
+	// 콜라이더
+	m_collider = ColliderManager::CreateCollider(this, m_shape, objType);
 
 	m_hp = 0;
 	m_moveSpeed = moveSpeed;
 	m_attackDamage = attackDamage;
 
 	mb_isHit = false;
+	mb_isHit2 = false;
 	m_hitElapsedCount = 0.0f;
 	mb_isDead = false;
     //
@@ -36,34 +41,75 @@ HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, float attackDam
 
 void Ammo::Update()
 {
+	// 화면 밖으로 벗어날시 미사일 상태 -> Dead 로 바꿈
+	if (m_shape.right < 0 || m_shape.left > WIN_SIZE_X || m_shape.bottom < 0 || m_shape.top > WIN_SIZE_Y)
+	{
+		mb_isDead = true;
+		return;
+	}
+
+	// 히트 당했을때 히트당한 이미지 데이터 셋팅
+	if (mb_isHit == true)
+	{
+		// 나중에 추가할 조건 : 아모가 보스의 미사일 패턴일 때는 저 이미지 쓸꺼다. 
+		if (mb_isHit2 == true)
+		{
+			m_ammoImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossBulletEffect.bmp");
+			m_frameX = 0;
+			m_maxFrameX = m_ammoImg->GetMaxFrameX();
+			m_elapsedCount = 0.0f;
+			m_frameChangeTime = 0.07f;
+
+			mb_isHit2 = false;
+		}
+	}
+
 	// 아모 이미지 애니메이션용
 	m_elapsedCount += TIMER_MANAGER->GetDeltaTime();
-	if (m_elapsedCount >= 0.15f)
+	if (m_elapsedCount >= m_frameChangeTime)
 	{
 		++m_frameX;
 		if (m_frameX >= m_maxFrameX)
 		{
 			m_frameX = 0;
+
+			// 미사일 히트상태고 히트당했을때의 이미지 애니메이션 다돌았으면 Dead상태로 셋팅해줌.
+			if (mb_isHit == true)
+			{
+				mb_isDead = true;
+			}
 		}
 		m_elapsedCount = 0.0f;
 	}
 
 	// 미사일 포지션 변경	
-	m_pos.x += cosf(m_angle) * m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
-	m_pos.y += - sinf(m_angle) * m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
-
+	if (mb_isHit == false)	// 히트 상태가 아닐때만
+	{
+		m_pos.x += cosf(m_angle) * m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
+		m_pos.y += -sinf(m_angle) * m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
+	}
+	
 	SetShape();
+
+	// 콜라이더 업데이트
+	m_collider->Update(m_shape);
 }
 
 void Ammo::Render(HDC hdc)
 {
-	//Rectangle(hdc, m_shape.left, m_shape.top, m_shape.right, m_shape.bottom);
-	m_ammoImg->Render(hdc, static_cast<int>(m_pos.x), static_cast<int>(m_pos.y), m_frameX, m_frameY, 1.0f);
+	if (mb_isDead == false)
+	{
+		m_ammoImg->Render(hdc, static_cast<int>(m_pos.x), static_cast<int>(m_pos.y), m_frameX, m_frameY, 1.0f);
+	}
 }
 
 void Ammo::Release()
 {
 	m_ammoImg = nullptr;
+	
+	// 콜라이더 삭제
+	ObjectType objType = m_collider->GetColliderData().objectType;
+	ColliderManager::DeleteCollider(objType, m_collider);
 }
 
 void Ammo::SetShape()

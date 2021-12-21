@@ -70,6 +70,7 @@ void ImageManager::Init()
     // Missile
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossBullet.bmp", 156, 39, 4, 1, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBullet.bmp", 531, 52, 10, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossBulletEffect.bmp", 744, 93, 8, 1, true, RGB(255, 0, 255));
 
     // HP UI
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBack.bmp", 600, 77, true, RGB(255, 0, 255));

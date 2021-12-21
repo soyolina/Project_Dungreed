@@ -141,6 +141,12 @@
     <ClCompile Include="Ammo.cpp">
       <Filter>MainGame\Ammo</Filter>
     </ClCompile>
+    <ClCompile Include="Collider2.cpp">
+      <Filter>2D Framework\Collide</Filter>
+    </ClCompile>
+    <ClCompile Include="ColliderManager.cpp">
+      <Filter>2D Framework\Collide</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h">
@@ -232,6 +238,12 @@
     </ClInclude>
     <ClInclude Include="Ammo.h">
       <Filter>MainGame\Ammo</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider2.h">
+      <Filter>2D Framework\Collide</Filter>
+    </ClInclude>
+    <ClInclude Include="ColliderManager.h">
+      <Filter>2D Framework\Collide</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
