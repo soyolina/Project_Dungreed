@@ -8,11 +8,8 @@
 
 HRESULT Bellial::Init()
 {
-	// 콜라이더
-	m_laserCollider = nullptr;
-
 	// - 보스 애니메이션 용
-	m_bossIdleImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp"); // 보스 본체
+	m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp"); // 보스 본체
 	m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp"); // 보스 피격
 	m_bossBackImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossBack.bmp"); // 보스 본체 뒤 큰 중앙 구슬
 	
@@ -89,6 +86,7 @@ HRESULT Bellial::Init()
 	
 	// 미사일 쏘는 패턴 용
 	AmmoManager* m_ammoManager = nullptr;
+	m_ammoPos = { BOSS_AMMO_POSX , BOSS_AMMO_POSY };
 	m_ammoInterval = 0.0f;
 	m_ammoAttackDelay = 0.0f;
 	m_ammoAttackDuration = 0.0f;
@@ -106,12 +104,13 @@ HRESULT Bellial::Init()
 	// - 상속받은 것 - GameObject에서
 	// 히트박스 셋팅용
 	m_pos = { BOSS_HITBOX_POSX, BOSS_HITBOX_POSY };
-	m_bodyWidth = m_bossIdleImg->GetFrameWidth() - 46;
-	m_bodyHeight = m_bossIdleImg->GetFrameHeight() - 66;
+	m_bodyWidth = m_bossImg->GetFrameWidth() - 46;
+	m_bodyHeight = m_bossImg->GetFrameHeight() - 66;
 	
 	SetHitbox();
 	// 콜라이더
 	m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Enemy);
+	m_laserCollider = nullptr; 
 
 	m_hp = 100;
 	m_moveSpeed = 0.0f;
@@ -160,6 +159,12 @@ void Bellial::Update()
 		if (m_frameX >= m_maxFrameX)
 		{
 			m_frameX = 0;
+
+			// 보스가 미사일 패턴일땐 미사일 공격끝날때까지 마지막 이미지 프레임으로 계속 고정해두기 위해(입벌린 상태로)
+			if (mb_fireAmmo == true && mb_readyToFire == true)
+			{
+				m_frameX = m_maxFrameX - 1;
+			}
 		}
 		m_elapsedCount = 0.0f;
 	}
@@ -234,7 +239,7 @@ void Bellial::Render(HDC hdc)
 	}
 	else
 	{
-		m_bossIdleImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+		m_bossImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
 	}
 	
 	// 왼손
@@ -250,7 +255,7 @@ void Bellial::Render(HDC hdc)
 
 void Bellial::Release()
 {
-	m_bossIdleImg = nullptr;
+	m_bossImg = nullptr;
 	m_bossBackImg = nullptr;
 	for (int i = 0; i < 7; ++i)
 	{
@@ -290,6 +295,13 @@ void Bellial::FireMissile()
 
 		mb_readyToFire = false;
 
+		// 보스 본체 이미지 셋팅용, 공격이 끝났으니 다시 Idle로 모두 전환
+		m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp");
+		m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp");
+		m_frameX = 0;
+		m_elapsedCount = 0.0f;
+		SetHitbox();
+
 		return;
 	}
 
@@ -305,6 +317,13 @@ void Bellial::FireMissile()
 			mb_readyToFire = true;
 
 			m_ammoInterval = 0.0f;
+
+			// 보스 본체 이미지 셋팅용, 공격시에는 그에 맞는 보스 본체이미지랑 히트 이미지로 바꾸고, 히트박스도 그에 따라 생성
+			m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossAttack.bmp");
+			m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossAttackHit.bmp");
+			m_frameX = 0;
+			m_elapsedCount = 0.0f;
+			SetHitbox();
 		}
 	}
 
@@ -320,6 +339,13 @@ void Bellial::FireMissile()
 			--m_totalAmmoAttackCount;
 
 			m_ammoAttackDuration = 0.0f;
+
+			// 보스 본체 이미지 셋팅용, 공격이 아닐시에는 다시 Idle로 모두 전환
+			m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp");
+			m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp");
+			m_frameX = 0;
+			m_elapsedCount = 0.0f;
+			SetHitbox();
 		}
 
 		// 각각의 미사일들간의 발사 간격
@@ -328,7 +354,7 @@ void Bellial::FireMissile()
 		{
 			for (size_t i = 0; i < 4; ++i)
 			{
-				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_pos, m_ammoAngle, m_attackDamage, 400, ObjectType::EnemyAttack);
+				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_ammoPos, m_ammoAngle, m_attackDamage, 400, ObjectType::EnemyAttack);
 				m_ammoAngle += DEGREE_TO_RADIAN(90);
 			}
 			m_ammoAngle += DEGREE_TO_RADIAN(m_ammoChangeAngle);
@@ -340,10 +366,21 @@ void Bellial::FireMissile()
 
 void Bellial::SetHitbox()
 {
-	m_shape.left = static_cast<long>(m_pos.x - m_bodyWidth * 0.5f);
-	m_shape.right = static_cast<long>(m_pos.x + m_bodyWidth * 0.5f);
-	m_shape.top = static_cast<long>(m_pos.y - m_bodyHeight * 0.5f);
-	m_shape.bottom = static_cast<long>(m_pos.y + m_bodyHeight * 0.5f);
+	if (mb_fireAmmo == true && mb_readyToFire == true)
+	{
+		m_shape.left = static_cast<long>(m_pos.x - m_bossImg->GetFrameWidth() * 0.5f + 23);
+		m_shape.right = static_cast<long>(m_pos.x + m_bossImg->GetFrameWidth() * 0.5f - 23);
+		m_shape.top = static_cast<long>(m_pos.y - m_bossImg->GetFrameHeight() * 0.5f + 27);
+		m_shape.bottom = static_cast<long>(m_pos.y + m_bossImg->GetFrameHeight() * 0.5f - 40);
+	}
+	else
+	{
+		m_shape.left = static_cast<long>(m_pos.x - m_bodyWidth * 0.5f);
+		m_shape.right = static_cast<long>(m_pos.x + m_bodyWidth * 0.5f);
+		m_shape.top = static_cast<long>(m_pos.y - m_bodyHeight * 0.5f);
+		m_shape.bottom = static_cast<long>(m_pos.y + m_bodyHeight * 0.5f);
+	}
+	
 }
 
 void Bellial::SetParticleInitialPos(int num)

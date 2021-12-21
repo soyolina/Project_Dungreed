@@ -29,6 +29,10 @@
 #define BOSS_RIGHT_LASER_POSX (BOSS_RIGHTHAND_POSX - 50)
 #define BOSS_RIGHT_LASER_POSY (m_rightHandPosY + 30)
 
+// 미사일 관련
+#define BOSS_AMMO_POSX  (BOSS_HITBOX_POSX)
+#define BOSS_AMMO_POSY  (BOSS_HITBOX_POSY + 48)
+
 // HP UI 관련
 #define BOSS_HP_UI_POSX  (WIN_SIZE_X * 0.5f)
 #define BOSS_HP_UI_POSY  (WIN_SIZE_Y - 50)
@@ -49,7 +53,7 @@ private:
 
 	// --  보스 애니메이션용
 	// - 본체 해골 
-	Image* m_bossIdleImg = nullptr;
+	Image* m_bossImg = nullptr;
 	Image* m_bossHitImg = nullptr;
 	// 함수 - 본체 해골 히트박스
 	void SetHitbox();
@@ -149,14 +153,17 @@ private:
 
 
 	// 미사일 쏘는 패턴 용
+	// 변수
 	AmmoManager* m_ammoManager = nullptr;
+	POINTFLOAT m_ammoPos = {};
 	float m_ammoInterval = 0.0f;	// 미사일 공격 횟수 간의 시간 간격
 	float m_ammoAttackDelay = 0.0f;	// 각각 미사일들의 발사 간격 
 	float m_ammoAttackDuration = 0.0f; // 미사일 한번 공격때 얼마동안 미사일 쏠 껀지
 	float m_ammoAngle = 0.0f;
 	float m_ammoChangeAngle = 0.0f;
 	int m_totalAmmoAttackCount = 0;
-
+	// 함수
+	void FireMissile();
 
 	// Attack Delay 와 각 어택 관련
 	bool mb_isAttack = false;
@@ -183,7 +190,6 @@ public:
 	virtual void Render(HDC hdc);
 	virtual void Release();
 
-	void FireMissile();
 
 	void SetPlayer(Player* player) { this->m_player = player; }
 	void SetAmmoManager(AmmoManager* ammoManager) { this->m_ammoManager = ammoManager; }

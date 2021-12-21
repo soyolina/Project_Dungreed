@@ -51,8 +51,12 @@ void ImageManager::Init()
     
     // 본체 Idle
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdle.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
+    // 보스가 미사일 패턴 공격시 본체 이미지
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossAttack.bmp", 2100, 384, 10, 1, true, RGB(255, 0, 255));   
     // 본체 피격
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossIdleHit.bmp", 2100, 285, 10, 1, true, RGB(255, 0, 255));
+    // 보스가 미사일 패턴 공격때 피격시 본체 이미지
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossAttackHit.bmp", 2100, 384, 10, 1, true, RGB(255, 0, 255));
     // 본체 뒤 큰 구슬
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBack.bmp", 1470, 144, 10, 1, true, RGB(255, 0, 255));
     // 본체 뒤 작은 구슬

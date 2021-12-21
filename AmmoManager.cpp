@@ -3,11 +3,6 @@
 #include "Ammo.h"
 #include "Collider2.h"
 
-HRESULT AmmoManager::Init()
-{
-	return S_OK;
-}
-
 void AmmoManager::Update()
 {
 	int size = m_vecAmmos.size();
