@@ -16,9 +16,6 @@ private:
 	float m_angle = 0.0f;
 	float m_changeAngle = 0.0f;
 
-	//
-	float m_angleElapsedCount = 0.0f;
-
 public:
 	virtual ~Ammo() {}
 

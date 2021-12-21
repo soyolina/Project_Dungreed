@@ -139,14 +139,20 @@ private:
 	float m_handAttackDelay = 0.0f;
 	int m_totalHandAttackCount = 0;	// 레이저 공격 가능 총 횟수
 	bool mb_isLefthandAttack = false; // 왼손이 이전에 공격을했냐. false면 아직 공격 안한 것. 
-	bool mb_readyToFire = false;
+
+	bool mb_readyToFire = false; // 얘는 미사일 공격패턴에서도 쓰임
 	// 함수
 	void FireLaserbeam();
 
 
 	// 미사일 쏘는 패턴 용
 	AmmoManager* m_ammoManager = nullptr;
-	float m_ammoAttackDelay = 0.0f;
+	float m_ammoInterval = 0.0f;	// 미사일 공격 횟수 간의 시간 간격
+	float m_ammoAttackDelay = 0.0f;	// 각각 미사일들의 발사 간격 
+	float m_ammoAttackDuration = 0.0f; // 미사일 한번 공격때 얼마동안 미사일 쏠 껀지
+	float m_ammoAngle = 0.0f;
+	float m_ammoChangeAngle = 0.0f;
+	int m_totalAmmoAttackCount = 0;
 
 
 	// Attack Delay 와 각 어택 관련
@@ -173,6 +179,8 @@ public:
 	virtual void Update();
 	virtual void Render(HDC hdc);
 	virtual void Release();
+
+	void FireMissile();
 
 	void SetPlayer(Player* player) { this->m_player = player; }
 	void SetAmmoManager(AmmoManager* ammoManager) { this->m_ammoManager = ammoManager; }

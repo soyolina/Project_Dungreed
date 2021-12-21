@@ -89,7 +89,12 @@ HRESULT Bellial::Init()
 	
 	// 미사일 쏘는 패턴 용
 	AmmoManager* m_ammoManager = nullptr;
+	m_ammoInterval = 0.0f;
 	m_ammoAttackDelay = 0.0f;
+	m_ammoAttackDuration = 0.0f;
+	m_ammoAngle = 0.0f;
+	m_ammoChangeAngle = 0.0f;
+	m_totalAmmoAttackCount = 3;
 
 
 	// Attack Delay
@@ -196,24 +201,7 @@ void Bellial::Update()
 	// 공격패턴 2 : 미사일 
 	if (mb_isAttack == true && mb_fireAmmo == true)
 	{
-		m_ammoAttackDelay += TIMER_MANAGER->GetDeltaTime();
-		if (m_ammoAttackDelay >= 0.07f)
-		{
-			static float angle = 0.0f;
-			float changeAngle = 0.0f;
-			int randomValue = rand() % 2;
-			randomValue ? changeAngle = 10.0f : changeAngle = -10.0f;
-			//
-			changeAngle = 5.0f;
-
-			for (size_t i = 0; i < 4; ++i)
-			{
-				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_pos, angle, m_attackDamage, 500, changeAngle);
-				angle += DEGREE_TO_RADIAN(90);
-			}
-			angle += 10.0f * TIMER_MANAGER->GetDeltaTime();
-			m_ammoAttackDelay = 0.0f;
-		}
+		FireMissile();
 	}
 	
 	// 콜라이더
@@ -284,6 +272,71 @@ void Bellial::Release()
 	m_bossLifeBack = nullptr;
 	m_bossLifeGage = nullptr;
 	m_bossLifeBar = nullptr;
+}
+
+void Bellial::FireMissile()
+{
+	// 공격횟수 다 썼으면 리턴
+	if (m_totalAmmoAttackCount == 0)
+	{
+		mb_isAttack = false;
+		mb_fireAmmo = false;
+
+		m_ammoAngle = 0.0f;
+		m_ammoChangeAngle = 0.0f;
+		m_ammoInterval = 0.0f;
+		m_ammoAttackDelay = 0.0f;
+		m_ammoAttackDuration = 0.0f;
+		m_totalAmmoAttackCount = 3;
+
+		mb_readyToFire = false;
+
+		return;
+	}
+
+	// 미사일 공격횟수간의 발사 간격
+	if (mb_readyToFire == false)
+	{
+		m_ammoInterval += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoInterval >= 1.5f && m_totalAmmoAttackCount > 0)
+		{
+			int randomValue = rand() % 2;
+			randomValue ? m_ammoChangeAngle = 10.0f : m_ammoChangeAngle = -10.0f;
+
+			mb_readyToFire = true;
+
+			m_ammoInterval = 0.0f;
+		}
+	}
+
+	if (mb_readyToFire == true)
+	{
+		// 한번 공격때 미사일 쏘는거 지속시간
+		m_ammoAttackDuration += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoAttackDuration >= 1.5f)
+		{
+			mb_readyToFire = false;
+			m_ammoAttackDelay = 0.0f;
+			m_ammoAngle = 0.0f;
+			--m_totalAmmoAttackCount;
+
+			m_ammoAttackDuration = 0.0f;
+		}
+
+		// 각각의 미사일들간의 발사 간격
+		m_ammoAttackDelay += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoAttackDelay >= 0.1f)
+		{
+			for (size_t i = 0; i < 4; ++i)
+			{
+				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_pos, m_ammoAngle, m_attackDamage, 400);
+				m_ammoAngle += DEGREE_TO_RADIAN(90);
+			}
+			m_ammoAngle += DEGREE_TO_RADIAN(m_ammoChangeAngle);
+
+			m_ammoAttackDelay = 0.0f;
+		}
+	}
 }
 
 void Bellial::SetHitbox()

@@ -7,7 +7,6 @@ HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, float attackDam
 {
 	// 애니메이션용
 	m_ammoImg = IMAGE_MANAGER->FindImage(imgName);
-	m_ammoImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossBullet.bmp");
 
 	m_frameX = 0;
 	m_frameY = 0;
@@ -32,8 +31,6 @@ HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, float attackDam
 	m_angle = angle;
 	m_changeAngle = changeAngle;
 
-
-	//Collider::CreateCollider(L"Ammo", this, ObjectType::EnemyAttack, m_shape);
     return S_OK;
 }
 
@@ -41,7 +38,7 @@ void Ammo::Update()
 {
 	// 아모 이미지 애니메이션용
 	m_elapsedCount += TIMER_MANAGER->GetDeltaTime();
-	if (m_elapsedCount >= 0.07f)
+	if (m_elapsedCount >= 0.15f)
 	{
 		++m_frameX;
 		if (m_frameX >= m_maxFrameX)
@@ -51,20 +48,11 @@ void Ammo::Update()
 		m_elapsedCount = 0.0f;
 	}
 
-	m_angleElapsedCount += TIMER_MANAGER->GetDeltaTime();
-	if (m_angleElapsedCount >= 0.5f)
-	{
-		//m_angle += m_changeAngle;
-		m_angleElapsedCount = 0.0f;
-	}
-	
+	// 미사일 포지션 변경	
 	m_pos.x += cosf(m_angle) * m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
 	m_pos.y += - sinf(m_angle) * m_moveSpeed * TIMER_MANAGER->GetDeltaTime();
 
-
 	SetShape();
-
-	//Collider::UpdateCollider(L"Ammo");
 }
 
 void Ammo::Render(HDC hdc)
