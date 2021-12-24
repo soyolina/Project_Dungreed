@@ -75,6 +75,15 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossBullet.bmp", 156, 39, 4, 1, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBullet.bmp", 531, 52, 10, 1, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossBulletEffect.bmp", 744, 93, 8, 1, true, RGB(255, 0, 255));
+    // Sword
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossSword0.bmp", 92, 92, true, RGB(255, 0, 255));     // Idle
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossSwordFire.bmp", 92, 92, true, RGB(255, 0, 255));  // Fire
+    // Sword Effect
+    IMAGE_MANAGER->AddImage(L"Image/Boss/destroyEffect.bmp", 558, 186, 3, 1, true, RGB(255, 0, 255));      // Ä® »ý¼º°ú ÆÄ±«½Ã ÀÌÆåÆ®
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossSwordHitDown.bmp", 765, 66, 5, 1, true, RGB(255, 0, 255));    // Ä®ÀÌ º®¸é°ú Ãæµ¹½Ã ÀÌÆåÆ® µé 
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossSwordHitLeft.bmp", 330, 153, 5, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossSwordHitRight.bmp", 330, 153, 5, 1, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/BossSwordHitUp.bmp", 765, 66, 5, 1, true, RGB(255, 0, 255));
 
     // HP UI
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBack.bmp", 600, 77, true, RGB(255, 0, 255));

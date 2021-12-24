@@ -33,6 +33,11 @@
 #define BOSS_AMMO_POSX  (BOSS_HITBOX_POSX)
 #define BOSS_AMMO_POSY  (BOSS_HITBOX_POSY + 48)
 
+// 칼 관련
+#define BOSS_SWORD_POSX (WIN_SIZE_X * 0.2f)
+#define BOSS_SWORD_POSY (WIN_SIZE_Y * 0.25f)
+#define SWORD_GAP (WIN_SIZE_X * 0.15f)
+
 // HP UI 관련
 #define BOSS_HP_UI_POSX  (WIN_SIZE_X * 0.5f)
 #define BOSS_HP_UI_POSY  (WIN_SIZE_Y - 50)
@@ -46,9 +51,6 @@ class Image;
 class Bellial : public Enemy
 {
 private:
-	// 콜라이더
-	Collider2* m_laserCollider = nullptr;
-
 	Player* m_player = nullptr;
 
 	// --  보스 애니메이션용
@@ -126,7 +128,10 @@ private:
 	Image* m_laserBody = nullptr;
 	Image* m_laserHead = nullptr;
 
+	// 콜라이더
+	Collider2* m_laserCollider = nullptr;
 	RECT m_laserHitbox = {};
+
 	int m_leftLaserFrameX = 0;
 	int m_rightLaserFrameX = 0;
 	int m_rightLaserBodyFrameX = 0;
@@ -156,8 +161,8 @@ private:
 	// 변수
 	AmmoManager* m_ammoManager = nullptr;
 	POINTFLOAT m_ammoPos = {};
-	float m_ammoInterval = 0.0f;	// 미사일 공격 횟수 간의 시간 간격
-	float m_ammoAttackDelay = 0.0f;	// 각각 미사일들의 발사 간격 
+	float m_ammoInterval = 0.0f;	   // 미사일 공격 횟수 간의 시간 간격
+	float m_ammoAttackDelay = 0.0f;	   // 각각 미사일들의 발사 간격 
 	float m_ammoAttackDuration = 0.0f; // 미사일 한번 공격때 얼마동안 미사일 쏠 껀지
 	float m_ammoAngle = 0.0f;
 	float m_ammoChangeAngle = 0.0f;
@@ -165,13 +170,53 @@ private:
 	// 함수
 	void FireMissile();
 
+	// 칼 발사 패턴 용 
+	// 변수
+	enum class SwordStatus {Create, Idle, Fire, Hit, Destroy, End};
+	
+	struct Sword
+	{
+		Image* swordImg = nullptr;	// Idle과 Fire상태일때 이미지 두개 그때그떄 쓸꺼임.
+		POINTFLOAT swordPos = {};
+		float swordAngle = 0.0f;
+		SwordStatus swordStatus = SwordStatus::End;
+		float swordElapsedCount = 0.0f;
+		int swordAttackCount = 0;
+
+		// 콜라이더 관련
+		POINTFLOAT swordHitboxPos = {};
+		RECT swordHitBox = {};
+		Collider2* swordCollider = nullptr;
+
+		// 이펙트 관련
+		// sword create, hit , destory 이미지 그때그때 find해서 쓸꺼다
+		Image* m_swordEffectImg = nullptr;
+		int m_swordEffectFrameX = 0;
+		int m_swordEffectMaxFrameX = 0;
+		int m_swordEffectFrameY = 0;
+		float m_swordEffectElapsedCount = 0.0f;
+		float m_swordEffectImgScale = 1.0f;
+	};
+	vector<Sword> m_swordVec = {};
+
+	float m_swordMoveSpeed = 0.0f;
+	int m_swordEndAttackCount = 2;
+
+	// 함수
+	void SetSwordHitbox(int index, float angle);
+	void CheckSwordPatternEnd();
+	void CreateSword();
+	void ActUponSwordStatus();
+	void FireSword();
+
+
 	// Attack Delay 와 각 어택 관련
 	bool mb_isAttack = false;
 	float m_attackDelay = 0.0f;
 
 	bool mb_fireLaserbeam = false;
 	bool mb_fireAmmo = false;
-
+	bool mb_fireSword = false;
 
 
 	// - 보스 HP UI 관련
@@ -193,5 +238,7 @@ public:
 
 	void SetPlayer(Player* player) { this->m_player = player; }
 	void SetAmmoManager(AmmoManager* ammoManager) { this->m_ammoManager = ammoManager; }
+
+	void RenderSword(HDC hdc);
 };
 

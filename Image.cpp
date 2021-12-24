@@ -690,7 +690,7 @@ void Image::RotateHDC(HDC hdc, float angle, int m_frameX, int m_frameY)
 	DeleteObject(hTempBitmap);
 }
 
-void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle)
+void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle, float scale)
 {
 	if (isTransparent)//배경색 없애고 출력
 	{
@@ -698,10 +698,10 @@ void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle)
 		
 		GdiTransparentBlt(
 			hdc,									//복사할 장소의 DC
-			destX - static_cast<int>(imageInfo->width * 0.5f),		//복사할 좌표 시작X
-			destY - static_cast<int>(imageInfo->height * 0.5f),		//복사할 좌표 시작Y
-			imageInfo->width,						//복사할 이미지 가로크기
-			imageInfo->height,						//복사할 이미지 세로크기
+			destX - static_cast<int>(imageInfo->width * scale * 0.5f),		//복사할 좌표 시작X
+			destY - static_cast<int>(imageInfo->height * scale * 0.5f),		//복사할 좌표 시작Y
+			static_cast<int>(imageInfo->width * scale),						//복사할 이미지 가로크기
+			static_cast<int>(imageInfo->height * scale),						//복사할 이미지 세로크기
 			rotateImageInfo->hMemDc,
 			0, 0,									//복사될 대상의 시작지점
 			imageInfo->width,						//복사 영역 가로크기
@@ -715,7 +715,7 @@ void Image::ImgRotateRender(HDC hdc, int destX, int destY, float angle)
 	}
 }
 
-void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle)
+void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle, float scale)
 {
 	if (isTransparent)//배경색 없애고 출력
 	{
@@ -723,10 +723,10 @@ void Image::ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int 
 
 		GdiTransparentBlt(
 			hdc,									//복사할 장소의 DC
-			static_cast<int>(destX - imageInfo->frameWidth * 0.5f),			//복사할 좌표 시작X
-			static_cast<int>(destY - imageInfo->frameHeight * 0.5f),		//복사할 좌표 시작Y
-			imageInfo->frameWidth,						//복사할 이미지 가로크기
-			imageInfo->frameHeight,						//복사할 이미지 세로크기
+			static_cast<int>(destX - imageInfo->frameWidth * scale * 0.5f),			//복사할 좌표 시작X
+			static_cast<int>(destY - imageInfo->frameHeight * scale * 0.5f),		//복사할 좌표 시작Y
+			static_cast<int>(imageInfo->frameWidth * scale),						//복사할 이미지 가로크기
+			static_cast<int>(imageInfo->frameHeight * scale),						//복사할 이미지 세로크기
 			rotateImageInfo->hMemDc,
 			frameX * imageInfo->frameWidth,		//복사될 대상의 시작지점
 			frameY * imageInfo->frameHeight,

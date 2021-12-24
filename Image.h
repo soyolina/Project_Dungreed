@@ -87,9 +87,9 @@ public:
 	HBITMAP GetRotatedBitmap(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
 	void RotateHDC(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);
 	// 프레임 없는 것
-	void ImgRotateRender(HDC hdc, int destX, int destY, float angle);
+	void ImgRotateRender(HDC hdc, int destX, int destY, float angle, float scale = 1.0f);
 	// 프레임 있는 것
-	void ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle);
+	void ImgRotateFrameRender(HDC hdc, int destX, int destY, int frameX, int frameY, float angle, float scale = 1.0f);
 
 
 	// 플레이어 히트시 반투명이미지를 위한 Alphablend 렌더

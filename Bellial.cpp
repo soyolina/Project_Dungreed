@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "AmmoManager.h"
 #include "Collider2.h"
+#include <cmath>
 
 
 HRESULT Bellial::Init()
@@ -95,11 +96,41 @@ HRESULT Bellial::Init()
 	m_totalAmmoAttackCount = 3;
 
 
+	// 칼 쏘는 패턴용
+	m_swordVec.resize(5);
+	for (size_t i = 0; i < m_swordVec.size(); ++i)
+	{
+		m_swordVec[i].swordImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossSword0.bmp");
+		m_swordVec[i].swordPos = { BOSS_SWORD_POSX + (i * SWORD_GAP), BOSS_SWORD_POSY};
+		m_swordVec[i].swordAngle = 0.0f;
+		m_swordVec[i].swordStatus = SwordStatus::End;
+
+		m_swordVec[i].swordElapsedCount = 0.0f;
+		m_swordVec[i].swordAttackCount = 2;
+		
+		// 히트박스 , 콜라이더 관련
+		m_swordVec[i].swordHitboxPos = {};
+		m_swordVec[i].swordHitBox = {};
+		m_swordVec[i].swordCollider = ColliderManager::CreateCollider(this, m_swordVec[i].swordHitBox, ObjectType::EnemyAttack);
+
+		// 이펙트 관련
+		m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/destroyEffect.bmp");;
+		m_swordVec[i].m_swordEffectFrameX = 0;
+		m_swordVec[i].m_swordEffectMaxFrameX = 3;
+		m_swordVec[i].m_swordEffectFrameY = 0;
+		m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+		m_swordVec[i].m_swordEffectImgScale = 1.0f;
+	}
+	m_swordMoveSpeed = 1600.0f;
+	m_swordEndAttackCount = 2;
+	
+
 	// Attack Delay
 	mb_isAttack = false;
 	m_attackDelay = 0.0f;
 	mb_fireLaserbeam = false;
 	mb_fireAmmo = false;
+	mb_fireSword = false;
 
 	// - 상속받은 것 - GameObject에서
 	// 히트박스 셋팅용
@@ -144,7 +175,7 @@ void Bellial::Update()
 	if (mb_isHit == true)
 	{
 		m_hitElapsedCount += TIMER_MANAGER->GetDeltaTime();
-		if (m_hitElapsedCount > 0.2f)
+		if (m_hitElapsedCount > 0.3f)
 		{
 			mb_isHit = false;
 			m_hitElapsedCount = 0.0f;
@@ -179,19 +210,22 @@ void Bellial::Update()
 		if (m_attackDelay >= 2.0f)
 		{
 			int randomValue = rand() % 3;
-			switch (1/*randomValue*/)
+			switch (randomValue)
 			{
 			case 0:
 				mb_isAttack = true;
 				mb_fireLaserbeam = true;
-				m_attackDamage = 10;
+				m_attackDamage = 9;
 				break;
 			case 1:
 				mb_isAttack = true;
 				mb_fireAmmo = true;
-				m_attackDamage = 8;
+				m_attackDamage = 6;
 				break;
 			case 2:
+				mb_isAttack = true;
+				mb_fireSword = true;
+				m_attackDamage = 8;
 				break;
 			}
 
@@ -211,6 +245,12 @@ void Bellial::Update()
 	{
 		FireMissile();
 	}
+
+	// 공격패턴 3 : 칼 
+	if (mb_isAttack == true && mb_fireSword == true)
+	{
+		FireSword();
+	}
 	
 	// 콜라이더
 	m_collider->Update(m_shape); // 해골 본체
@@ -218,6 +258,12 @@ void Bellial::Update()
 
 void Bellial::Render(HDC hdc)
 {
+	// 칼 패턴 렌더
+	if (mb_isAttack == true && mb_fireSword == true)
+	{
+		RenderSword(hdc);
+	}
+
 	// - 보스
 	// 작은구슬
 	for (int i = 0; i < 7; ++i)
@@ -278,91 +324,7 @@ void Bellial::Release()
 	m_bossLifeBar = nullptr;
 }
 
-void Bellial::FireMissile()
-{
-	// 공격횟수 다 썼으면 리턴
-	if (m_totalAmmoAttackCount == 0)
-	{
-		mb_isAttack = false;
-		mb_fireAmmo = false;
 
-		m_ammoAngle = 0.0f;
-		m_ammoChangeAngle = 0.0f;
-		m_ammoInterval = 0.0f;
-		m_ammoAttackDelay = 0.0f;
-		m_ammoAttackDuration = 0.0f;
-		m_totalAmmoAttackCount = 3;
-
-		mb_readyToFire = false;
-
-		// 보스 본체 이미지 셋팅용, 공격이 끝났으니 다시 Idle로 모두 전환
-		m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp");
-		m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp");
-		m_frameX = 0;
-		m_elapsedCount = 0.0f;
-		SetHitbox();
-
-		return;
-	}
-
-	// 미사일 공격횟수간의 발사 간격
-	if (mb_readyToFire == false)
-	{
-		m_ammoInterval += TIMER_MANAGER->GetDeltaTime();
-		if (m_ammoInterval >= 1.5f && m_totalAmmoAttackCount > 0)
-		{
-			int randomValue = rand() % 2;
-			randomValue ? m_ammoChangeAngle = 10.0f : m_ammoChangeAngle = -10.0f;
-
-			mb_readyToFire = true;
-
-			m_ammoInterval = 0.0f;
-
-			// 보스 본체 이미지 셋팅용, 공격시에는 그에 맞는 보스 본체이미지랑 히트 이미지로 바꾸고, 히트박스도 그에 따라 생성
-			m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossAttack.bmp");
-			m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossAttackHit.bmp");
-			m_frameX = 0;
-			m_elapsedCount = 0.0f;
-			SetHitbox();
-		}
-	}
-
-	if (mb_readyToFire == true)
-	{
-		// 한번 공격때 미사일 쏘는거 지속시간
-		m_ammoAttackDuration += TIMER_MANAGER->GetDeltaTime();
-		if (m_ammoAttackDuration >= 1.5f)
-		{
-			mb_readyToFire = false;
-			m_ammoAttackDelay = 0.0f;
-			m_ammoAngle = 0.0f;
-			--m_totalAmmoAttackCount;
-
-			m_ammoAttackDuration = 0.0f;
-
-			// 보스 본체 이미지 셋팅용, 공격이 아닐시에는 다시 Idle로 모두 전환
-			m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp");
-			m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp");
-			m_frameX = 0;
-			m_elapsedCount = 0.0f;
-			SetHitbox();
-		}
-
-		// 각각의 미사일들간의 발사 간격
-		m_ammoAttackDelay += TIMER_MANAGER->GetDeltaTime();
-		if (m_ammoAttackDelay >= 0.1f)
-		{
-			for (size_t i = 0; i < 4; ++i)
-			{
-				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_ammoPos, m_ammoAngle, m_attackDamage, 400, ObjectType::EnemyAttack);
-				m_ammoAngle += DEGREE_TO_RADIAN(90);
-			}
-			m_ammoAngle += DEGREE_TO_RADIAN(m_ammoChangeAngle);
-
-			m_ammoAttackDelay = 0.0f;
-		}
-	}
-}
 
 void Bellial::SetHitbox()
 {
@@ -795,6 +757,384 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		else
 		{
 			m_laserCollider->Update(m_laserHitbox);
+		}
+	}
+}
+
+void Bellial::FireMissile()
+{
+	// 공격횟수 다 썼으면 리턴
+	if (m_totalAmmoAttackCount == 0)
+	{
+		mb_isAttack = false;
+		mb_fireAmmo = false;
+
+		m_ammoAngle = 0.0f;
+		m_ammoChangeAngle = 0.0f;
+		m_ammoInterval = 0.0f;
+		m_ammoAttackDelay = 0.0f;
+		m_ammoAttackDuration = 0.0f;
+		m_totalAmmoAttackCount = 3;
+
+		mb_readyToFire = false;
+
+		// 보스 본체 이미지 셋팅용, 공격이 끝났으니 다시 Idle로 모두 전환
+		m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp");
+		m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp");
+		m_frameX = 0;
+		m_elapsedCount = 0.0f;
+		SetHitbox();
+
+		return;
+	}
+
+	// 미사일 공격횟수간의 발사 간격
+	if (mb_readyToFire == false)
+	{
+		m_ammoInterval += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoInterval >= 1.5f && m_totalAmmoAttackCount > 0)
+		{
+			int randomValue = rand() % 2;
+			randomValue ? m_ammoChangeAngle = 10.0f : m_ammoChangeAngle = -10.0f;
+
+			mb_readyToFire = true;
+
+			m_ammoInterval = 0.0f;
+
+			// 보스 본체 이미지 셋팅용, 공격시에는 그에 맞는 보스 본체이미지랑 히트 이미지로 바꾸고, 히트박스도 그에 따라 생성
+			m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossAttack.bmp");
+			m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossAttackHit.bmp");
+			m_frameX = 0;
+			m_elapsedCount = 0.0f;
+			SetHitbox();
+		}
+	}
+
+	if (mb_readyToFire == true)
+	{
+		// 한번 공격때 미사일 쏘는거 지속시간
+		m_ammoAttackDuration += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoAttackDuration >= 1.5f)
+		{
+			mb_readyToFire = false;
+			m_ammoAttackDelay = 0.0f;
+			m_ammoAngle = 0.0f;
+			--m_totalAmmoAttackCount;
+
+			m_ammoAttackDuration = 0.0f;
+
+			// 보스 본체 이미지 셋팅용, 공격이 아닐시에는 다시 Idle로 모두 전환
+			m_bossImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdle.bmp");
+			m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp");
+			m_frameX = 0;
+			m_elapsedCount = 0.0f;
+			SetHitbox();
+		}
+
+		// 각각의 미사일들간의 발사 간격
+		m_ammoAttackDelay += TIMER_MANAGER->GetDeltaTime();
+		if (m_ammoAttackDelay >= 0.1f)
+		{
+			for (size_t i = 0; i < 4; ++i)
+			{
+				m_ammoManager->MakeAmmo(L"Image/Boss/BossBullet.bmp", m_ammoPos, m_ammoAngle, m_attackDamage, 400, ObjectType::EnemyAttack);
+				m_ammoAngle += DEGREE_TO_RADIAN(90);
+			}
+			m_ammoAngle += DEGREE_TO_RADIAN(m_ammoChangeAngle);
+
+			m_ammoAttackDelay = 0.0f;
+		}
+	}
+}
+
+void Bellial::SetSwordHitbox(int index, float angle)
+{
+	if (m_swordVec[index].swordStatus == SwordStatus::Fire)
+	{
+		m_swordVec[index].swordHitboxPos.x = m_swordVec[index].swordPos.x - 120;
+		m_swordVec[index].swordHitboxPos.y = m_swordVec[index].swordPos.y;
+
+		
+		m_swordVec[index].swordHitboxPos = { (m_swordVec[index].swordPos.x +
+			(m_swordVec[index].swordHitboxPos.x - m_swordVec[index].swordPos.x) * cosf(angle)
+			- (m_swordVec[index].swordHitboxPos.y - m_swordVec[index].swordPos.y) * sinf(angle)),
+
+		(m_swordVec[index].swordPos.y +
+			(m_swordVec[index].swordHitboxPos.x - m_swordVec[index].swordPos.x) * sinf(angle)
+			+ (m_swordVec[index].swordHitboxPos.y - m_swordVec[index].swordPos.y) * cosf(angle))
+		};
+
+		m_swordVec[index].swordHitBox.left = static_cast<long>(m_swordVec[index].swordHitboxPos.x - 18);
+		m_swordVec[index].swordHitBox.right = static_cast<long>(m_swordVec[index].swordHitboxPos.x + 18);
+		m_swordVec[index].swordHitBox.top = static_cast<long>(m_swordVec[index].swordHitboxPos.y - 18);
+		m_swordVec[index].swordHitBox.bottom = static_cast<long>(m_swordVec[index].swordHitboxPos.y + 18);
+
+		m_swordVec[index].swordCollider->Update(m_swordVec[index].swordHitBox);
+	}
+	else
+	{
+		m_swordVec[index].swordHitBox.left =  0;
+		m_swordVec[index].swordHitBox.right = 0;
+		m_swordVec[index].swordHitBox.top =  0;
+		m_swordVec[index].swordHitBox.bottom = 0;
+
+		m_swordVec[index].swordCollider->Update(m_swordVec[index].swordHitBox);
+	}
+	/*m_leftTopPoint = { (LONG)(m_swordVec[index].swordPos.x + 
+		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle)
+		- (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * sinf(angle)),
+					
+		(LONG)(m_swordVec[index].swordPos.y + 
+		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle)
+		+ (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * cosf(angle)) };
+
+
+	m_rightTopPoint = { (LONG)(m_swordVec[index].swordPos.x + 
+		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * cosf(angle) 
+		- (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * sinf(angle)),
+					
+		(LONG)(m_swordVec[index].swordPos.y + 
+		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * sinf(angle) 
+		+ (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * cosf(angle)) };
+
+
+	m_leftBottomPoint = { (LONG)(m_swordVec[index].swordPos.x + 
+		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle) 
+		- (float)(m_swordVec[index].swordHitBox.bottom - m_swordVec[index].swordPos.y) * sinf(angle)),
+					
+		(LONG)(m_swordVec[index].swordPos.y + 
+		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle) 
+		+ (float)(m_swordVec[index].swordHitBox.bottom - m_swordVec[index].swordPos.y) * cosf(angle)) };*/
+}
+
+void Bellial::CheckSwordPatternEnd()
+{
+	// 칼들의 공격횟수가 끝났는지 체크하고 Count를 더해줌
+	for (size_t i = 0; i < m_swordVec.size(); ++i)
+	{
+		if (m_swordVec[i].swordAttackCount == 0)
+		{
+			++m_swordEndAttackCount;
+		}
+	}
+
+	// 모든 칼의 공격횟수가 끝났으면 보스의 Sword 공격 패턴이 끝난거임. 따라서 return
+	if (m_swordEndAttackCount == 5)
+	{
+		mb_isAttack = false;
+		mb_fireSword = false;
+		m_swordEndAttackCount = 0;
+
+		for (size_t i = 0; i < m_swordVec.size(); ++i)
+		{
+			m_swordVec[i].swordAttackCount = 2;
+		}
+
+		return;
+	}
+	else
+	{
+		m_swordEndAttackCount = 0;
+	}
+}
+
+void Bellial::CreateSword()
+{
+	for (size_t i = 0; i < m_swordVec.size(); ++i)
+	{
+		if (m_swordVec[i].swordStatus == SwordStatus::End && m_swordVec[i].swordAttackCount > 0)
+		{
+			m_swordVec[i].swordElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			if (m_swordVec[i].swordElapsedCount >= (1.0f + i * 0.2f))
+			{
+				m_swordVec[i].swordPos = { BOSS_SWORD_POSX + (i * SWORD_GAP), BOSS_SWORD_POSY };
+				m_swordVec[i].swordStatus = SwordStatus::Create;
+				m_swordVec[i].swordElapsedCount = 0.0f;
+			}
+		}
+	}
+}
+
+void Bellial::ActUponSwordStatus()
+{
+	for (size_t i = 0; i < m_swordVec.size(); ++i)
+	{
+		switch (m_swordVec[i].swordStatus)
+		{
+		case Bellial::SwordStatus::Create:
+			m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/destroyEffect.bmp");
+
+			// 플레이어와 검 각도 계산
+			m_swordVec[i].swordAngle = -GetAngle2(m_player->GetPlayerPos(), m_swordVec[i].swordPos);
+
+			// 이펙트 이미지 프레임용
+			m_swordVec[i].m_swordEffectElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			if (m_swordVec[i].m_swordEffectElapsedCount > 0.07f)
+			{
+				++m_swordVec[i].m_swordEffectFrameX;
+				if (m_swordVec[i].m_swordEffectFrameX >= m_swordVec[i].m_swordEffectMaxFrameX)
+				{
+					m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossSwordHitDown.bmp");
+					m_swordVec[i].m_swordEffectFrameX = 0;
+					m_swordVec[i].m_swordEffectMaxFrameX = 5;
+					m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+					m_swordVec[i].m_swordEffectImgScale = 2.0f;
+
+					// 이펙트 이미지 애니메이션 끝나면 칼 상태를 Idle로 전환
+					m_swordVec[i].swordStatus = SwordStatus::Idle;
+				}
+				m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+			}
+			break;
+
+		case Bellial::SwordStatus::Idle:
+			m_swordVec[i].swordAngle = -GetAngle2(m_player->GetPlayerPos(), m_swordVec[i].swordPos);
+
+			// 히트박스와 콜라이더 설정 및 업데이트 
+			SetSwordHitbox(i, m_swordVec[i].swordAngle);
+
+			// 일정 시간 지난 후 칼 상태를 Fire로 전환
+			m_swordVec[i].swordElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			if (m_swordVec[i].swordElapsedCount > 1.5f)
+			{
+				m_swordVec[i].swordElapsedCount = 0.0f;
+				m_swordVec[i].swordStatus = SwordStatus::Fire;
+				m_swordVec[i].swordImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossSwordFire.bmp");
+			}
+			break;
+
+		case Bellial::SwordStatus::Fire:
+			// 그 각도로 검 위치 이동(발사)
+			m_swordVec[i].swordPos.x += -cosf(m_swordVec[i].swordAngle) * m_swordMoveSpeed * TIMER_MANAGER->GetDeltaTime();
+			m_swordVec[i].swordPos.y += -sinf(m_swordVec[i].swordAngle) * m_swordMoveSpeed * TIMER_MANAGER->GetDeltaTime();
+
+			// 히트박스와 콜라이더 설정 및 업데이트 
+			SetSwordHitbox(i, m_swordVec[i].swordAngle);
+
+			// 검의 pos가 화면 밖으로 나가면 Hit상태로 전환
+			if (m_swordVec[i].swordPos.x < 0 || m_swordVec[i].swordPos.x > WIN_SIZE_X ||
+				m_swordVec[i].swordPos.y < 0 || m_swordVec[i].swordPos.y > WIN_SIZE_Y)
+			{
+				m_swordVec[i].swordStatus = SwordStatus::Hit;
+				m_swordVec[i].swordImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossSword0.bmp");
+			}
+			break;
+
+		case Bellial::SwordStatus::Hit:
+
+			// 히트박스와 콜라이더 설정 및 업데이트 
+			SetSwordHitbox(i, m_swordVec[i].swordAngle);
+
+			// 검이 어디로 나갔는지에 따라 이펙트 이미지 설정
+			if (m_swordVec[i].swordPos.x <= 0)
+			{
+				m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossSwordHitLeft.bmp");
+			}
+			else if (m_swordVec[i].swordPos.x >= WIN_SIZE_X)
+			{
+				m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossSwordHitRight.bmp");
+			}
+			else if (m_swordVec[i].swordPos.y <= 0)
+			{
+				m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossSwordHitUp.bmp");
+			}
+			else
+			{
+				m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/BossSwordHitDown.bmp");
+			}
+
+			// 이펙트 이미지 프레임용
+			m_swordVec[i].m_swordEffectElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			if (m_swordVec[i].m_swordEffectElapsedCount > 0.1f)
+			{
+				++m_swordVec[i].m_swordEffectFrameX;
+				if (m_swordVec[i].m_swordEffectFrameX >= m_swordVec[i].m_swordEffectMaxFrameX)
+				{
+					m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/destroyEffect.bmp");
+					m_swordVec[i].m_swordEffectFrameX = 0;
+					m_swordVec[i].m_swordEffectMaxFrameX = 3;
+					m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+					m_swordVec[i].m_swordEffectImgScale = 1.0f;
+
+					// 이펙트 이미지 애니메이션 끝나면 칼 상태를 Destroy로 전환
+					m_swordVec[i].swordStatus = SwordStatus::Destroy;
+				}
+				m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+			}
+
+			break;
+
+		case Bellial::SwordStatus::Destroy:
+
+			// 이펙트 애니메이션 용
+			m_swordVec[i].m_swordEffectElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			if (m_swordVec[i].m_swordEffectElapsedCount > 0.07f)
+			{
+				++m_swordVec[i].m_swordEffectFrameX;
+				if (m_swordVec[i].m_swordEffectFrameX >= m_swordVec[i].m_swordEffectMaxFrameX)
+				{
+					m_swordVec[i].m_swordEffectFrameX = 0;
+					m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+
+					// 이펙트 이미지 애니메이션 끝나면 칼 상태를 End로 전환
+					m_swordVec[i].swordStatus = SwordStatus::End;
+					--m_swordVec[i].swordAttackCount;
+				}
+				m_swordVec[i].m_swordEffectElapsedCount = 0.0f;
+			}
+			break;
+
+		case Bellial::SwordStatus::End:
+
+			break;
+		}
+	}
+}
+
+void Bellial::FireSword()
+{
+	// 칼 패턴 공격이 끝났는지 검사, 끝이면 탈출
+	CheckSwordPatternEnd();
+
+	// 칼 차례대로 생성하는 부분
+	CreateSword();
+
+	// 칼의 상태에 따른 칼들의 행동들
+	ActUponSwordStatus();
+}
+
+void Bellial::RenderSword(HDC hdc)
+{
+	for (size_t i = 0; i < m_swordVec.size(); ++i)
+	{
+		// 검 관련
+		if (m_swordVec[i].swordStatus != SwordStatus::End)
+		{
+			m_swordVec[i].swordImg->ImgRotateRender(hdc, static_cast<int>(m_swordVec[i].swordPos.x), static_cast<int>(m_swordVec[i].swordPos.y),
+				m_swordVec[i].swordAngle, 3.0f);
+			/*Rectangle(hdc, m_swordVec[i].swordHitBox.left, m_swordVec[i].swordHitBox.top,
+							m_swordVec[i].swordHitBox.right, m_swordVec[i].swordHitBox.bottom);*/
+
+		     // 히트박스 용으로 사용할려다 실패한 것 - IntersectRect함수로 충돌체크를 할 수 없기 때문
+		     /*MoveToEx(hdc, m_leftTopPoint.x, m_leftTopPoint.y, NULL);
+							LineTo(hdc, m_rightTopPoint.x, m_rightTopPoint.y);
+							LineTo(hdc, m_rightBottomPoint.x, m_rightBottomPoint.y);
+							LineTo(hdc, m_leftBottomPoint.x, m_leftBottomPoint.y);
+							LineTo(hdc, m_leftTopPoint.x, m_leftTopPoint.y);*/
+		}
+
+		// 검 이펙트 관련
+		if (m_swordVec[i].swordStatus == SwordStatus::Create || m_swordVec[i].swordStatus == SwordStatus::Hit
+			|| m_swordVec[i].swordStatus == SwordStatus::Destroy)
+		{
+			// Create와 Destroy 상태에는 이미지 이펙트 렌더에 각도가 필요하지만, Hit상태일떄는 각도가 0이여해서 
+			float angle = m_swordVec[i].swordAngle;
+			if (m_swordVec[i].swordStatus == SwordStatus::Hit) { angle = 0.0f; }
+
+			m_swordVec[i].m_swordEffectImg->ImgRotateFrameRender(hdc,
+				static_cast<int>(m_swordVec[i].swordPos.x), static_cast<int>(m_swordVec[i].swordPos.y),
+				m_swordVec[i].m_swordEffectFrameX, m_swordVec[i].m_swordEffectFrameY, angle,
+				m_swordVec[i].m_swordEffectImgScale);
 		}
 	}
 }
