@@ -29,8 +29,8 @@ HRESULT Bellial::Init()
 	{
 		m_dieEffect[i].dieEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/DieEffect.bmp");
 		POINTFLOAT randomValue = {};
-		randomValue.x = rand() % (WIN_SIZE_X * 8 / 10) + (WIN_SIZE_X / 10);
-		randomValue.y = rand() % (WIN_SIZE_Y);
+		randomValue.x = static_cast<float>(rand() % (WIN_SIZE_X * 8 / 10)) + (WIN_SIZE_X * 0.1f);
+		randomValue.y = static_cast<float>(rand() % (WIN_SIZE_Y));
 
 		m_dieEffect[i].pos = { randomValue.x, randomValue.y };
 		m_dieEffect[i].angle = DEGREE_TO_RADIAN(30 * i);
@@ -318,8 +318,8 @@ void Bellial::Render(HDC hdc)
 	if (mb_BossDieImgRender == true)
 	{
 		// 추후 포지션에 관련된 건 수정 필요
-		m_bossLowerImg->Render(hdc, BOSS_POSX + 20, BOSS_POSY + 110);
-		m_bossUpperImg->Render(hdc, BOSS_POSX, BOSS_POSY);
+		m_bossLowerImg->Render(hdc, static_cast<int>(BOSS_POSX) + 20, static_cast<int>(BOSS_POSY) + 110);
+		m_bossUpperImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY));
 	}
 	else
 	{
@@ -362,24 +362,10 @@ void Bellial::Render(HDC hdc)
 		RenderRightHand(hdc, me_rightHandStatus);
 	}
 
-	// 보스 hp가 0이하일때
+	// 보스 hp가 0이하일때 죽는 이펙트 이미지 렌더용
 	if (m_hp <= 0)
 	{
-		for (size_t i = 0; i < 60; ++i)
-		{
-			// 죽을 때 첫번째 이미지 이펙트 렌더(무작위 위치 불꽃놀이)
-			if (m_dieEffect[i].isImgRender == true && mb_firstFirework == true)
-			{
-				m_dieEffect[i].dieEffectImg->Render(hdc, m_dieEffect[i].pos.x,
-					m_dieEffect[i].pos.y, m_dieEffect[i].frameX, m_dieEffect[i].frameY, 1.0f);
-			}
-			// 죽을 때 두번째 이미지 이펙트 렌더(보스 중심으로 이펙트가 퍼져나가는 것)
-			if (m_dieEffect[i].isImgRender == true && mb_secondFirework == true)
-			{
-				m_dieEffect[i].dieEffectImg->Render(hdc, m_dieEffect[i].pos.x,
-					m_dieEffect[i].pos.y, m_dieEffect[i].frameX, m_dieEffect[i].frameY, 1.0f);
-			}
-		}
+		RenderDieEffectAnimation(hdc);
 	}
 
 	// Boss HP UI 렌더용
@@ -412,6 +398,7 @@ void Bellial::Release()
 	m_bossLifeGage = nullptr;
 	m_bossLifeBar = nullptr;
 }
+
 
 
 void Bellial::UpdateFirstDieEffectAnimation()
@@ -530,6 +517,26 @@ void Bellial::UpdateTotalDieEffectAnimation()
 	UpdateSecondDieEffectAnimation();
 }
 
+void Bellial::RenderDieEffectAnimation(HDC hdc)
+{
+	for (size_t i = 0; i < 60; ++i)
+	{
+		// 죽을 때 첫번째 이미지 이펙트 렌더(무작위 위치 불꽃놀이)
+		if (m_dieEffect[i].isImgRender == true && mb_firstFirework == true)
+		{
+			m_dieEffect[i].dieEffectImg->Render(hdc, static_cast<int>(m_dieEffect[i].pos.x),
+				static_cast<int>(m_dieEffect[i].pos.y), m_dieEffect[i].frameX, m_dieEffect[i].frameY, 1.0f);
+		}
+		// 죽을 때 두번째 이미지 이펙트 렌더(보스 중심으로 이펙트가 퍼져나가는 것)
+		if (m_dieEffect[i].isImgRender == true && mb_secondFirework == true)
+		{
+			m_dieEffect[i].dieEffectImg->Render(hdc, static_cast<int>(m_dieEffect[i].pos.x),
+				static_cast<int>(m_dieEffect[i].pos.y), m_dieEffect[i].frameX, m_dieEffect[i].frameY, 1.0f);
+		}
+	}
+}
+
+
 void Bellial::SetHitbox()
 {
 	if (mb_fireAmmo == true && mb_readyToFire == true)
@@ -548,6 +555,7 @@ void Bellial::SetHitbox()
 	}
 
 }
+
 
 void Bellial::SetParticleInitialPos(int num)
 {
@@ -670,6 +678,7 @@ void Bellial::UpdateParticleAnimation()
 		}
 	}
 }
+
 
 void Bellial::FireLaserbeam()
 {
@@ -965,6 +974,7 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 	}
 }
 
+
 void Bellial::FireMissile()
 {
 	// 공격횟수 다 썼으면 리턴
@@ -1050,6 +1060,7 @@ void Bellial::FireMissile()
 		}
 	}
 }
+
 
 void Bellial::SetSwordHitbox(int index, float angle)
 {

@@ -98,7 +98,7 @@ private:
 	void UpdateSecondDieEffectAnimation();
 	void SetFirstDieEffectDuration();
 	void UpdateTotalDieEffectAnimation();
-	
+	void RenderDieEffectAnimation(HDC hdc);
 
 	// - 배경구슬 
 	// 큰 중앙 구슬
@@ -273,8 +273,5 @@ public:
 
 	void SetPlayer(Player* player) { this->m_player = player; }
 	void SetAmmoManager(AmmoManager* ammoManager) { this->m_ammoManager = ammoManager; }
-
-
-	
 };
 
