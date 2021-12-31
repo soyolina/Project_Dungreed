@@ -70,6 +70,7 @@ void ColliderManager::CheckCollision()
 			if (IntersectRect(&tempRc, &enemyRect, &itemRect) && m_enemies[i]->GetColliderData().object->GetIsHit() == false)
 			{
 				m_enemies[i]->GetColliderData().object->SetIsHit(true);
+				m_enemies[i]->GetColliderData().object->SetIsHit2(true);
 
 				int damage = m_items[i]->GetColliderData().object->GetAttackDamage();
 				m_enemies[i]->GetColliderData().object->SetHp(damage);
@@ -138,6 +139,16 @@ void ColliderManager::DeleteCollider(ObjectType objType, Collider2* collider)
 	case ObjectType::Player:
 		break;
 	case ObjectType::Enemy:
+		size = m_enemies.size();
+		for (size_t i = 0; i < size; ++i)
+		{
+			if (m_enemies[i] == collider)
+			{
+				delete m_enemies[i];
+				m_enemies.erase(m_enemies.begin() + i);
+				break;
+			}
+		}
 		break;
 	case ObjectType::Item:
 		break;

@@ -14,14 +14,44 @@ HRESULT Bellial::Init()
 	m_bossHitImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossIdleHit.bmp"); // 보스 피격
 	m_bossBackImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossBack.bmp"); // 보스 본체 뒤 큰 중앙 구슬
 	
-	// 보스 본체 뒤 작은 구슬들
-	SetParticleImgData();
-
 	// 본체 idle , 중앙구슬 애니메이션이 쓰고있음 
 	m_frameX = 0;
 	m_frameY = 0;
 	m_maxFrameX = 10;
 	m_elapsedCount = 0.0f;
+	
+	// - 보스 죽을때 관련 이미지
+	m_bossUpperImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossDead.bmp");
+	m_bossLowerImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossDead0.bmp");
+	mb_BossDieImgRender = false;
+
+	for (size_t i = 0; i < 60; ++i)
+	{
+		m_dieEffect[i].dieEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/DieEffect.bmp");
+		POINTFLOAT randomValue = {};
+		randomValue.x = rand() % (WIN_SIZE_X * 8 / 10) + (WIN_SIZE_X / 10);
+		randomValue.y = rand() % (WIN_SIZE_Y);
+
+		m_dieEffect[i].pos = { randomValue.x, randomValue.y };
+		m_dieEffect[i].angle = DEGREE_TO_RADIAN(30 * i);
+		m_dieEffect[i].frameX = 0;
+		m_dieEffect[i].frameY = 0;
+		m_dieEffect[i].maxFrameX = 11;
+		m_dieEffect[i].elapsedCount = 0.0f;
+		m_dieEffect[i].isImgRender = false;
+	}
+	m_fireworkTimer = 0.0f;
+	mb_firstFirework = true;
+	mb_secondFirework = false;
+
+	// 두번째 불꽃놀이 범위 설정위한 변수
+	m_fireworkFirstRange = 0;
+	m_fireworkSecondRange = m_fireworkFirstRange + 12;
+	m_fireworkRangeElapsedCount = 0.0f;
+
+
+	// - 보스 본체 뒤 작은 구슬들
+	SetParticleImgData();
 
 
 	// - 손 (좌, 우)
@@ -84,7 +114,7 @@ HRESULT Bellial::Init()
 
 	m_rightLaserBodyFrameX = m_LaserMaxFrameX - 1;
 
-	
+
 	// 미사일 쏘는 패턴 용
 	AmmoManager* m_ammoManager = nullptr;
 	m_ammoPos = { BOSS_AMMO_POSX , BOSS_AMMO_POSY };
@@ -101,13 +131,13 @@ HRESULT Bellial::Init()
 	for (size_t i = 0; i < m_swordVec.size(); ++i)
 	{
 		m_swordVec[i].swordImg = IMAGE_MANAGER->FindImage(L"Image/Boss/SkellBossSword0.bmp");
-		m_swordVec[i].swordPos = { BOSS_SWORD_POSX + (i * SWORD_GAP), BOSS_SWORD_POSY};
+		m_swordVec[i].swordPos = { BOSS_SWORD_POSX + (i * SWORD_GAP), BOSS_SWORD_POSY };
 		m_swordVec[i].swordAngle = 0.0f;
 		m_swordVec[i].swordStatus = SwordStatus::End;
 
 		m_swordVec[i].swordElapsedCount = 0.0f;
 		m_swordVec[i].swordAttackCount = 2;
-		
+
 		// 히트박스 , 콜라이더 관련
 		m_swordVec[i].swordHitboxPos = {};
 		m_swordVec[i].swordHitBox = {};
@@ -123,7 +153,7 @@ HRESULT Bellial::Init()
 	}
 	m_swordMoveSpeed = 1600.0f;
 	m_swordEndAttackCount = 2;
-	
+
 
 	// Attack Delay
 	mb_isAttack = false;
@@ -137,16 +167,17 @@ HRESULT Bellial::Init()
 	m_pos = { BOSS_HITBOX_POSX, BOSS_HITBOX_POSY };
 	m_bodyWidth = m_bossImg->GetFrameWidth() - 46;
 	m_bodyHeight = m_bossImg->GetFrameHeight() - 66;
-	
+
 	SetHitbox();
 	// 콜라이더
 	m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Enemy);
-	m_laserCollider = nullptr; 
+	m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
 
 	m_hp = 100;
 	m_moveSpeed = 0.0f;
 	m_attackDamage = 0;
 	mb_isHit = false;
+	mb_isHit2 = false;
 	m_hitElapsedCount = 0.0f;
 	mb_isDead = false;
 	// - 여기까지
@@ -159,139 +190,197 @@ HRESULT Bellial::Init()
 
 	m_bossHpPercentage = m_bossLifeGage->GetWidth() * 0.01f; // 100으로 나눠준 것
 
-    return S_OK;
+	return S_OK;
 }
 
 void Bellial::Update()
 {
-	// 죽는 거 셋팅
+	// 보스 Hp가 0이하일때, 죽을때의 이미지 이펙트 렌더 
 	if (m_hp <= 0)
 	{
-		mb_isDead = true;
-		return;
-	}
-
-	// 맞았을 때
-	if (mb_isHit == true)
-	{
-		m_hitElapsedCount += TIMER_MANAGER->GetDeltaTime();
-		if (m_hitElapsedCount > 0.3f)
+		// 콜라이더 삭제
+		ColliderManager::DeleteCollider(ObjectType::Enemy, m_collider);
+		ColliderManager::DeleteCollider(ObjectType::EnemyAttack, m_laserCollider);
+		for (size_t i = 0; i < m_swordVec.size(); ++i)
 		{
-			mb_isHit = false;
-			m_hitElapsedCount = 0.0f;
+			ColliderManager::DeleteCollider(ObjectType::EnemyAttack, m_swordVec[i].swordCollider);
+		}
+
+		// 보스 죽을때 이펙트 애니메이션 재생용
+		UpdateTotalDieEffectAnimation();
+
+		// 두번째 불꽃놀이 마지막 이미지 이펙트가 렌더 되었다면 보스의 상태를 dead로 바꾼다.
+		// 나중에 바꿔야할듯.
+		if (m_dieEffect[59].isImgRender == false)
+		{
+			mb_isDead = true;
+			return;
 		}
 	}
 
-	// 본체, 중앙구슬 애니메이션
-	m_elapsedCount += TIMER_MANAGER->GetDeltaTime();
-	if (m_elapsedCount >= 0.07f)
-	{
-		++m_frameX;
-		if (m_frameX >= m_maxFrameX)
-		{
-			m_frameX = 0;
 
-			// 보스가 미사일 패턴일땐 미사일 공격끝날때까지 마지막 이미지 프레임으로 계속 고정해두기 위해(입벌린 상태로)
-			if (mb_fireAmmo == true && mb_readyToFire == true)
+	if (m_hp > 0)
+	{
+		// 맞았을 때
+		if (mb_isHit == true)
+		{
+			m_hitElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			// 히트 당했을 때의 이미지 렌더를 위해
+			if (m_hitElapsedCount > 0.1f)
 			{
-				m_frameX = m_maxFrameX - 1;
+				mb_isHit2 = false;
+			}
+			// 무적시간용 
+			if (m_hitElapsedCount > 0.3f)
+			{
+				mb_isHit = false;
+				m_hitElapsedCount = 0.0f;
 			}
 		}
-		m_elapsedCount = 0.0f;
-	}
 
-	// 작은구슬 파티클 애니메이션
-	UpdateParticleAnimation();
-
-	// 공격 딜레이와 그에 따른 랜덤 공격패턴 설정
-	if (mb_isAttack == false)
-	{
-		m_attackDelay += TIMER_MANAGER->GetDeltaTime();
-		if (m_attackDelay >= 2.0f)
+		// 본체, 중앙구슬 애니메이션
+		m_elapsedCount += TIMER_MANAGER->GetDeltaTime();
+		if (m_elapsedCount >= 0.07f)
 		{
-			int randomValue = rand() % 3;
-			switch (randomValue)
+			++m_frameX;
+			if (m_frameX >= m_maxFrameX)
 			{
-			case 0:
-				mb_isAttack = true;
-				mb_fireLaserbeam = true;
-				m_attackDamage = 9;
-				break;
-			case 1:
-				mb_isAttack = true;
-				mb_fireAmmo = true;
-				m_attackDamage = 6;
-				break;
-			case 2:
-				mb_isAttack = true;
-				mb_fireSword = true;
-				m_attackDamage = 8;
-				break;
+				m_frameX = 0;
+
+				// 보스가 미사일 패턴일땐 미사일 공격끝날때까지 마지막 이미지 프레임으로 계속 고정해두기 위해(입벌린 상태로)
+				if (mb_fireAmmo == true && mb_readyToFire == true)
+				{
+					m_frameX = m_maxFrameX - 1;
+				}
 			}
-
-			m_attackDelay = 0.0f;
+			m_elapsedCount = 0.0f;
 		}
-		
+
+		// 작은구슬 파티클 애니메이션
+		UpdateParticleAnimation();
+
+		// 공격 딜레이와 그에 따른 랜덤 공격패턴 설정
+		if (mb_isAttack == false)
+		{
+			m_attackDelay += TIMER_MANAGER->GetDeltaTime();
+			if (m_attackDelay >= 2.0f)
+			{
+				int randomValue = rand() % 3;
+				switch (randomValue)
+				{
+				case 0:
+					mb_isAttack = true;
+					mb_fireLaserbeam = true;
+					m_attackDamage = 9;
+					break;
+				case 1:
+					mb_isAttack = true;
+					mb_fireAmmo = true;
+					m_attackDamage = 6;
+					break;
+				case 2:
+					mb_isAttack = true;
+					mb_fireSword = true;
+					m_attackDamage = 8;
+					break;
+				}
+
+				m_attackDelay = 0.0f;
+			}
+		}
+
+		// 공격 패턴 1 : 레이저 빔
+		if (mb_isAttack == true && mb_fireLaserbeam == true)
+		{
+			FireLaserbeam();
+		}
+
+		// 공격패턴 2 : 미사일 
+		if (mb_isAttack == true && mb_fireAmmo == true)
+		{
+			FireMissile();
+		}
+
+		// 공격패턴 3 : 칼 
+		if (mb_isAttack == true && mb_fireSword == true)
+		{
+			FireSword();
+		}
+
+		// 콜라이더
+		m_collider->Update(m_shape); // 해골 본체
 	}
 
-	// 공격 패턴 1 : 레이저 빔
-	if (mb_isAttack == true && mb_fireLaserbeam == true)
-	{
-		FireLaserbeam();
-	}
-
-	// 공격패턴 2 : 미사일 
-	if (mb_isAttack == true && mb_fireAmmo == true)
-	{
-		FireMissile();
-	}
-
-	// 공격패턴 3 : 칼 
-	if (mb_isAttack == true && mb_fireSword == true)
-	{
-		FireSword();
-	}
-	
-	// 콜라이더
-	m_collider->Update(m_shape); // 해골 본체
 }
 
 void Bellial::Render(HDC hdc)
 {
-	// 칼 패턴 렌더
-	if (mb_isAttack == true && mb_fireSword == true)
+	if (mb_BossDieImgRender == true)
 	{
-		RenderSword(hdc);
-	}
-
-	// - 보스
-	// 작은구슬
-	for (int i = 0; i < 7; ++i)
-	{
-		if (m_particleArr[i].mb_isAnimated == true)
-		{
-			m_particleArr[i].m_bossParticleImg->Render(hdc, static_cast<int>(m_particleArr[i].m_particlePos.x), 
-											static_cast<int>(m_particleArr[i].m_particlePos.y), m_particleArr[i].m_particleFrameX, m_frameY, 1.0f);
-		}
-	}
-
-	// 큰구슬
-	m_bossBackImg->Render(hdc, static_cast<int>(BOSSBACK_POSX), static_cast<int>(BOSSBACK_POSY), m_frameX, m_frameY, 1.0f);
-	
-	// 보스 IDLE
-	if (mb_isHit == true)
-	{
-		m_bossHitImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+		// 추후 포지션에 관련된 건 수정 필요
+		m_bossLowerImg->Render(hdc, BOSS_POSX + 20, BOSS_POSY + 110);
+		m_bossUpperImg->Render(hdc, BOSS_POSX, BOSS_POSY);
 	}
 	else
 	{
-		m_bossImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+		// 칼 패턴 렌더
+		if (mb_isAttack == true && mb_fireSword == true && m_hp > 0)
+		{
+			RenderSword(hdc);
+		}
+
+		// - 보스
+		// 작은구슬
+		if (m_hp > 0)
+		{
+			for (int i = 0; i < 7; ++i)
+			{
+				if (m_particleArr[i].mb_isAnimated == true)
+				{
+					m_particleArr[i].m_bossParticleImg->Render(hdc, static_cast<int>(m_particleArr[i].m_particlePos.x),
+						static_cast<int>(m_particleArr[i].m_particlePos.y), m_particleArr[i].m_particleFrameX, m_frameY, 1.0f);
+				}
+			}
+		}
+
+		// 큰구슬
+		m_bossBackImg->Render(hdc, static_cast<int>(BOSSBACK_POSX), static_cast<int>(BOSSBACK_POSY), m_frameX, m_frameY, 1.0f);
+
+		// 보스 IDLE
+		if (mb_isHit2 == true && m_hp > 0)
+		{
+			m_bossHitImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+		}
+		else
+		{
+			m_bossImg->Render(hdc, static_cast<int>(BOSS_POSX), static_cast<int>(BOSS_POSY), m_frameX, m_frameY, 1.0f);
+		}
+
+		// 왼손
+		RenderLeftHand(hdc, me_leftHandStatus);
+		// 오른손
+		RenderRightHand(hdc, me_rightHandStatus);
 	}
-	
-	// 왼손
-	RenderLeftHand(hdc, me_leftHandStatus);
-	// 오른손
-	RenderRightHand(hdc, me_rightHandStatus);
+
+	// 보스 hp가 0이하일때
+	if (m_hp <= 0)
+	{
+		for (size_t i = 0; i < 60; ++i)
+		{
+			// 죽을 때 첫번째 이미지 이펙트 렌더(무작위 위치 불꽃놀이)
+			if (m_dieEffect[i].isImgRender == true && mb_firstFirework == true)
+			{
+				m_dieEffect[i].dieEffectImg->Render(hdc, m_dieEffect[i].pos.x,
+					m_dieEffect[i].pos.y, m_dieEffect[i].frameX, m_dieEffect[i].frameY, 1.0f);
+			}
+			// 죽을 때 두번째 이미지 이펙트 렌더(보스 중심으로 이펙트가 퍼져나가는 것)
+			if (m_dieEffect[i].isImgRender == true && mb_secondFirework == true)
+			{
+				m_dieEffect[i].dieEffectImg->Render(hdc, m_dieEffect[i].pos.x,
+					m_dieEffect[i].pos.y, m_dieEffect[i].frameX, m_dieEffect[i].frameY, 1.0f);
+			}
+		}
+	}
 
 	// Boss HP UI 렌더용
 	m_bossLifeBack->Render(hdc, static_cast<int>(BOSS_HP_UI_POSX), BOSS_HP_UI_POSY);
@@ -325,6 +414,121 @@ void Bellial::Release()
 }
 
 
+void Bellial::UpdateFirstDieEffectAnimation()
+{
+	if (mb_firstFirework == true)
+	{
+		for (size_t i = 0; i < 60; ++i)
+		{
+			// 랜덤으로 폭발 애니메이션 재생위해서
+			if (m_dieEffect[i].isImgRender == false)
+			{
+				int randomValue = rand() % 120;
+				if (randomValue == 1)
+				{
+					m_dieEffect[i].isImgRender = true;
+				}
+			}
+
+			// 애니메이션 프레임 재생용
+			if (m_dieEffect[i].isImgRender == true)
+			{
+				m_dieEffect[i].elapsedCount += TIMER_MANAGER->GetDeltaTime();
+				if (m_dieEffect[i].elapsedCount > 0.07f)
+				{
+					++m_dieEffect[i].frameX;
+					if (m_dieEffect[i].frameX >= m_dieEffect[i].maxFrameX)
+					{
+						m_dieEffect[i].frameX = 0;
+					}
+					m_dieEffect[i].elapsedCount = 0.0f;
+				}
+			}
+		}
+	}
+}
+
+void Bellial::SetFirstDieEffectDuration()
+{
+	if (mb_secondFirework == false)
+	{
+		m_fireworkTimer += TIMER_MANAGER->GetDeltaTime();
+		if (m_fireworkTimer > 4.5f)
+		{
+			mb_firstFirework = false;
+			mb_secondFirework = true;
+
+			for (size_t i = 0; i < 60; ++i)
+			{
+				m_dieEffect[i].pos = { BOSSBACK_POSX , BOSSBACK_POSY };
+				m_dieEffect[i].pos.x += cosf(m_dieEffect[i].angle) * ((i / 12 + 1) * 70);
+				m_dieEffect[i].pos.y += sinf(m_dieEffect[i].angle) * ((i / 12 + 1) * 70);
+
+				m_dieEffect[i].frameX = 0;
+				m_dieEffect[i].elapsedCount = 0.0f;
+				m_dieEffect[i].isImgRender = false;
+			}
+			m_fireworkTimer = 0.0f;
+		}
+	}
+}
+
+void Bellial::UpdateSecondDieEffectAnimation()
+{
+	if (mb_secondFirework == true)
+	{
+		// 두번째 불꽃놀이가 중심으로부터 한단계식 퍼져나가기 위한 dieEffect 배열 이미지 렌더 범위 설정위해서
+		if (m_fireworkSecondRange < 60)
+		{
+			m_fireworkRangeElapsedCount += TIMER_MANAGER->GetDeltaTime();
+			if (m_fireworkRangeElapsedCount > 0.3f)
+			{
+				for (size_t i = m_fireworkFirstRange; i < m_fireworkSecondRange; ++i)
+				{
+					m_dieEffect[i].isImgRender = true;
+				}
+				m_fireworkFirstRange += 12;
+				m_fireworkSecondRange = m_fireworkFirstRange + 12;
+
+				// 이때 보스의 해골 모양을 바꿔주기 위해서 보스의 위, 아래의 죽은 해골모양으로
+				mb_BossDieImgRender = true;
+
+				m_fireworkRangeElapsedCount = 0.0f;
+			}
+		}
+
+		// 애니메이션 프레임 재생용
+		for (size_t i = 0; i < 60; ++i)
+		{
+			if (m_dieEffect[i].isImgRender == true)
+			{
+				m_dieEffect[i].elapsedCount += TIMER_MANAGER->GetDeltaTime();
+				if (m_dieEffect[i].elapsedCount > 0.07f)
+				{
+					++m_dieEffect[i].frameX;
+					if (m_dieEffect[i].frameX >= m_dieEffect[i].maxFrameX)
+					{
+						m_dieEffect[i].frameX = 0;
+						m_dieEffect[i].isImgRender = false;
+					}
+					m_dieEffect[i].elapsedCount = 0.0f;
+				}
+			}
+		}
+	}
+}
+
+void Bellial::UpdateTotalDieEffectAnimation()
+{
+	// 보스 죽을때 첫번때 불꽃놀이
+	UpdateFirstDieEffectAnimation();
+
+	// 첫번째 폭발 애니메이션 재생시간과 그 시간이 끝나면 첫번째 폭발 끝내고, 두번째 폭발을 위한 데이터 셋팅
+	SetFirstDieEffectDuration();
+
+	// 두번째 불꽃놀이
+	UpdateSecondDieEffectAnimation();
+}
 
 void Bellial::SetHitbox()
 {
@@ -342,7 +546,7 @@ void Bellial::SetHitbox()
 		m_shape.top = static_cast<long>(m_pos.y - m_bodyHeight * 0.5f);
 		m_shape.bottom = static_cast<long>(m_pos.y + m_bodyHeight * 0.5f);
 	}
-	
+
 }
 
 void Bellial::SetParticleInitialPos(int num)
@@ -546,55 +750,69 @@ void Bellial::RenderLeftHand(HDC hdc, LeftHandStatus status)
 {
 	if (status < LeftHandStatus::Idle || status > LeftHandStatus::End) return;
 
-	m_lefthandElapsedCount += TIMER_MANAGER->GetDeltaTime();
-	if (m_lefthandElapsedCount >= m_leftHand[static_cast<int>(status)].totalTime)
+	if (m_hp > 0)
 	{
-		++m_leftHand[static_cast<int>(status)].frameX;
-		if (m_leftHand[static_cast<int>(status)].frameX >= m_leftHand[static_cast<int>(status)].maxFrameX)
+		m_lefthandElapsedCount += TIMER_MANAGER->GetDeltaTime();
+		if (m_lefthandElapsedCount >= m_leftHand[static_cast<int>(status)].totalTime)
 		{
-			m_leftHand[static_cast<int>(status)].frameX = 0;
-			
-			if (status == LeftHandStatus::Attack)
+			++m_leftHand[static_cast<int>(status)].frameX;
+			if (m_leftHand[static_cast<int>(status)].frameX >= m_leftHand[static_cast<int>(status)].maxFrameX)
 			{
-				me_leftHandStatus = LeftHandStatus::Idle;
+				m_leftHand[static_cast<int>(status)].frameX = 0;
+
+				if (status == LeftHandStatus::Attack)
+				{
+					me_leftHandStatus = LeftHandStatus::Idle;
+				}
 			}
+			m_lefthandElapsedCount = 0.0f;
 		}
-		m_lefthandElapsedCount = 0.0f;
 	}
 
+
 	// 왼손 렌더
-	m_leftHand[static_cast<int>(status)].handImg->Render(hdc, static_cast<int>(BOSS_LEFTHAND_POSX), static_cast<int>(m_leftHandPosY), 
-														m_leftHand[static_cast<int>(status)].frameX, m_leftHand[static_cast<int>(status)].frameY, 1.0f);
+	m_leftHand[static_cast<int>(status)].handImg->Render(hdc, static_cast<int>(BOSS_LEFTHAND_POSX), static_cast<int>(m_leftHandPosY),
+		m_leftHand[static_cast<int>(status)].frameX, m_leftHand[static_cast<int>(status)].frameY, 1.0f);
 
 	// 왼손 공격상태일 때, 그 이미지 프레임에 맞춰 왼손 레이저 머리 및 몸통 이미지 렌더
-	RenderLeftHandLaser(hdc);
+	if (m_hp > 0)
+	{
+		RenderLeftHandLaser(hdc);
+	}
 }
 
 void Bellial::RenderRightHand(HDC hdc, RightHandStatus status)
 {
 	if (status < RightHandStatus::Idle || status > RightHandStatus::End) return;
 
-	m_righthandElapsedCount += TIMER_MANAGER->GetDeltaTime();
-	if (m_righthandElapsedCount >= m_rightHand[static_cast<int>(status)].totalTime)
+	if (m_hp > 0)
 	{
-		++m_rightHand[static_cast<int>(status)].frameX;
-		if (m_rightHand[static_cast<int>(status)].frameX >= m_rightHand[static_cast<int>(status)].maxFrameX)
+		m_righthandElapsedCount += TIMER_MANAGER->GetDeltaTime();
+		if (m_righthandElapsedCount >= m_rightHand[static_cast<int>(status)].totalTime)
 		{
-			m_rightHand[static_cast<int>(status)].frameX = 0;
-
-			if (status == RightHandStatus::Attack)
+			++m_rightHand[static_cast<int>(status)].frameX;
+			if (m_rightHand[static_cast<int>(status)].frameX >= m_rightHand[static_cast<int>(status)].maxFrameX)
 			{
-				me_rightHandStatus = RightHandStatus::Idle;
+				m_rightHand[static_cast<int>(status)].frameX = 0;
+
+				if (status == RightHandStatus::Attack)
+				{
+					me_rightHandStatus = RightHandStatus::Idle;
+				}
 			}
+			m_righthandElapsedCount = 0.0f;
 		}
-		m_righthandElapsedCount = 0.0f;
 	}
 
+
 	m_rightHand[static_cast<int>(status)].handImg->Render(hdc, static_cast<int>(BOSS_RIGHTHAND_POSX), static_cast<int>(m_rightHandPosY),
-														m_rightHand[static_cast<int>(status)].frameX, m_rightHand[static_cast<int>(status)].frameY, 1.0f);
+		m_rightHand[static_cast<int>(status)].frameX, m_rightHand[static_cast<int>(status)].frameY, 1.0f);
 
 	// 오른손 공격상태일 때, 그 이미지 프레임에 맞춰 오른손 레이저 머리 및 몸통 이미지 렌더
-	RenderRightHandLaser(hdc);
+	if (m_hp > 0)
+	{
+		RenderRightHandLaser(hdc);
+	}
 }
 
 void Bellial::RenderLeftHandLaser(HDC hdc)
@@ -694,14 +912,7 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
 
 		// 레이저 콜라이더
-		if (m_laserCollider == nullptr)
-		{
-			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
-		}
-		else
-		{
-			m_laserCollider->Update(m_laserHitbox);
-		}
+		m_laserCollider->Update(m_laserHitbox);
 	}
 	else
 	{
@@ -711,14 +922,7 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.bottom = 0;
 
 		// 레이저 콜라이더
-		if (m_laserCollider == nullptr)
-		{
-			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
-		}
-		else
-		{
-			m_laserCollider->Update(m_laserHitbox);
-		}
+		m_laserCollider->Update(m_laserHitbox);
 	}
 }
 
@@ -854,7 +1058,7 @@ void Bellial::SetSwordHitbox(int index, float angle)
 		m_swordVec[index].swordHitboxPos.x = m_swordVec[index].swordPos.x - 120;
 		m_swordVec[index].swordHitboxPos.y = m_swordVec[index].swordPos.y;
 
-		
+
 		m_swordVec[index].swordHitboxPos = { (m_swordVec[index].swordPos.x +
 			(m_swordVec[index].swordHitboxPos.x - m_swordVec[index].swordPos.x) * cosf(angle)
 			- (m_swordVec[index].swordHitboxPos.y - m_swordVec[index].swordPos.y) * sinf(angle)),
@@ -869,41 +1073,43 @@ void Bellial::SetSwordHitbox(int index, float angle)
 		m_swordVec[index].swordHitBox.top = static_cast<long>(m_swordVec[index].swordHitboxPos.y - 18);
 		m_swordVec[index].swordHitBox.bottom = static_cast<long>(m_swordVec[index].swordHitboxPos.y + 18);
 
+		//콜라이더
 		m_swordVec[index].swordCollider->Update(m_swordVec[index].swordHitBox);
 	}
 	else
 	{
-		m_swordVec[index].swordHitBox.left =  0;
+		m_swordVec[index].swordHitBox.left = 0;
 		m_swordVec[index].swordHitBox.right = 0;
-		m_swordVec[index].swordHitBox.top =  0;
+		m_swordVec[index].swordHitBox.top = 0;
 		m_swordVec[index].swordHitBox.bottom = 0;
 
+		// 콜라이더
 		m_swordVec[index].swordCollider->Update(m_swordVec[index].swordHitBox);
 	}
-	/*m_leftTopPoint = { (LONG)(m_swordVec[index].swordPos.x + 
+	/*m_leftTopPoint = { (LONG)(m_swordVec[index].swordPos.x +
 		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle)
 		- (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * sinf(angle)),
-					
-		(LONG)(m_swordVec[index].swordPos.y + 
+
+		(LONG)(m_swordVec[index].swordPos.y +
 		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle)
 		+ (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * cosf(angle)) };
 
 
-	m_rightTopPoint = { (LONG)(m_swordVec[index].swordPos.x + 
-		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * cosf(angle) 
+	m_rightTopPoint = { (LONG)(m_swordVec[index].swordPos.x +
+		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * cosf(angle)
 		- (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * sinf(angle)),
-					
-		(LONG)(m_swordVec[index].swordPos.y + 
-		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * sinf(angle) 
+
+		(LONG)(m_swordVec[index].swordPos.y +
+		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * sinf(angle)
 		+ (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * cosf(angle)) };
 
 
-	m_leftBottomPoint = { (LONG)(m_swordVec[index].swordPos.x + 
-		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle) 
+	m_leftBottomPoint = { (LONG)(m_swordVec[index].swordPos.x +
+		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle)
 		- (float)(m_swordVec[index].swordHitBox.bottom - m_swordVec[index].swordPos.y) * sinf(angle)),
-					
-		(LONG)(m_swordVec[index].swordPos.y + 
-		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle) 
+
+		(LONG)(m_swordVec[index].swordPos.y +
+		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle)
 		+ (float)(m_swordVec[index].swordHitBox.bottom - m_swordVec[index].swordPos.y) * cosf(angle)) };*/
 }
 
@@ -1115,12 +1321,12 @@ void Bellial::RenderSword(HDC hdc)
 			/*Rectangle(hdc, m_swordVec[i].swordHitBox.left, m_swordVec[i].swordHitBox.top,
 							m_swordVec[i].swordHitBox.right, m_swordVec[i].swordHitBox.bottom);*/
 
-		     // 히트박스 용으로 사용할려다 실패한 것 - IntersectRect함수로 충돌체크를 할 수 없기 때문
-		     /*MoveToEx(hdc, m_leftTopPoint.x, m_leftTopPoint.y, NULL);
-							LineTo(hdc, m_rightTopPoint.x, m_rightTopPoint.y);
-							LineTo(hdc, m_rightBottomPoint.x, m_rightBottomPoint.y);
-							LineTo(hdc, m_leftBottomPoint.x, m_leftBottomPoint.y);
-							LineTo(hdc, m_leftTopPoint.x, m_leftTopPoint.y);*/
+							// 히트박스 용으로 사용할려다 실패한 것 - IntersectRect함수로 충돌체크를 할 수 없기 때문
+							/*MoveToEx(hdc, m_leftTopPoint.x, m_leftTopPoint.y, NULL);
+										   LineTo(hdc, m_rightTopPoint.x, m_rightTopPoint.y);
+										   LineTo(hdc, m_rightBottomPoint.x, m_rightBottomPoint.y);
+										   LineTo(hdc, m_leftBottomPoint.x, m_leftBottomPoint.y);
+										   LineTo(hdc, m_leftTopPoint.x, m_leftTopPoint.y);*/
 		}
 
 		// 검 이펙트 관련

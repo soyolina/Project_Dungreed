@@ -2,8 +2,6 @@
 
 #include "Config.h"
 
-
-
 class GameObject;
 class Collider2;
 class ColliderManager

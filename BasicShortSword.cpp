@@ -38,7 +38,7 @@ HRESULT BasicShortSword::Init(Player* player)
 	m_elapsedCount = 0.0f;
 
 	// 공격력
-	m_attackDamage = 2;
+	m_attackDamage = 20;
 
 	// 아이템 히트박스용
 	m_shape = {};

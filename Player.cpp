@@ -69,7 +69,7 @@ HRESULT Player::Init()
     m_dashEffectImg = IMAGE_MANAGER->FindImage(L"Image/Player/baseCharEffect.bmp");
     mb_isDash = false;
     m_angle = 0.0f;
-    m_maxDashCount = 2;
+    m_maxDashCount = 3;
     m_dashCount = m_maxDashCount;
     m_dashSpeed = 18.0f;
     m_dashRegenTime = 0.0f;

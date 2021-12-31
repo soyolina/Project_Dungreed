@@ -66,6 +66,40 @@ private:
 	int m_maxFrameX = 0;
 	float m_elapsedCount = 0.0f;
 
+	// - 보스 죽을때 관련 이미지
+	Image* m_bossUpperImg = nullptr;
+	Image* m_bossLowerImg = nullptr;
+	bool mb_BossDieImgRender = false;
+
+	struct BossDie
+	{
+		Image* dieEffectImg = nullptr;
+		POINTFLOAT pos = {};
+		float angle = 0.0f;
+		int frameX = 0;
+		int frameY = 0;
+		int maxFrameX = 0;
+		float elapsedCount = 0.0f;
+		bool isImgRender = false;
+	};
+	BossDie m_dieEffect[60] = {};
+	
+	float m_fireworkTimer = 0.0f;
+	bool mb_firstFirework = true;
+	bool mb_secondFirework = false;
+
+	// 두번째 불꽃놀이 범위 설정위한 변수
+	size_t m_fireworkFirstRange = 0;
+	size_t m_fireworkSecondRange = m_fireworkFirstRange + 12;
+	float m_fireworkRangeElapsedCount = 0.0f;
+	
+	// 함수
+	void UpdateFirstDieEffectAnimation();
+	void UpdateSecondDieEffectAnimation();
+	void SetFirstDieEffectDuration();
+	void UpdateTotalDieEffectAnimation();
+	
+
 	// - 배경구슬 
 	// 큰 중앙 구슬
 	Image* m_bossBackImg = nullptr;	
@@ -208,6 +242,7 @@ private:
 	void CreateSword();
 	void ActUponSwordStatus();
 	void FireSword();
+	void RenderSword(HDC hdc);
 
 
 	// Attack Delay 와 각 어택 관련
@@ -239,6 +274,7 @@ public:
 	void SetPlayer(Player* player) { this->m_player = player; }
 	void SetAmmoManager(AmmoManager* ammoManager) { this->m_ammoManager = ammoManager; }
 
-	void RenderSword(HDC hdc);
+
+	
 };
 

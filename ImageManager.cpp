@@ -61,6 +61,10 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossBack.bmp", 1470, 144, 10, 1, true, RGB(255, 0, 255));
     // 본체 뒤 작은 구슬
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossParticle.bmp", 720, 90, 8, 1, true, RGB(255, 0, 255));
+    // 보스가 죽을때 관련 이미지
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossDead.bmp", 210, 231, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossDead0.bmp", 147, 93, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/Boss/DieEffect.bmp", 1320, 120, 11, 1, true, RGB(255, 0, 255));
 
     // Hand Idle (Left, Right)
     IMAGE_MANAGER->AddImage(L"Image/Boss/SkellBossLeftHandIdle.bmp", 1710, 189, 10, 1, true, RGB(255, 0, 255));
