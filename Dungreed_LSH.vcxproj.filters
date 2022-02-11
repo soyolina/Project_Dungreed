@@ -135,9 +135,6 @@
     <ClCompile Include="Bellial.cpp">
       <Filter>MainGame\Enemy\Boss</Filter>
     </ClCompile>
-    <ClCompile Include="Collider.cpp">
-      <Filter>2D Framework\Collide</Filter>
-    </ClCompile>
     <ClCompile Include="AmmoManager.cpp">
       <Filter>MainGame\Ammo</Filter>
     </ClCompile>
@@ -235,12 +232,6 @@
     </ClInclude>
     <ClInclude Include="Bellial.h">
       <Filter>MainGame\Enemy\Boss</Filter>
-    </ClInclude>
-    <ClInclude Include="Collider.h">
-      <Filter>2D Framework\Collide</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisonFunction.h">
-      <Filter>2D Framework\Collide</Filter>
     </ClInclude>
     <ClInclude Include="AmmoManager.h">
       <Filter>MainGame\Ammo</Filter>

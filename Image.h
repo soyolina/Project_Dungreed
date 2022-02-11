@@ -19,10 +19,6 @@ public:
 
 	// Alphablend함수 사용위해 BLENDFUNCTION 구조체
 	BLENDFUNCTION bf; 
-	//bf.AlphaFormat = 0;		// 비트맵 종류로 일반 비트맵의 경우 0, 32비트 비트맵의 경우 AC_SRC_ALPHA
-	//bf.BlendFlags = 0;		// 무조건 0이어야 한다
-	//bf.BlendOp = AC_SRC_OVER; // 무조건 AC_SRC_OVER이어야 하고 원본과 대상 이미지를 합친다는 의미
-	//bf.SourceConstantAlpha = 127; // 투명도(투명 0 - 불투명 255)
 
 	typedef struct tagImageInfo
 	{
@@ -82,7 +78,7 @@ public:
 	void HpRender2(HDC hdc, int destX, int destY, float remainHp);
 	
 	// 아이템 회전 렌더  - 실패
-	void RotateRender2(HDC hdc, const POINT* rect);
+	//void RotateRender2(HDC hdc, const POINT* rect);
 	
 	// 아이템 회전 렌더 진짜
 	HBITMAP GetRotatedBitmap(HDC hdc, float angle, int m_frameX = 0, int m_frameY = 0);

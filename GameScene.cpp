@@ -109,6 +109,4 @@ void GameScene::Release()
     SAFE_RELEASE(m_ammoManager);
     SAFE_RELEASE(m_bellialStageBackground);
     SAFE_RELEASE(m_bellialStageForeground);
-
-    //ColliderManager::Release();
 }

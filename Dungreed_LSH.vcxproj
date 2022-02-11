@@ -144,7 +144,6 @@
     <ClCompile Include="AmmoManager.cpp" />
     <ClCompile Include="BasicShortSword.cpp" />
     <ClCompile Include="Bellial.cpp" />
-    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collider2.cpp" />
     <ClCompile Include="ColliderManager.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
@@ -180,10 +179,8 @@
     <ClInclude Include="BasicShortSword.h" />
     <ClInclude Include="Bellial.h" />
     <ClInclude Include="Button.h" />
-    <ClInclude Include="Collider.h" />
     <ClInclude Include="Collider2.h" />
     <ClInclude Include="ColliderManager.h" />
-    <ClInclude Include="CollisonFunction.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="DashCount.h" />

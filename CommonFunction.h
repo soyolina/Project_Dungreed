@@ -18,20 +18,6 @@ inline float GetDistance(const POINTFLOAT& pos1, const POINTFLOAT& pos2)
 }
 
 // 두 점 사이의 각도 구하기
-//float getAngle(float startX, float startY, float endX, float endY)
-//{
-//	float x = endX - startX;
-//	float y = endY - startY;
-//	float distance = sqrtf(x * x + y * y);
-//	float angle = acosf(x / distance);
-//	if (endY > startY)
-//	{
-//		angle = PI2 - angle;
-//	}
-//	return angle;
-//}
-
-// 두 점 사이의 각도 구하기
 inline float GetAngle(const POINTFLOAT& pos1, const POINT& pos2)
 {
 	float x = pos2.x - pos1.x;

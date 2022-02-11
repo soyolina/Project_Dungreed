@@ -10,13 +10,10 @@ private:
 	static vector<Collider*> _colliders;
 
 public:
-
 	static void	AddCollider(Collider* collider);
 	static void RemoveCollider(Collider* collider);
 
 	static void CheckCollision();
 	static void Render(HDC hdc);
-
-	static void Release();
 };
 

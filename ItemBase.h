@@ -44,8 +44,5 @@ public:
 	// 공격중인지 아닌지 셋팅
 	void SetIsAttack(bool isAttack) { this->mb_isAttack = isAttack; }
 	void SetIsAttack2(bool isAttack) { this->mb_isAttack2 = isAttack; }
-
-	// 아이템 이펙트 이미지 렌더 위치 설정하기
-	//void SetEffectImgData(POINTFLOAT playerPos, int posNumX, int posNumY, int axisNumX, int axisNumY, float angle);
 };
 

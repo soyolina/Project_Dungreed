@@ -567,55 +567,53 @@ void Image::HpRender2(HDC hdc, int destX, int destY, float remainHp)
 	}
 }
 
-
-
-void Image::RotateRender2(HDC hdc, const POINT* rect)
-{
-	/*Image white;
-	white.Init(imageInfo->width, imageInfo->height);
-	PatBlt(white.GetMemDC(), 0, 0, imageInfo->width, imageInfo->height, WHITENESS);*/
-
-	//HBITMAP hMask = CreateBitmap(imageInfo->width, imageInfo->height, 1, 1, NULL);
-	HDC tempDC = CreateCompatibleDC(hdc);
-	HBITMAP tempBitmap = CreateCompatibleBitmap(hdc, imageInfo->width, imageInfo->height);
-	SelectObject(tempDC, tempBitmap);
-
-	GdiTransparentBlt(tempDC, 0, 0, imageInfo->width, imageInfo->height,
-	imageInfo->hMemDc, 0, 0, imageInfo->width, imageInfo->height, transColor);
-
-	for (int y = 0; y < imageInfo->height; ++y)
-	{
-		for (int x = 0; x < imageInfo->width; ++x)
-		{
-			if (0 != GetPixel(tempDC, x, y))
-			{
-				SetPixel(tempDC, x, y, RGB(255, 255, 255));
-			}
-		}
-	}
-
-	int bits = GetDeviceCaps(tempDC, BITSPIXEL);
-	
-	// 32bit 비트맵 가지고 1bit 비트맵으로 전환
-	//HBITMAP hMask = CreateBitmap(imageInfo->width, imageInfo->height, 1, 1, &(*bit));
-	
-	auto ret = PlgBlt(
-		hdc,
-		rect,
-		imageInfo->hMemDc,
-		0, 0,
-		imageInfo->width, imageInfo->height,
-
-		NULL,
-		0,
-		0
-	);
-
-	if (ret == 0)
-	{
-		printf("오류");
-	}
-}
+//void Image::RotateRender2(HDC hdc, const POINT* rect)
+//{
+//	/*Image white;
+//	white.Init(imageInfo->width, imageInfo->height);
+//	PatBlt(white.GetMemDC(), 0, 0, imageInfo->width, imageInfo->height, WHITENESS);*/
+//
+//	//HBITMAP hMask = CreateBitmap(imageInfo->width, imageInfo->height, 1, 1, NULL);
+//	HDC tempDC = CreateCompatibleDC(hdc);
+//	HBITMAP tempBitmap = CreateCompatibleBitmap(hdc, imageInfo->width, imageInfo->height);
+//	SelectObject(tempDC, tempBitmap);
+//
+//	GdiTransparentBlt(tempDC, 0, 0, imageInfo->width, imageInfo->height,
+//	imageInfo->hMemDc, 0, 0, imageInfo->width, imageInfo->height, transColor);
+//
+//	for (int y = 0; y < imageInfo->height; ++y)
+//	{
+//		for (int x = 0; x < imageInfo->width; ++x)
+//		{
+//			if (0 != GetPixel(tempDC, x, y))
+//			{
+//				SetPixel(tempDC, x, y, RGB(255, 255, 255));
+//			}
+//		}
+//	}
+//
+//	int bits = GetDeviceCaps(tempDC, BITSPIXEL);
+//	
+//	// 32bit 비트맵 가지고 1bit 비트맵으로 전환
+//	//HBITMAP hMask = CreateBitmap(imageInfo->width, imageInfo->height, 1, 1, &(*bit));
+//	
+//	auto ret = PlgBlt(
+//		hdc,
+//		rect,
+//		imageInfo->hMemDc,
+//		0, 0,
+//		imageInfo->width, imageInfo->height,
+//
+//		NULL,
+//		0,
+//		0
+//	);
+//
+//	if (ret == 0)
+//	{
+//		printf("오류");
+//	}
+//}
 
 
 HBITMAP Image::GetRotatedBitmap(HDC hdc, float angle, int m_frameX, int m_frameY)

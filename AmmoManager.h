@@ -15,5 +15,4 @@ public:
 	void Release();
 
 	void MakeAmmo(LPCWSTR imgName, POINTFLOAT pos, float angle, int attackDamage, float moveSpeed, ObjectType objType, float changeAngle = 0);
-
 };

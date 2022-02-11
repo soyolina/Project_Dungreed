@@ -45,9 +45,4 @@ void ColliderManager::Render(HDC hdc)
 	}
 }
 
-void ColliderManager::Release()
-{
-	_colliders.shrink_to_fit();
-}
-
 

@@ -141,7 +141,6 @@ HRESULT Bellial::Init()
 		// 히트박스 , 콜라이더 관련
 		m_swordVec[i].swordHitboxPos = {};
 		m_swordVec[i].swordHitBox = {};
-		//m_swordVec[i].m_swordCollider = ColliderManager::CreateCollider(this, m_swordVec[i].swordHitBox, ObjectType::EnemyAttack);
 		// 진짜 콜라이더
 		m_swordVec[i].swordCollider.Init(this, &m_swordVec[i].swordHitBox, ObjectType::EnemyAttack, [](auto, auto) {});
 
@@ -171,9 +170,7 @@ HRESULT Bellial::Init()
 	m_bodyHeight = m_bossImg->GetFrameHeight() - 66;
 
 	SetHitbox();
-	// 콜라이더
-	//m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Enemy);
-	//m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+
 	// 진짜 콜라이더
 	collider.Init(this, &m_shape, ObjectType::Enemy, [](auto, auto) {});
 	laserCollider.Init(this, &m_laserHitbox, ObjectType::EnemyAttack, [](auto, auto) {});
@@ -919,8 +916,6 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.top = static_cast<long>(BOSS_LEFT_LASER_POSY - m_laserHead->GetFrameHeight() * 0.5f + 5);
 		m_laserHitbox.right = static_cast<long>(WIN_SIZE_X);
 		m_laserHitbox.bottom = static_cast<long>(BOSS_LEFT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
-
-		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
 	}
 	else
 	{
@@ -948,7 +943,6 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		m_laserHitbox.bottom = 0;
 	}
 }
-
 
 void Bellial::FireMissile()
 {
@@ -1036,7 +1030,6 @@ void Bellial::FireMissile()
 	}
 }
 
-
 void Bellial::SetSwordHitbox(int index, float angle)
 {
 	if (m_swordVec[index].swordStatus == SwordStatus::Fire)
@@ -1066,31 +1059,6 @@ void Bellial::SetSwordHitbox(int index, float angle)
 		m_swordVec[index].swordHitBox.top = 0;
 		m_swordVec[index].swordHitBox.bottom = 0;
 	}
-	/*m_leftTopPoint = { (LONG)(m_swordVec[index].swordPos.x +
-		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle)
-		- (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * sinf(angle)),
-
-		(LONG)(m_swordVec[index].swordPos.y +
-		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle)
-		+ (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * cosf(angle)) };
-
-
-	m_rightTopPoint = { (LONG)(m_swordVec[index].swordPos.x +
-		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * cosf(angle)
-		- (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * sinf(angle)),
-
-		(LONG)(m_swordVec[index].swordPos.y +
-		(float)(m_swordVec[index].swordHitBox.right - m_swordVec[index].swordPos.x) * sinf(angle)
-		+ (float)(m_swordVec[index].swordHitBox.top - m_swordVec[index].swordPos.y) * cosf(angle)) };
-
-
-	m_leftBottomPoint = { (LONG)(m_swordVec[index].swordPos.x +
-		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle)
-		- (float)(m_swordVec[index].swordHitBox.bottom - m_swordVec[index].swordPos.y) * sinf(angle)),
-
-		(LONG)(m_swordVec[index].swordPos.y +
-		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * sinf(angle)
-		+ (float)(m_swordVec[index].swordHitBox.bottom - m_swordVec[index].swordPos.y) * cosf(angle)) };*/
 }
 
 void Bellial::CheckSwordPatternEnd()

@@ -16,16 +16,11 @@
 
 
 // 전역 변수
-//POINT g_ptMouse;
-POINT g_ptClickedMouse;
-
 HINSTANCE g_hInstance;
 HWND g_hWnd;
 LPCWSTR g_lpszClass = (LPCWSTR)TEXT("Dungreed");
 MainGame	g_mainGame;
 
-
-//void SetWindowSize(int startX, int startY, int sizeX, int sizeY);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage,
 	WPARAM wParam, LPARAM lParam);
@@ -41,7 +36,6 @@ int APIENTRY wWinMain(
 
 	//_CrtSetBreakAlloc(2);
 #endif
-
 
 	// 윈도우를 생성하기 위한 기본 셋팅
 	g_hInstance = _hInstance;

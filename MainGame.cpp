@@ -5,8 +5,6 @@
 
 HRESULT MainGame::Init()
 {
-	//KEY_MANAGER->Init();
-	// 
 	// Input 클래스 추가
 	Input::Init(g_hWnd);
 	IMAGE_MANAGER->Init();

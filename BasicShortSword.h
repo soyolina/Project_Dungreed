@@ -7,7 +7,6 @@ class Image;
 class BasicShortSword : public ItemBase
 {
 private:
-	
 	bool mb_isReverse = false;
 	
 	// - 기본검 이미지용 
@@ -41,14 +40,6 @@ private:
 	RECT m_shape = {};
 	// 함수
 	void SetHitboxShape();
-
-	// PlgBlt함수용
-	/*RECT m_shape = {};
-	POINT m_leftTopPoint = {};
-	POINT m_rightTopPoint = {};
-	POINT m_leftBottomPoint = {};
-	POINT m_rightBottomPoint = {};
-	POINT m_rectPointarr[3] = {};*/
 
 public:
 	virtual HRESULT Init(Player* player);

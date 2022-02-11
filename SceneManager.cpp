@@ -22,7 +22,6 @@ DWORD CALLBACK LoadingThread(LPVOID pvParam)
 	return 0;
 }
 
-
 void SceneManager::Init()
 {
 	SCENE_MANAGER->AddScene(L"½ºÅ¸Æ®¾À", new StartScene());

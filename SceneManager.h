@@ -26,6 +26,5 @@ public:
 
 	HRESULT ChangeScene(const wstring& sceneName);
 	HRESULT ChangeScene(const wstring& sceneName, const wstring& loadingSceneName);
-
 };
 

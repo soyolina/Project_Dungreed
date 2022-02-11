@@ -8,7 +8,6 @@
 
 HRESULT BasicShortSword::Init(Player* player)
 {
-
 	m_player = player;
 	m_playerPos = m_player->GetPlayerPos();
 	mb_isReverse = false;
@@ -43,8 +42,6 @@ HRESULT BasicShortSword::Init(Player* player)
 	// 아이템 히트박스용
 	m_shape = {};
 
-	// Collider
-	//m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Item);
 	// 진짜 콜라이더
 	collider.Init(this, &m_shape, ObjectType::Item, 
 		[&](Collider* other, RECT intersectedRect)
@@ -65,18 +62,6 @@ HRESULT BasicShortSword::Init(Player* player)
 			}
 		}
 	);
-	
-	// PlgBlt 함수 쓰기 위해 만들어 놓은 것
-	/*m_shape = {};
-	m_leftTopPoint = {};
-	m_rightTopPoint = {};
-	m_leftBottomPoint = {};
-	m_rightBottomPoint = {};
-
-	for (int i = 0; i < 3; ++i)
-	{
-		m_rectPointarr[i] = {};
-	}*/
 
 	return S_OK;
 }
@@ -115,26 +100,6 @@ void BasicShortSword::Update()
 	{
 		SetHitboxShape();
 	}
-
-	// 콜라이더 업데이트
-	
-	// PlgBlt 이미지 렌더함수 쓰기 위한 용도였음. 마젠타 색이 안빠져서 실패.
-	/*m_leftTopPoint = { (LONG)(m_bssImgRenderPos.x + (float)(m_shape.left - m_bssImgRenderPos.x) * cosf(m_angle) - (float)(m_shape.top - m_bssImgRenderPos.y) * sinf(m_angle)),
-					(LONG)(m_bssImgRenderPos.y + (float)(m_shape.left - m_bssImgRenderPos.x) * sinf(m_angle) + (float)(m_shape.top - m_bssImgRenderPos.y) * cosf(m_angle)) };
-
-	m_rightTopPoint = { (LONG)(m_bssImgRenderPos.x + (float)(m_shape.right - m_bssImgRenderPos.x) * cosf(m_angle) - (float)(m_shape.top - m_bssImgRenderPos.y) * sinf(m_angle)),
-					(LONG)(m_bssImgRenderPos.y + (float)(m_shape.right - m_bssImgRenderPos.x) * sinf(m_angle) + (float)(m_shape.top - m_bssImgRenderPos.y) * cosf(m_angle)) };
-
-	m_leftBottomPoint = { (LONG)(m_bssImgRenderPos.x + (float)(m_shape.left - m_bssImgRenderPos.x) * cosf(m_angle) - (float)(m_shape.bottom - m_bssImgRenderPos.y) * sinf(m_angle)),
-					(LONG)(m_bssImgRenderPos.y + (float)(m_shape.left - m_bssImgRenderPos.x) * sinf(m_angle) + (float)(m_shape.bottom - m_bssImgRenderPos.y) * cosf(m_angle)) };
-
-
-	m_rectPointarr[0] = m_leftTopPoint;
-	m_rectPointarr[1] = m_rightTopPoint;
-	m_rectPointarr[2] = m_leftBottomPoint;
-
-	m_rightBottomPoint.x = m_rightTopPoint.x + m_leftBottomPoint.x - m_leftTopPoint.x;
-	m_rightBottomPoint.y = m_rightTopPoint.y + m_leftBottomPoint.y - m_leftTopPoint.y;*/
 }
 
 void BasicShortSword::Render(HDC hdc)
@@ -145,25 +110,9 @@ void BasicShortSword::Render(HDC hdc)
 	// 공격일시
 	if (mb_isAttack == true)
 	{
-		// 검 히트박스 렌더용
-		//Rectangle(hdc, m_hitboxShape.left, m_hitboxShape.top, m_hitboxShape.right, m_hitboxShape.bottom);
-		/*MoveToEx(hdc, m_hitboxShape.left, m_hitboxShape.top, NULL);
-		LineTo(hdc, m_hitboxShape.left, m_hitboxShape.bottom);
-		LineTo(hdc, m_hitboxShape.right, m_hitboxShape.bottom);
-		LineTo(hdc, m_hitboxShape.right, m_hitboxShape.top);
-		LineTo(hdc, m_hitboxShape.left, m_hitboxShape.top);*/
-
 		// 검 이펙트 이미지 렌더용
 		m_bssEffectImg->ImgRotateFrameRender(hdc, static_cast<int>(m_effectImgRenderPos.x), static_cast<int>(m_effectImgRenderPos.y), m_frameX, m_frameY, m_effectAngle);
 	}
-
-	// PlgBlt 이미지 렌더함수 쓰기 위한 용도였음.
-	/*m_bssImg->RotateRender2(hdc, m_rectPointarr);
-	MoveToEx(hdc, m_leftTopPoint.x, m_leftTopPoint.y, NULL);
-	LineTo(hdc, m_leftBottomPoint.x, m_leftBottomPoint.y);
-	LineTo(hdc, m_rightBottomPoint.x, m_rightBottomPoint.y);
-	LineTo(hdc, m_rightTopPoint.x, m_rightTopPoint.y);
-	LineTo(hdc, m_leftTopPoint.x, m_leftTopPoint.y);*/
 }
 
 void BasicShortSword::Release()

@@ -3,8 +3,6 @@
 #include "Config.h"
 #include "CommonFunction.h"
 
-//#include "TilemapStructure.h"
-
 #define SAMPLE_TILE_COUNT_X  7
 #define SAMPLE_TILE_COUNT_Y  4
 

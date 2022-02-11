@@ -3,7 +3,7 @@
 
 HRESULT GameObject::Init()
 {
-    return E_NOTIMPL;
+    return S_OK;
 }
 
 void GameObject::Update()

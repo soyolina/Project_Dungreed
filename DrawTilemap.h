@@ -3,9 +3,6 @@
 #include "Config.h"
 #include "GameObject.h"
 
-//#include "TilemapStructure.h"
-
-
 class Image;
 class DrawTilemap : public GameObject
 {
