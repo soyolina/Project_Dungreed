@@ -4,24 +4,22 @@
 
 class GameObject;
 
-typedef struct ColliderInfo
+class Collider
 {
-	GameObject* object = nullptr;
-	RECT rect = {};
-	ObjectType objectType = {};
-}COLLIDER_DATA;
-
-class Collider2
-{
-private:
-	COLLIDER_DATA m_colliderData = {};
-
+	using callback_t = function<void(Collider*, RECT)>;
 public:
-	Collider2(GameObject* object, const RECT& rect, const ObjectType& objType)
-		: m_colliderData{ object, rect, objType} {};
+	Collider();
+	~Collider();
 
-	void Update(const RECT& rect);
+	GameObject*		GetOwner() const;
+	RECT			GetHitbox() const;
+	ObjectType		GetType() const;
 
-	COLLIDER_DATA GetColliderData() const { return m_colliderData; }
+	void			Init(GameObject* owner, const RECT* hitbox, ObjectType type, const callback_t& callback);
+	void			CheckCollision(Collider* other);
+private:
+	GameObject* _owner = nullptr;
+	const RECT*	_hitbox = nullptr;
+	ObjectType	_type = ObjectType::End;
+	callback_t	_callback;
 };
-

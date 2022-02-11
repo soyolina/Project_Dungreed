@@ -14,7 +14,7 @@ HRESULT MainGame::Init()
 	TIMER_MANAGER->Init();
 
 	SCENE_MANAGER->ChangeScene(L"Ω∫≈∏∆Ææ¿");
-
+	//SCENE_MANAGER->ChangeScene(L"≈∏¿œ∏ ≈¯æ¿");
 
 	srand((unsigned int) time(nullptr));
 
@@ -23,7 +23,7 @@ HRESULT MainGame::Init()
 
 	// πÈπˆ∆€
 	backBuffer = new Image;
-	backBuffer->Init(WIN_SIZE_X, WIN_SIZE_Y);
+	backBuffer->Init(TILE_MAP_TOOL_SIZE_X, TILE_MAP_TOOL_SIZE_Y);
 
 	return S_OK;
 }
@@ -43,12 +43,12 @@ void MainGame::Render(HDC hdc)
 {
 	HDC hBackBufferDC = backBuffer->GetMemDC();
 
-	PatBlt(hBackBufferDC, 0, 0, WIN_SIZE_X, WIN_SIZE_Y, WHITENESS);
+	PatBlt(hBackBufferDC, 0, 0, TILE_MAP_TOOL_SIZE_X, TILE_MAP_TOOL_SIZE_Y, WHITENESS);
 
 	SCENE_MANAGER->Render(hBackBufferDC);
 
 	TIMER_MANAGER->Render(hBackBufferDC);
-
+	
 	wsprintf(text, L"MousePosX : %d", Input::GetMousePosition().x);
 	TextOut(hBackBufferDC, 200, 10, text, wcslen(text));
 
@@ -68,40 +68,4 @@ void MainGame::Release()
 
 	// ≈∏¿Ã∏” ∞¥√º ªË¡¶
 	KillTimer(g_hWnd, 0);
-}
-
-LRESULT MainGame::MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
-{
-	switch (iMessage)
-	{
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_SPACE:
-			break;
-		case VK_UP:
-			break;
-		case VK_DOWN:
-			break;
-		case VK_LEFT:
-			break;
-		case VK_RIGHT:
-			break;
-		}
-		break;
-
-	case WM_LBUTTONDOWN:
-		g_ptClickedMouse.x = LOWORD(lParam);
-		g_ptClickedMouse.y = HIWORD(lParam);
-		break;
-	case WM_LBUTTONUP:
-		break;
-	case WM_RBUTTONDOWN:
-		break;
-	case WM_MOUSEMOVE:
-		//g_ptMouse.x = GET_X_LPARAM(lParam);
-		//g_ptMouse.y = GET_Y_LPARAM(lParam);
-		break;
-	}
-	return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }

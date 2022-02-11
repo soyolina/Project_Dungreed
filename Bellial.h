@@ -162,8 +162,9 @@ private:
 	Image* m_laserBody = nullptr;
 	Image* m_laserHead = nullptr;
 
-	// 콜라이더
-	Collider2* m_laserCollider = nullptr;
+	// 진짜 콜라이더
+	Collider laserCollider = {};
+
 	RECT m_laserHitbox = {};
 
 	int m_leftLaserFrameX = 0;
@@ -220,7 +221,8 @@ private:
 		// 콜라이더 관련
 		POINTFLOAT swordHitboxPos = {};
 		RECT swordHitBox = {};
-		Collider2* swordCollider = nullptr;
+		// 진짜 콜라이더
+		Collider swordCollider = {};
 
 		// 이펙트 관련
 		// sword create, hit , destory 이미지 그때그때 find해서 쓸꺼다

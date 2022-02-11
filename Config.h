@@ -6,6 +6,8 @@
 #include <iostream>
 #include <math.h>
 #include <ctime>
+#include <algorithm>
+#include <functional>
 
 // STL
 #include <vector>
@@ -15,7 +17,7 @@
 using namespace std;
 
 // enum class
-enum class ObjectType { Player, Enemy, Item, EnemyAttack, End };
+enum class ObjectType { Player, Enemy, Item, EnemyAttack, TileMap, End };
 
 // timer에 TimeGetTime 함수 쓸려고 라이브러리 추가해야함.
 #pragma comment(lib, "winmm.lib")
@@ -26,6 +28,8 @@ enum class ObjectType { Player, Enemy, Item, EnemyAttack, End };
 #define WIN_SIZE_X	1200
 #define WIN_SIZE_Y	900
 
+#define TILE_MAP_TOOL_SIZE_X  1800
+#define TILE_MAP_TOOL_SIZE_Y  1000
 
 // PI 값
 #define PI (3.1415926f)
@@ -43,6 +47,33 @@ enum class ObjectType { Player, Enemy, Item, EnemyAttack, End };
 
 // 각도 구하기 - 도에서 라디안으로 변환하기
 #define DEGREE_TO_RADIAN(x)		(x * PI / 180.0f)
+
+//  - 타일맵
+// 맵 속성
+enum class mapAttribute
+{
+	Obstacle, NonObstacle, End
+};
+
+// 타일맵 구조체
+#include "Collider2.h"
+typedef struct tagTile
+{
+	RECT rc;
+	// sample tile의 아이디 (프레임 X, 프레임 Y)
+	int frameX, frameY;
+	mapAttribute mapAttribute;
+} TILE_INFO;
+
+// 타일 갯수
+#define TILE_COUNT_X  25
+#define TILE_COUNT_Y  19
+
+// 타일 사이즈
+#define	TILE_SIZE  48
+
+// 타일 맵 로드할 때의 인덱스 용
+enum class mapName { BellialStageBackgournd, BellialStageForeground, End };
 
 
 extern HWND g_hWnd;

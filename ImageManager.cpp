@@ -93,6 +93,10 @@ void ImageManager::Init()
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBack.bmp", 600, 77, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeRed.bmp", 480, 77, true, RGB(255, 0, 255));
     IMAGE_MANAGER->AddImage(L"Image/Boss/BossLifeBase.bmp", 600, 77, true, RGB(255, 0, 255));
+
+    // Tile Map Editor ¿ë
+    IMAGE_MANAGER->AddImage(L"Image/TileMapImage/TileMapImage.bmp", 240, 240, 5, 5, true, RGB(255, 0, 255));
+    IMAGE_MANAGER->AddImage(L"Image/TileMapImage/TileMapImage2.bmp", 336, 192, 7, 4, true, RGB(255, 0, 255));
 }
 
 void ImageManager::Release()

@@ -149,6 +149,7 @@
     <ClCompile Include="ColliderManager.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="DashCount.cpp" />
+    <ClCompile Include="DrawTilemap.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TilemapEditorScene.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TimerManager.cpp" />
     <ClCompile Include="UIBase.cpp" />
@@ -185,6 +187,7 @@
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="DashCount.h" />
+    <ClInclude Include="DrawTilemap.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
@@ -201,6 +204,7 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="StartScene.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TilemapEditorScene.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TimerManager.h" />
     <ClInclude Include="UIBase.h" />

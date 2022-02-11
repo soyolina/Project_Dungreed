@@ -2,22 +2,21 @@
 
 #include "Config.h"
 
+class Collider;
 class GameObject;
-class Collider2;
 class ColliderManager
 {
 private:
-	static Collider2* m_player;
-	static vector<Collider2*> m_enemies;
-	static vector<Collider2*> m_enemyAttack;
-	static vector<Collider2*> m_items;
+	static vector<Collider*> _colliders;
 
 public:
-	static Collider2* CreateCollider(GameObject* object, RECT rect, ObjectType objType);
+
+	static void	AddCollider(Collider* collider);
+	static void RemoveCollider(Collider* collider);
+
 	static void CheckCollision();
 	static void Render(HDC hdc);
-	static void Release();
 
-	static void DeleteCollider(ObjectType objType, Collider2* collider);
+	static void Release();
 };
 

@@ -4,6 +4,7 @@
 #include "CommonFunction.h"
 #include "Scene.h"
 
+class DrawTilemap;
 class AmmoManager;
 class Bellial;
 class BasicShortSword;
@@ -26,6 +27,10 @@ private:
 	Bellial* m_bellial = nullptr;
 
 	AmmoManager* m_ammoManager = nullptr;
+
+	DrawTilemap* m_bellialStageBackground = nullptr;
+	DrawTilemap* m_bellialStageForeground = nullptr;
+
 
 public:
 	virtual ~GameScene() {}

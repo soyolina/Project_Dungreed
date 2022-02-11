@@ -43,7 +43,7 @@ void Timer::Tick()
 
 	deltaTime = (currTime - lastTime) * timeScale;
 
-	++fpsFrameCount;
+		++fpsFrameCount;
 	fpsTimeElapsed += deltaTime;
 	if (fpsTimeElapsed >= 1.0f)
 	{

@@ -12,8 +12,6 @@ class Image;
 class Player : public GameObject
 {
 private:
-	// 콜라이더 관련 게임오브젝트에서 상속받음
-	//Collider2* m_collider = nullptr;
 
 	// 플레이어 히트시 배경
 	Image* m_hitBackGround = nullptr;
@@ -94,6 +92,7 @@ private:
 	// 변수
 	ItemBase* m_weapon[2] = {};
 	int m_selectedWeaponIndex = 0;
+
 public:
 	// 함수
 	void SetItem(int index, ItemBase* item) { this->m_weapon[index] = item; }
@@ -101,23 +100,6 @@ private:
 	// 공격
 	void Attack();
 
-private:
-	// - 임시 테스트 상자용
-	// 변수
-	RECT testRC = {};
-	RECT testRC2 = {};
-	RECT testRC3 = {};
-	RECT testRC4 = {};
-	RECT testRC5 = {};
-	RECT testRC6 = {};
-	RECT rectArr[6] = {};
-
-	RECT intersectRect = {};
-	RECT collidedRect = {};
-	// 함수 - 상자 생성
-	void makeTestRect();
-
-	
 public:
 	virtual ~Player() {}
 

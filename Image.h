@@ -70,7 +70,8 @@ public:
 	void Render(HDC hdc, int destX, int destY, int m_frameX, int m_frameY, float scale = 1.0f, bool reverse = false); // 프레임이 있는 이미지 데이터를 화면에 복사 // dest좌표가 중점! 으로 이미지가 생성됨
 
 	void RenderBasic(HDC hdc, int destX, int destY); // 프레임이 없는 이미지 데이터가 dest좌표를 시작점! 으로 화면에 복사
-	void RenderBasic(HDC hdc, int destX, int destY, int frameX, int frameY); // 프레임이 있는 이미지 데이터가 dest좌표를 시작점! 으로 화면에 복사
+	void RenderBasic(HDC hdc, int destX, int destY, int frameX, int frameY, float scale = 1.0f); 
+	// 프레임이 있는 이미지 데이터가 dest좌표를 시작점! 으로 화면에 복사
 
 	// 루프 렌더(스타트 씬)
 	void loopRender(HDC hdc, int sourX);
@@ -112,7 +113,5 @@ public:
 
 	// Ammo용
 	int GetMaxFrameX() const { return imageInfo->maxFrameX; }
-
-
 };
 

@@ -280,10 +280,11 @@ void Image::Render(HDC hdc, int destX, int destY, int m_frameX, int m_frameY, fl
 				hdc,
 				destX - (imageInfo->frameWidth / 2),
 				destY - (imageInfo->frameHeight / 2),
-				imageInfo->frameWidth, imageInfo->frameHeight,
+				static_cast<int>(imageInfo->frameWidth * scale), 
+				static_cast<int>(imageInfo->frameHeight * scale),
 
 				imageInfo->hMemDc,
-				imageInfo->frameWidth * m_frameX,
+				imageInfo->frameWidth * m_frameX ,
 				imageInfo->frameHeight * m_frameY,
 				imageInfo->frameWidth, imageInfo->frameHeight,
 				transColor
@@ -397,7 +398,7 @@ void Image::RenderBasic(HDC hdc, int destX, int destY)
 	}
 }
 
-void Image::RenderBasic(HDC hdc, int destX, int destY, int frameX, int frameY)
+void Image::RenderBasic(HDC hdc, int destX, int destY, int frameX, int frameY, float scale)
 {
 	if (isTransparent)
 	{
@@ -405,7 +406,8 @@ void Image::RenderBasic(HDC hdc, int destX, int destY, int frameX, int frameY)
 			hdc,
 			destX,
 			destY,
-			imageInfo->frameWidth, imageInfo->frameHeight,
+			static_cast<int>(imageInfo->frameWidth * scale), 
+			static_cast<int>(imageInfo->frameHeight * scale),
 
 			imageInfo->hMemDc,
 			imageInfo->frameWidth * frameX,

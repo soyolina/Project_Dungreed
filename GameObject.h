@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Config.h"
+#include "Collider2.h"
 
-class Collider2;
-class GameObject
+class GameObject 
 {
 protected:
 	POINTFLOAT m_pos = {};
@@ -20,8 +20,12 @@ protected:
 	float m_hitElapsedCount = 0.0f;
 	bool mb_isDead = false;
 
-	// 콜라이더
-	Collider2* m_collider = nullptr;
+	// 진짜 콜라이더
+	Collider collider = {};
+
+	// 충돌된 상자와 충돌된 상자의 겹치는 부분(상자)
+	RECT collidedRect = {};
+	RECT intersectRect = {};
 
 public:
 	virtual ~GameObject() {}
@@ -45,6 +49,12 @@ public:
 	bool GetIsDead() const { return mb_isDead; }
 	void SetIsDead(bool isDead) { this->mb_isDead = isDead; }
 
-	Collider2* GetCollider() const { return m_collider; }
+	// 맵과 충돌된 상자
+	RECT GetCollidedRect() const { return collidedRect; }
+	void SetCollidedRect(RECT rc) { collidedRect = rc; }
+
+	// 충돌된상자와 겹치는 부분(상자)
+	RECT GetIntersectRect() const { return intersectRect; }
+	void SetIntersectRect(RECT rc) { intersectRect = rc; }
 };
 

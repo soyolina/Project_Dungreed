@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "StartScene.h"
 #include "GameScene.h"
+#include "TilemapEditorScene.h"
 
 Scene* SceneManager::currScene = nullptr;
 Scene* SceneManager::readyScene = nullptr;
@@ -26,6 +27,7 @@ void SceneManager::Init()
 {
 	SCENE_MANAGER->AddScene(L"½ºÅ¸Æ®¾À", new StartScene());
 	SCENE_MANAGER->AddScene(L"°ÔÀÓ¾À", new GameScene());
+	SCENE_MANAGER->AddScene(L"Å¸ÀÏ¸ÊÅø¾À", new TilemapEditorScene());
 }
 
 void SceneManager::Update()

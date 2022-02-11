@@ -20,8 +20,9 @@ HRESULT Ammo::Init(LPCWSTR imgName, POINTFLOAT pos, float angle, int attackDamag
 	m_bodyWidth = m_ammoImg->GetFrameWidth();
 	m_bodyHeight = m_ammoImg->GetFrameHeight();
 	SetShape();
-	// 콜라이더
-	m_collider = ColliderManager::CreateCollider(this, m_shape, objType);
+
+	// 진짜 콜라이더	
+	collider.Init(this, &m_shape, objType, [](auto, auto) { });
 
 	m_hp = 0;
 	m_moveSpeed = moveSpeed;
@@ -90,9 +91,6 @@ void Ammo::Update()
 	}
 	
 	SetShape();
-
-	// 콜라이더 업데이트
-	m_collider->Update(m_shape);
 }
 
 void Ammo::Render(HDC hdc)
@@ -106,10 +104,6 @@ void Ammo::Render(HDC hdc)
 void Ammo::Release()
 {
 	m_ammoImg = nullptr;
-	
-	// 콜라이더 삭제
-	ObjectType objType = m_collider->GetColliderData().objectType;
-	ColliderManager::DeleteCollider(objType, m_collider);
 }
 
 void Ammo::SetShape()

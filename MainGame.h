@@ -20,7 +20,5 @@ public:
 	void Update();
 	void Render(HDC hdc);
 	void Release();
-
-	LRESULT MainProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 };
 

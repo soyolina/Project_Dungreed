@@ -6,12 +6,20 @@
 #include "BasicShortSword.h"
 #include "Bellial.h"
 #include "AmmoManager.h"
+#include "DrawTilemap.h"
 
 HRESULT GameScene::Init()
 {
     taeYeon = IMAGE_MANAGER->FindImage(L"Image/Taeyeon.bmp");
 
     m_cursor = IMAGE_MANAGER->FindImage(L"Image/UI/ShootingCursor2.bmp");
+
+    // Å¸ÀÏ¸Ê 
+    m_bellialStageBackground = new DrawTilemap;
+    m_bellialStageBackground->Init(static_cast<int>(mapName::BellialStageBackgournd));
+    m_bellialStageForeground = new DrawTilemap;
+    m_bellialStageForeground->Init(static_cast<int>(mapName::BellialStageForeground));
+
 
     m_ammoManager = new AmmoManager;
 
@@ -59,6 +67,10 @@ void GameScene::Render(HDC hdc)
 {
     taeYeon->Render(hdc);
 
+    // Å¸ÀÏ¸Ê
+    m_bellialStageBackground->Render(hdc);
+    m_bellialStageForeground->Render(hdc);
+
     // collider
     if (Input::GetButton(VK_F5))
     {
@@ -95,6 +107,8 @@ void GameScene::Release()
     SAFE_RELEASE(m_basicShortSword);
     SAFE_RELEASE(m_bellial);
     SAFE_RELEASE(m_ammoManager);
+    SAFE_RELEASE(m_bellialStageBackground);
+    SAFE_RELEASE(m_bellialStageForeground);
 
-    ColliderManager::Release();
+    //ColliderManager::Release();
 }

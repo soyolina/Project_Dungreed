@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <Windows.h>
 #include "MainGame.h"
+#include "CommonFunction.h"
 
 // 메모리 누수 찾기
 #define _CRTDBG_MAP_ALLOC
@@ -24,7 +25,7 @@ LPCWSTR g_lpszClass = (LPCWSTR)TEXT("Dungreed");
 MainGame	g_mainGame;
 
 
-void SetWindowSize(int startX, int startY, int sizeX, int sizeY);
+//void SetWindowSize(int startX, int startY, int sizeX, int sizeY);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage,
 	WPARAM wParam, LPARAM lParam);
@@ -38,8 +39,7 @@ int APIENTRY wWinMain(
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	//_CrtSetBreakAlloc(605);
-	//_CrtSetBreakAlloc(999);
+	//_CrtSetBreakAlloc(2);
 #endif
 
 
@@ -66,8 +66,7 @@ int APIENTRY wWinMain(
 		NULL, NULL, _hInstance, NULL);
 
 	// 윈도우 창 셋
-	SetWindowSize(WIN_START_POS_X, WIN_START_POS_Y,
-		WIN_SIZE_X, WIN_SIZE_Y);
+	SetWindowSize(WIN_START_POS_X, WIN_START_POS_Y, WIN_SIZE_X, WIN_SIZE_Y);
 
 	// 메인게임 초기화
 	g_mainGame.Init();
@@ -75,81 +74,54 @@ int APIENTRY wWinMain(
 	// 윈도우 출력
 	ShowWindow(g_hWnd, nCmdShow);
 
+	// 윈도우 화면에 보일 HDC랑 비트맵 설정
+	HDC _hDC = GetDC(g_hWnd);
+	HBITMAP _Bitmap = CreateCompatibleBitmap(_hDC, WIN_SIZE_X, WIN_SIZE_Y);
+	SelectObject(_hDC, _Bitmap);
+
 	// 메세지 큐에 있는 메시지 처리
-	MSG message;
-	while(GetMessage(&message, 0, 0, 0))
+	MSG msg;
+
+	while (TRUE)
 	{
-		TranslateMessage(&message);
-		DispatchMessage(&message);
+		if (PeekMessage(&msg, nullptr, NULL, NULL, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			g_mainGame.Update();
+			g_mainGame.Render(_hDC);
+		}
 	}
 
 	// 메인게임 해제
 	g_mainGame.Release();
 
-	return message.wParam;
-}
-
-void SetWindowSize(int startX, int startY, int sizeX, int sizeY)
-{
-	// 원하는 윈도우 작업영역 설정
-	RECT rc;
-	rc.left = 0; rc.top = 0;
-	rc.right = sizeX;	rc.bottom = sizeY;
-
-	// 스타일이 포함된 실제 윈도우 크기 계산
-	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, false);
-
-	// 계산된 값으로 윈도우를 이동시키면서 크기도 함께 변환
-	MoveWindow(g_hWnd, startX, startY,
-		rc.right - rc.left, rc.bottom - rc.top, true);
+	return static_cast<INT32>(msg.wParam);
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
-	HDC hdc;
-	PAINTSTRUCT ps;
-
-	static bool isUpdate = true;
-
 	switch (iMessage)
 	{
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_RETURN:
-			isUpdate = !isUpdate;
-			break;
-		}
-		break;
-
-	case WM_TIMER:
-		if (isUpdate)
-		{
-			g_mainGame.Update();
-		}
-
-		break;
-
-	case WM_PAINT:		// 윈도우 화면이 다시 그려지는 경우 발생하는 메시지
-		hdc = BeginPaint(g_hWnd, &ps);
-
-		// 창 크기 조절해도 그에따라 이미지 그려줌
-		RECT rect;
-		SetMapMode(hdc, MM_ANISOTROPIC);
-		SetWindowExtEx(hdc, WIN_SIZE_X, WIN_SIZE_Y, NULL);
-		GetClientRect(g_hWnd, &rect);
-		SetViewportExtEx(hdc, rect.right, rect.bottom, NULL);
-
-		
-		g_mainGame.Render(hdc);
-
-		EndPaint(g_hWnd, &ps);
-		break;
-
-	case WM_DESTROY:	// 닫기 버튼 메시지처리 (프로그램 종료)
+	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
+		return 0;
 	}
 
-	return g_mainGame.MainProc(hWnd, iMessage, wParam, lParam);
+	return DefWindowProc(hWnd, iMessage, wParam, lParam);
 }
+
+// 창 크기 조절해도 그에따라 이미지 그려줌
+//RECT rect;
+//SetMapMode(hdc, MM_ANISOTROPIC);
+//SetWindowExtEx(hdc, WIN_SIZE_X, WIN_SIZE_Y, NULL);
+//GetClientRect(g_hWnd, &rect);
+//SetViewportExtEx(hdc, rect.right, rect.bottom, NULL);

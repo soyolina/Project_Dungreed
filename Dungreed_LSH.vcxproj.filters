@@ -58,6 +58,9 @@
     <Filter Include="MainGame\Ammo">
       <UniqueIdentifier>{5836d707-58b1-41ac-8f36-50c3f6e62092}</UniqueIdentifier>
     </Filter>
+    <Filter Include="2D Framework\Map">
+      <UniqueIdentifier>{747f25f1-bcc9-41d9-8b34-8c41e9295e50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -146,6 +149,12 @@
     </ClCompile>
     <ClCompile Include="ColliderManager.cpp">
       <Filter>2D Framework\Collide</Filter>
+    </ClCompile>
+    <ClCompile Include="TilemapEditorScene.cpp">
+      <Filter>2D Framework\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawTilemap.cpp">
+      <Filter>2D Framework\Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -244,6 +253,12 @@
     </ClInclude>
     <ClInclude Include="ColliderManager.h">
       <Filter>2D Framework\Collide</Filter>
+    </ClInclude>
+    <ClInclude Include="TilemapEditorScene.h">
+      <Filter>2D Framework\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawTilemap.h">
+      <Filter>2D Framework\Map</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

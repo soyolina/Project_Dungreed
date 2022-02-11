@@ -44,7 +44,27 @@ HRESULT BasicShortSword::Init(Player* player)
 	m_shape = {};
 
 	// Collider
-	m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Item);
+	//m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Item);
+	// 진짜 콜라이더
+	collider.Init(this, &m_shape, ObjectType::Item, 
+		[&](Collider* other, RECT intersectedRect)
+		{
+			switch (other->GetType())
+			{
+			case ObjectType::Enemy:
+			{
+				if (other->GetOwner()->GetIsHit() == false)
+				{
+					other->GetOwner()->SetIsHit(true);
+					other->GetOwner()->SetIsHit2(true);
+
+					other->GetOwner()->SetHp(m_attackDamage);
+				}
+			}
+			break;
+			}
+		}
+	);
 	
 	// PlgBlt 함수 쓰기 위해 만들어 놓은 것
 	/*m_shape = {};
@@ -229,8 +249,6 @@ void BasicShortSword::SetHitboxShape()
 		m_shape.right = static_cast<long>(m_effectImgRenderPos.x + m_bssEffectImg->GetFrameWidth() * 0.5f);
 		m_shape.top = static_cast<long>(m_effectImgRenderPos.y - m_bssEffectImg->GetFrameHeight() * 0.5f);
 		m_shape.bottom = static_cast<long>(m_effectImgRenderPos.y + m_bssEffectImg->GetFrameHeight() * 0.5f);
-
-		m_collider->Update(m_shape);
 	}
 	else
 	{
@@ -238,7 +256,5 @@ void BasicShortSword::SetHitboxShape()
 		m_shape.right = 0;
 		m_shape.top = 0;
 		m_shape.bottom = 0;
-
-		m_collider->Update(m_shape);
 	}
 }

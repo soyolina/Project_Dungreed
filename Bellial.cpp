@@ -141,7 +141,9 @@ HRESULT Bellial::Init()
 		// 히트박스 , 콜라이더 관련
 		m_swordVec[i].swordHitboxPos = {};
 		m_swordVec[i].swordHitBox = {};
-		m_swordVec[i].swordCollider = ColliderManager::CreateCollider(this, m_swordVec[i].swordHitBox, ObjectType::EnemyAttack);
+		//m_swordVec[i].m_swordCollider = ColliderManager::CreateCollider(this, m_swordVec[i].swordHitBox, ObjectType::EnemyAttack);
+		// 진짜 콜라이더
+		m_swordVec[i].swordCollider.Init(this, &m_swordVec[i].swordHitBox, ObjectType::EnemyAttack, [](auto, auto) {});
 
 		// 이펙트 관련
 		m_swordVec[i].m_swordEffectImg = IMAGE_MANAGER->FindImage(L"Image/Boss/destroyEffect.bmp");;
@@ -170,8 +172,12 @@ HRESULT Bellial::Init()
 
 	SetHitbox();
 	// 콜라이더
-	m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Enemy);
-	m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+	//m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Enemy);
+	//m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
+	// 진짜 콜라이더
+	collider.Init(this, &m_shape, ObjectType::Enemy, [](auto, auto) {});
+	laserCollider.Init(this, &m_laserHitbox, ObjectType::EnemyAttack, [](auto, auto) {});
+	
 
 	m_hp = 100;
 	m_moveSpeed = 0.0f;
@@ -199,12 +205,12 @@ void Bellial::Update()
 	if (m_hp <= 0)
 	{
 		// 콜라이더 삭제
-		ColliderManager::DeleteCollider(ObjectType::Enemy, m_collider);
+		/*ColliderManager::DeleteCollider(ObjectType::Enemy, m_collider);
 		ColliderManager::DeleteCollider(ObjectType::EnemyAttack, m_laserCollider);
 		for (size_t i = 0; i < m_swordVec.size(); ++i)
 		{
-			ColliderManager::DeleteCollider(ObjectType::EnemyAttack, m_swordVec[i].swordCollider);
-		}
+			ColliderManager::DeleteCollider(ObjectType::EnemyAttack, m_swordVec[i].m_swordCollider);
+		}*/
 
 		// 보스 죽을때 이펙트 애니메이션 재생용
 		UpdateTotalDieEffectAnimation();
@@ -306,11 +312,7 @@ void Bellial::Update()
 		{
 			FireSword();
 		}
-
-		// 콜라이더
-		m_collider->Update(m_shape); // 해골 본체
 	}
-
 }
 
 void Bellial::Render(HDC hdc)
@@ -919,9 +921,6 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.bottom = static_cast<long>(BOSS_LEFT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
 
 		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
-
-		// 레이저 콜라이더
-		m_laserCollider->Update(m_laserHitbox);
 	}
 	else
 	{
@@ -929,9 +928,6 @@ void Bellial::SetLeftLaserHitbox(HDC hdc)
 		m_laserHitbox.top = 0;
 		m_laserHitbox.right = 0;
 		m_laserHitbox.bottom = 0;
-
-		// 레이저 콜라이더
-		m_laserCollider->Update(m_laserHitbox);
 	}
 }
 
@@ -943,17 +939,6 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		m_laserHitbox.top = static_cast<long>(BOSS_RIGHT_LASER_POSY - m_laserHead->GetFrameHeight() * 0.5f + 5);
 		m_laserHitbox.right = static_cast<long>(BOSS_RIGHT_LASER_POSX + m_laserHead->GetFrameWidth() * 0.5f - 9);
 		m_laserHitbox.bottom = static_cast<long>(BOSS_RIGHT_LASER_POSY + m_laserHead->GetFrameHeight() * 0.5f - 5);
-
-		//Rectangle(hdc, m_laserHitbox.left, m_laserHitbox.top, m_laserHitbox.right, m_laserHitbox.bottom);
-		// 레이저 콜라이더
-		if (m_laserCollider == nullptr)
-		{
-			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
-		}
-		else
-		{
-			m_laserCollider->Update(m_laserHitbox);
-		}
 	}
 	else
 	{
@@ -961,16 +946,6 @@ void Bellial::SetRightLaserHitbox(HDC hdc)
 		m_laserHitbox.top = 0;
 		m_laserHitbox.right = 0;
 		m_laserHitbox.bottom = 0;
-
-		// 레이저 콜라이더
-		if (m_laserCollider == nullptr)
-		{
-			m_laserCollider = ColliderManager::CreateCollider(this, m_laserHitbox, ObjectType::EnemyAttack);
-		}
-		else
-		{
-			m_laserCollider->Update(m_laserHitbox);
-		}
 	}
 }
 
@@ -1083,9 +1058,6 @@ void Bellial::SetSwordHitbox(int index, float angle)
 		m_swordVec[index].swordHitBox.right = static_cast<long>(m_swordVec[index].swordHitboxPos.x + 18);
 		m_swordVec[index].swordHitBox.top = static_cast<long>(m_swordVec[index].swordHitboxPos.y - 18);
 		m_swordVec[index].swordHitBox.bottom = static_cast<long>(m_swordVec[index].swordHitboxPos.y + 18);
-
-		//콜라이더
-		m_swordVec[index].swordCollider->Update(m_swordVec[index].swordHitBox);
 	}
 	else
 	{
@@ -1093,9 +1065,6 @@ void Bellial::SetSwordHitbox(int index, float angle)
 		m_swordVec[index].swordHitBox.right = 0;
 		m_swordVec[index].swordHitBox.top = 0;
 		m_swordVec[index].swordHitBox.bottom = 0;
-
-		// 콜라이더
-		m_swordVec[index].swordCollider->Update(m_swordVec[index].swordHitBox);
 	}
 	/*m_leftTopPoint = { (LONG)(m_swordVec[index].swordPos.x +
 		(float)(m_swordVec[index].swordHitBox.left - m_swordVec[index].swordPos.x) * cosf(angle)

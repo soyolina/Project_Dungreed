@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "AmmoManager.h"
 #include "Ammo.h"
-#include "Collider2.h"
 
 void AmmoManager::Update()
 {
-	int size = m_vecAmmos.size();
+	size_t size = m_vecAmmos.size();
 
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -26,7 +25,7 @@ void AmmoManager::Update()
 
 void AmmoManager::Render(HDC hdc)
 {
-	int size = m_vecAmmos.size();
+	size_t size = m_vecAmmos.size();
 
 	for (size_t i = 0; i < size; ++i)
 	{
@@ -36,7 +35,7 @@ void AmmoManager::Render(HDC hdc)
 
 void AmmoManager::Release()
 {
-	int size = m_vecAmmos.size();
+	size_t size = m_vecAmmos.size();
 
 	for (size_t i = 0; i < size; ++i)
 	{

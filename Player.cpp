@@ -21,7 +21,67 @@ HRESULT Player::Init()
 
     SetShape(m_pos, m_bodyWidth, m_bodyHeight);
     // 콜라이더
-    m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Player);
+    //m_collider = ColliderManager::CreateCollider(this, m_shape, ObjectType::Player);
+    // 진짜 콜라이더
+    intersectRect = {};
+    collidedRect = {};
+
+    collider.Init(this, &m_shape, ObjectType::Player,
+        [&](Collider* other, RECT intersectedRect)
+        {
+            switch (other->GetType())
+            {
+            case ObjectType::TileMap:
+            {
+                RECT tempRect = other->GetHitbox();
+                
+                // 이전 프레임의 플레이어 bottom이(위치가) 충돌된 상자의 top보다 크다면, 플레이어가 낙하하면서 상자와 부딪힌경우이기 떄문
+                // 이 경우에만 충돌했다고 체크를 하여 밑에서 충돌처리 보정을 해준다
+                if (m_beforePlayerBottom <= tempRect.top)
+                {
+					// 아래점프 그리고 대쉬가 아닐때 충돌 보정
+					if (mb_isDownJump == false && mb_isDash == false/* && m_shape.bottom <= intersectRect.bottom*/)
+					{
+						//mb_isCollide = true;
+                        collidedRect = tempRect;
+                        intersectRect = intersectedRect;
+
+						m_pos.y -= (intersectRect.bottom - intersectRect.top);
+
+						mb_isJump = false;
+						m_jumpCount = 1;
+						m_jumpStrength = 0.0f;
+					}
+                    else
+                    {
+                        //mb_isCollide = false;
+                        collidedRect = {};
+                        intersectRect = {};
+                    }
+                    
+                }
+                
+                SetShape(m_pos, m_bodyWidth, m_bodyHeight);
+            }
+                break;
+
+            case ObjectType::EnemyAttack:
+                if (mb_isHit == false)
+                {
+                    mb_isHit = true;
+                    other->GetOwner()->SetIsHit(true);
+                    other->GetOwner()->SetIsHit2(true);
+
+                    int damage = other->GetOwner()->GetAttackDamage();
+                    m_hp -= damage;
+                }
+                break;
+            }
+        });
+
+    // 충돌 처리를 각 객체 내에서 할 건데.
+    // 멤버 함수를 전달
+    //bind(&Player::OnCollision, this, placeholders::_1, placeholders::_2));
 
     // 캐릭터 정보관련
     m_hp = 100;
@@ -82,11 +142,6 @@ HRESULT Player::Init()
     m_selectedWeaponIndex = 0;
     m_weapon[0] = nullptr;
     m_weapon[1] = nullptr;
-
-    
-
-    // 임시 테스트 상자
-    makeTestRect();
     
     return S_OK;
 }
@@ -151,7 +206,7 @@ void Player::Update()
 
     // 중력적용 관련
     // 충돌일 때가 아니면 or 대쉬 상태 아니면 중력 적용 또는 점프했을시 점프힘에 중력 적용
-	if (mb_isCollide == false && mb_isDash == false)
+	if (mb_isDash == false /* && mb_isCollide == false */ )
     {
         ApplyGravity();
     }
@@ -164,60 +219,18 @@ void Player::Update()
         collidedRect = {};
     }
 
-    // 테스트 상자와 충돌 체크, 충돌시 충돌한만큼 캐릭터 위치 조정
-    RECT tempRc = {}; 
-    bool isIntersect = false;
-
-    for(int i = 0; i < 6; ++i)
-    {
-        if (IntersectRect(&tempRc, &m_shape, &rectArr[i]))
-        {
-            // 이전 프레임의 플레이어 bottom이(위치가) 충돌된 상자의 top보다 크다면, 플레이어가 낙하하면서 상자와 부딪힌경우이기 떄문
-            // 이 경우에만 충돌했다고 체크를 하여 밑에서 충돌처리 보정을 해준다
-            if (m_beforePlayerBottom <= rectArr[i].top)
-            {
-				isIntersect = true;
-				collidedRect = rectArr[i];
-				intersectRect = tempRc;
-            }
-        }
-    }
-
-    if (isIntersect)
-    { 
-        // 아래점프 그리고 대쉬가 아닐때 충돌 보정
-        if (mb_isDownJump == false && mb_isDash == false/* && m_shape.bottom <= intersectRect.bottom*/)
-        {
-            mb_isCollide = true;
-
-			m_pos.y -= (intersectRect.bottom - intersectRect.top);
-
-            mb_isJump = false;
-            m_jumpCount = 1;
-            m_jumpStrength = 0.0f;
-        }
-    }
-    else
-    { 
-        mb_isCollide = false; 
-    }
-
-
     SetShape(m_pos, m_bodyWidth, m_bodyHeight);
-
-    // 콜라이더 업데이트
-    m_collider->Update(m_shape);
 }
 
 void Player::Render(HDC hdc)
 {
     // 테스트 상자용
-    Rectangle(hdc, testRC.left, testRC.top, testRC.right, testRC.bottom);
-    Rectangle(hdc, testRC2.left, testRC2.top, testRC2.right, testRC2.bottom);
-    Rectangle(hdc, testRC3.left, testRC3.top, testRC3.right, testRC3.bottom);
-    Rectangle(hdc, testRC4.left, testRC4.top, testRC4.right, testRC4.bottom);
-    Rectangle(hdc, testRC5.left, testRC5.top, testRC5.right, testRC5.bottom);
-    Rectangle(hdc, testRC6.left, testRC6.top, testRC6.right, testRC6.bottom);
+    //Rectangle(hdc, testRC.left, testRC.top, testRC.right, testRC.bottom);
+    //Rectangle(hdc, testRC2.left, testRC2.top, testRC2.right, testRC2.bottom);
+    //Rectangle(hdc, testRC3.left, testRC3.top, testRC3.right, testRC3.bottom);
+    //Rectangle(hdc, testRC4.left, testRC4.top, testRC4.right, testRC4.bottom);
+    //Rectangle(hdc, testRC5.left, testRC5.top, testRC5.right, testRC5.bottom);
+    //Rectangle(hdc, testRC6.left, testRC6.top, testRC6.right, testRC6.bottom);
     
     // DashEffect 관련
     if (mb_isDash == true)
@@ -244,9 +257,6 @@ void Player::Release()
     m_statusAniData[static_cast<int>(PlayerStatus::Dead)].playerImage = nullptr;
     m_runEffectImg = nullptr;
     m_dashEffectImg = nullptr;
-
-    // 콜라이더
-    m_collider = nullptr;
 }
 
 void Player::SetShape(const POINTFLOAT& playerPos, const int& m_bodyWidth, const int& m_bodyHeight)
@@ -461,50 +471,6 @@ void Player::Attack()
     }
 }
 
-void Player::makeTestRect()
-{
-    // 테스트 상자
-    testRC.left = static_cast<long>(m_pos.x - m_bodyWidth);
-    testRC.right = static_cast<long>(m_pos.x + m_bodyWidth);
-    testRC.top = static_cast<long>(m_pos.y - m_bodyHeight / 2 + 200);
-    testRC.bottom = static_cast<long>(m_pos.y + m_bodyHeight / 2 + 200);
-
-    testRC2.left = static_cast<long>(m_pos.x - m_bodyWidth);
-    testRC2.right = static_cast<long>(m_pos.x + m_bodyWidth);
-    testRC2.top = static_cast<long>(m_pos.y - m_bodyHeight / 2 + 400);
-    testRC2.bottom = static_cast<long>(m_pos.y + m_bodyHeight / 2 + 400);
-
-    testRC3.left = static_cast<long>(m_pos.x - m_bodyWidth - 100);
-    testRC3.right = static_cast<long>(m_pos.x + m_bodyWidth - 100);
-    testRC3.top = static_cast<long>(m_pos.y - m_bodyHeight / 2 + 300);
-    testRC3.bottom = static_cast<long>(m_pos.y + m_bodyHeight / 2 + 300);
-
-    testRC4.left = static_cast<long>(m_pos.x - m_bodyWidth + 100);
-    testRC4.right = static_cast<long>(m_pos.x + m_bodyWidth + 100);
-    testRC4.top = static_cast<long>(m_pos.y - m_bodyHeight / 2 + 300);
-    testRC4.bottom = static_cast<long>(m_pos.y + m_bodyHeight / 2 + 300);
-
-    testRC5.left = static_cast<long>(m_pos.x - m_bodyWidth);
-    testRC5.right = static_cast<long>(m_pos.x + m_bodyWidth);
-    testRC5.top = static_cast<long>(m_pos.y - m_bodyHeight / 2 + 100);
-    testRC5.bottom = static_cast<long>(m_pos.y + m_bodyHeight / 2 + 100);
-
-    testRC6.left = static_cast<long>(0);
-    testRC6.right = static_cast<long>(WIN_SIZE_X);
-    testRC6.top = static_cast<long>(WIN_SIZE_Y);
-    testRC6.bottom = static_cast<long>(WIN_SIZE_Y + 90);
-
-    intersectRect = {};
-    collidedRect = {};
-
-    rectArr[0] = testRC;
-    rectArr[1] = testRC2;
-    rectArr[2] = testRC3;
-    rectArr[3] = testRC4;
-    rectArr[4] = testRC5;
-    rectArr[5] = testRC6;
-}
-
 void Player::Hit()
 {
     m_hitElapsedCount += TIMER_MANAGER->GetDeltaTime();
@@ -522,6 +488,4 @@ void Player::Hit()
         m_hitBackGroundTransparancy = 0;
     }
 }
-
-
 
